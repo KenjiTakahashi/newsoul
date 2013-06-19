@@ -19,7 +19,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 INCLUDE(${SWIG_USE_FILE})
 
-FIND_PACKAGE(PythonLibs)
+FIND_PACKAGE(PythonLibs 2.7)
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
@@ -37,7 +37,7 @@ set(PYMUCIPHER_LIBS
   ${CMAKE_CURRENT_BINARY_DIR}/mucipherc.py
   ${CMAKE_CURRENT_BINARY_DIR}/_mucipherc.so
 )
-EXECUTE_PROCESS(COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1,0,'')" museek OUTPUT_VARIABLE sitepackages OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_VARIABLE error)
+EXECUTE_PROCESS(COMMAND python2 -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1,0,'')" museek OUTPUT_VARIABLE sitepackages OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_VARIABLE error)
 
 if (NOT sitepackages OR error)
 	MESSAGE(FATAL_ERROR "Failed to find Python's site-packages directory" ${sitepackages} ${error})

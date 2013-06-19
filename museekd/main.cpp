@@ -136,7 +136,11 @@ int main(int argc, char ** argv)
 
 #ifndef WIN32
   /* Load the configuration from ~/.museekd/config.xml. */
-  std::string configPath(std::string(getenv("HOME")) + "/.museekd/config.xml");
+  char *home = getenv("HOME");
+  std::string configPath;
+  if(home != NULL) {
+      configPath = std::string(std::string(home) + "/.museekd/config.xml");
+  }
 #else
   /* Load the configuration from %APPDIR%\Museekd\config.xml. */
   std::string configPath(getConfigPath("Museekd") + "\\config.xml");

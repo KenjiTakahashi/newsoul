@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/python2
 
 # museekcontrol -- command-line control of museekd
 #
