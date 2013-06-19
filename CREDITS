@@ -1,0 +1,73 @@
+Credits go to (in no particular order):
+
+anadyr, daelstorm, SmackleFunky, (va)*10^3 and Wretched
+  for supplying me with feedback, risking their boxes and
+  quite possibly their lives and sanity while testing my
+  not always bug-free code
+
+
+alexbk
+  for reverse-engineering most of the SoulSeek protocol and
+  creating his PySoulSeek client
+
+
+Nir
+  for creating and maintaining the SoulSeek network
+
+
+
+The people that wrote:
+
+
+The AES cipher module used in the Linux kernel
+
+The SHA256 hash module used in the Linux kernel
+
+Solar Designer
+  for creating the public domain md5 hash routines
+
+Paul Kocher
+  for his SHA-1 hash routines
+
+And last, but certainly not least, all the users of both Nicotine and
+Museek.
+
+-----------------------------------
+Below is for Museek-plus (post-svn) 
+-----------------------------------
+
+SeeSchloss
+   For the room searching function (now-defunct) in museekd and museeq
+   and for writing the OpenSource Soulfind Soulseek-Server, which, among other
+   things, allows much greater flexibility in client programming and testing, 
+   without the fears of damaging Soulseek, itself or getting banned.
+Daelstorm
+   For coding new features into museekd, muscan, and museeq, and for writing mucous and musetup-gtk.
+Belegdol
+   For providing the GCC 4.1 compile fix to museeq and for his Fedora Core RPMs and Polish Translation.
+stericho
+   For the Gentoo ebuilds.
+Le_Vert
+   For the Debian / Ubuntu packages, the subversion repository, and the Trac, and French Translation
+Requiem1348
+   For the Italian Translation.
+SyphiliticVagina
+   For the Spanish Translation.
+()
+   For the German Translation.
+sierracat
+   For explaining some of the Soulseek server and peer messages to daelstorm.
+Senhor_das_Moscas
+   For the Portuguese Brazilian translation.
+
+Ideas for features from: mer.lin.ux, chs_kasper, Requiem1348, groovything, Belegdol, cravings, everyone 
+filed a bug report on the museek+ trac and several other that I have forgotten, thanks to you, too.
+
+For everyone who've reported bugs, thanks to you, as well.
+
+(specific ideas mentioned in CHANGELOG and TODO)
+
+Other credits are also in the CHANGELOG 
+
+deadchip
+   For having done a bold test commit to see if everything works

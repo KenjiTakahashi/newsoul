@@ -1,0 +1,27 @@
+Murmur is a PyGTK2 Client for Museek / Museek-Plus
+
+
+-< DEPENDENCIES >--------------------------------------------------------------
+
+Murmur requires:
+ * GTK2   >= 2.4
+ * PyGTK2 >= 2.4
+ * Python >= 2.4
+ * mucipher (encryption Python module that comes with Museek)
+ * messages.py and driver.py from museek+
+
+To build trayicon, you must have:
+ * Python's development headers
+ * gcc (or another suitable compiler)
+ * pkg-config
+ * GTK2's development headers
+
+
+-< INSTALLATION >--------------------------------------------------------------
+
+To run from source:
+#    ./murmur
+    
+To install, see museek+ install procedure (using cmake) or use setup.py:
+
+python setup.py install
