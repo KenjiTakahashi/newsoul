@@ -3,8 +3,5 @@
 *.a
 *.o
 .tup/
-_mucipherc.so
-mucipherPYTHON_wrap.cxx
-mucipherc.py
 muscan
-museekd
+newsoul

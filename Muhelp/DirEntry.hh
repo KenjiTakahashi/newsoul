@@ -28,7 +28,7 @@
 #include <errno.h>
 #include <cstdio>
 
-#include "../museekd/mutypes.h"
+#include "../newsoul/mutypes.h"
 
 class DirEntry {
 public:

@@ -20,7 +20,7 @@
  */
 
 #include "scanner.hh"
-#include "../museekd/configmanager.h"
+#include "../newsoul/configmanager.h"
 #include "../NewNet/nnlog.h"
 
 #include <iostream>
