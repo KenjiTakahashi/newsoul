@@ -21,11 +21,11 @@
 #ifndef MUSEEK_UPLOADMANAGER_H
 #define MUSEEK_UPLOADMANAGER_H
 
-#include <NewNet/nnobject.h>
-#include <NewNet/nnweakrefptr.h>
-#include <NewNet/nnrefptr.h>
-#include <NewNet/nnevent.h>
-#include <NewNet/nnbuffer.h>
+#include "../NewNet/nnobject.h"
+#include "../NewNet/nnweakrefptr.h"
+#include "../NewNet/nnrefptr.h"
+#include "../NewNet/nnevent.h"
+#include "../NewNet/nnbuffer.h"
 #include "mutypes.h"
 #include "servermessages.h"
 #include "configmanager.h"

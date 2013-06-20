@@ -21,10 +21,10 @@
 #ifndef MUSEEK_SERVERMANAGER_H
 #define MUSEEK_SERVERMANAGER_H
 
-#include <NewNet/nnobject.h>
-#include <NewNet/nnbuffer.h>
-#include <NewNet/nnrefptr.h>
-#include <NewNet/nnweakrefptr.h>
+#include "../NewNet/nnobject.h"
+#include "../NewNet/nnbuffer.h"
+#include "../NewNet/nnrefptr.h"
+#include "../NewNet/nnweakrefptr.h"
 #include "tcpmessagesocket.h"
 #include "servermessages.h"
 #include "configmanager.h"

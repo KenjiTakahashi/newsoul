@@ -31,10 +31,10 @@
 #include "uploadmanager.h"
 #include "searchmanager.h"
 #include "peermanager.h"
-#include <Muhelp/string_ext.hh>
-#include <NewNet/nnunixfactorysocket.h>
-#include <NewNet/nntcpfactorysocket.h>
-#include <NewNet/nnlog.h>
+#include "../Muhelp/string_ext.hh"
+#include "../NewNet/nnunixfactorysocket.h"
+#include "../NewNet/nntcpfactorysocket.h"
+#include "../NewNet/nnlog.h"
 
 #include <fstream>
 

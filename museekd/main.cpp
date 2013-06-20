@@ -27,8 +27,8 @@
 #include "downloadmanager.h"
 #include "uploadmanager.h"
 #include "util.h"
-#include <NewNet/nnreactor.h>
-#include <NewNet/nnlog.h>
+#include "../NewNet/nnreactor.h"
+#include "../NewNet/nnlog.h"
 #include <sys/types.h>
 #include <signal.h>
 

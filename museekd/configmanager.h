@@ -21,8 +21,8 @@
 #ifndef MUSEEK_CONFIGMANAGER_H
 #define MUSEEK_CONFIGMANAGER_H
 
-#include <NewNet/nnobject.h>
-#include <NewNet/nnevent.h>
+#include "../NewNet/nnobject.h"
+#include "../NewNet/nnevent.h"
 #include <string>
 #include <map>
 

@@ -23,6 +23,12 @@
 
 #include <string>
 #include <iconv.h>
+#include <errno.h>
+
+#ifndef ICONV_CONST
+# define ICONV_CONST
+#endif /* ! ICONV_CONST */
+#define ICONV_IN ICONV_CONST char **
 
 class Codec {
 public:

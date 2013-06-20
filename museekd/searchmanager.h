@@ -20,11 +20,11 @@
 #ifndef MUSEEK_SEARCHMANAGER_H
 #define MUSEEK_SEARCHMANAGER_H
 
-#include <NewNet/nnobject.h>
-#include <NewNet/nnweakrefptr.h>
-#include <NewNet/nnrefptr.h>
-#include <NewNet/nnevent.h>
-#include <NewNet/nnbuffer.h>
+#include "../NewNet/nnobject.h"
+#include "../NewNet/nnweakrefptr.h"
+#include "../NewNet/nnrefptr.h"
+#include "../NewNet/nnevent.h"
+#include "../NewNet/nnbuffer.h"
 #include "mutypes.h"
 #include "servermessages.h"
 #include "peermessages.h"

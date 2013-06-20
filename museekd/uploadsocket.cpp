@@ -26,7 +26,7 @@
 #include "museekd.h"
 #include "configmanager.h"
 #include "ticketsocket.h"
-#include <NewNet/nnreactor.h>
+#include "../NewNet/nnreactor.h"
 
 Museek::UploadSocket::UploadSocket(Museek::Museekd * museekd, Museek::Upload * upload)
               : UserSocket(museekd, "F")

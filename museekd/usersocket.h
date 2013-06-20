@@ -21,7 +21,7 @@
 #ifndef MUSEEK_USERSOCKET_H
 #define MUSEEK_USERSOCKET_H
 
-#include <NewNet/nntcpclientsocket.h>
+#include "../NewNet/nntcpclientsocket.h"
 #include "servermessages.h"
 #include "handshakesocket.h"
 

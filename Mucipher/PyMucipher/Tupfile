@@ -1,0 +1,10 @@
+include_rules
+
+N = mucipherPYTHON_wrap.cxx
+SWIGFLAGS = -D_mucipherc_EXPORTS -fPIC -I/usr/include/python2.7
+PSWIGFLAGS = -fPIC -shared -Wl,-soname,_mucipherc.so -lpython2.7
+
+: mucipher.i |> swig -python -includeall -outdir . -c++ -o %o %f |> $(N) | mucipherc.py
+: $(N) |> !cpp $(SWIGFLAGS) |> $(N).o
+: $(N).o ../*.o |> c++ $(PSWIGFLAGS) -o %o %f |> _mucipherc.so
+

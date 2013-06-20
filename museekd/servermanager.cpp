@@ -26,11 +26,11 @@
 #include "codesetmanager.h"
 #include "configmanager.h"
 #include "peermanager.h"
-#include <NewNet/nnreactor.h>
-#include <NewNet/nnlog.h>
+#include "../NewNet/nnreactor.h"
+#include "../NewNet/nnlog.h"
 #include <iostream>
 #include <sstream>
-#include <NewNet/util.h>
+#include "../NewNet/util.h"
 
 Museek::ServerManager::ServerManager(Museekd * museekd) : m_Museekd(museekd), m_LoggedIn(false)
 {

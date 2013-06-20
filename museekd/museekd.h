@@ -27,7 +27,7 @@ namespace NewNet
 }
 
 #include "servermessages.h"
-#include <NewNet/nnrefptr.h>
+#include "../NewNet/nnrefptr.h"
 
 namespace Museek
 {

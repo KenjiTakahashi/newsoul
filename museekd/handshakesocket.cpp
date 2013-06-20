@@ -29,7 +29,7 @@
 #include "ticketsocket.h"
 #include "distributedsocket.h"
 #include "searchmanager.h"
-#include <NewNet/nnreactor.h>
+#include "../NewNet/nnreactor.h"
 
 Museek::HandshakeSocket::HandshakeSocket() : NewNet::ClientSocket(), Museek::MessageProcessor(1)
 {

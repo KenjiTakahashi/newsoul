@@ -18,11 +18,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <system.h>
-
-#include <muscan/scanner.hh>
-#include <Muhelp/Muconf.hh>
-#include <NewNet/nnlog.h>
+#include "scanner.hh"
+#include "../Muhelp/Muconf.hh"
+#include "../NewNet/nnlog.h"
 
 #include <iostream>
 #include <cstdlib>

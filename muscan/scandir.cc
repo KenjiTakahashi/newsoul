@@ -20,9 +20,12 @@
 * modified by hyriand to fit in Museek
 */
 
-#include <system.h>
-
 #ifndef HAVE_SCANDIR
+
+#include <cstdlib>
+#include <cstring>
+#include <dirent.h>
+#include <sys/dir.h>
 
 #warning untested scandir implementation
 

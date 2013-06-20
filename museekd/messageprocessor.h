@@ -22,7 +22,7 @@
 #define MUSEEK_MESSAGEPROCESSOR_H
 
 #include "mutypes.h"
-#include <NewNet/nnevent.h>
+#include "../NewNet/nnevent.h"
 
 /* Forward declarations. */
 namespace NewNet

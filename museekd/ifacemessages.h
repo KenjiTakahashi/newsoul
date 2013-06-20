@@ -25,7 +25,7 @@
 #include "downloadmanager.h"
 #include "uploadmanager.h"
 #include "museekd.h"
-#include <Mucipher/mucipher.h>
+#include "../Mucipher/mucipher.h"
 
 namespace Museek
 {

@@ -21,8 +21,8 @@
 #ifndef MUSEEK_UTIL_H
 #define MUSEEK_UTIL_H
 
-#include <NewNet/nnpath.h>
-#include <Muhelp/string_ext.hh>
+#include "../NewNet/nnpath.h"
+#include "../Muhelp/string_ext.hh"
 #ifndef WIN32
 #include <sys/stat.h>
 #include <sys/types.h>

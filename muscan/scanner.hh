@@ -21,12 +21,15 @@
 #ifndef __SCANNER_HH__
 #define __SCANNER_HH__
 
-#include <Muhelp/DirEntry.hh>
+#include "../Muhelp/DirEntry.hh"
 
+#include <dirent.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#define SCANDIR_ENTRY dirent
 
 class DirScanner : public DirEntry {
 public:

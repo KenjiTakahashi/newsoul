@@ -30,8 +30,8 @@
 #include "distributedsocket.h"
 #include "searchmanager.h"
 #include "ifacemanager.h"
-#include <NewNet/util.h>
-#include <NewNet/nntcpserversocket.h>
+#include "../NewNet/util.h"
+#include "../NewNet/nntcpserversocket.h"
 
 Museek::PeerManager::PeerManager(Museekd * museekd) : m_Museekd(museekd)
 {

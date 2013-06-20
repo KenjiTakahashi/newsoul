@@ -18,13 +18,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <system.h>
-
-#include <Muhelp/Muconf.hh>
+#include "Muconf.hh"
 
 #include <libxml++/libxml++.h>
-#include <Muhelp/string_ext.hh>
-#include <NewNet/nnlog.h>
+#include "string_ext.hh"
+#include "../NewNet/nnlog.h"
 
 Muconf::Muconf() { };
 

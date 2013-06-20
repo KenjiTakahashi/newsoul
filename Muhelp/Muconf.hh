@@ -25,6 +25,8 @@
 #include <map>
 #include <vector>
 #include <libxml++/libxml++.h>
+#include <sys/types.h>
+#include <cstdio>
 
 class MuconfDomain;
 class Muconf;

@@ -21,6 +21,9 @@
 #ifndef __MP3SCAN_H__
 #define __MP3SCAN_H__
 
+#include <stdio.h>
+#include <string.h>
+
 typedef struct
 {
 	char valid;
@@ -43,6 +46,8 @@ typedef struct
 	double samplesperframe;
 	long length;
 } mp3info;
+
+typedef unsigned int uint32;
 
 char mp3_scan(const char *filename, mp3info *info);
 

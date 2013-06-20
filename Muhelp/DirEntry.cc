@@ -22,13 +22,11 @@
 # include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include <system.h>
+#include "DirEntry.hh"
+#include "string_ext.hh"
 
-#include <Muhelp/DirEntry.hh>
-#include <Muhelp/string_ext.hh>
-
-#include <NewNet/nnlog.h>
-#include <NewNet/nnpath.h>
+#include "../NewNet/nnlog.h"
+#include "../NewNet/nnpath.h"
 
 using std::string;
 using std::map;

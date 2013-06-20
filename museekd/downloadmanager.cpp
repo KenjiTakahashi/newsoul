@@ -29,9 +29,9 @@
 #include "peermanager.h"
 #include "downloadsocket.h"
 #include "ifacemanager.h"
-#include <NewNet/nnreactor.h>
-#include <NewNet/nnpath.h>
-#include <NewNet/util.h>
+#include "../NewNet/nnreactor.h"
+#include "../NewNet/nnpath.h"
+#include "../NewNet/util.h"
 #include "util.h"
 #include <sstream>
 

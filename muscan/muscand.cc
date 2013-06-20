@@ -1,9 +1,8 @@
-#include <system.h>
 #include <fam.h>
 
-#include <muscan/scanner.hh>
-#include <Muhelp/Muconf.hh>
-#include <NewNet/nnlog.h>
+#include "scanner.hh"
+#include "../Muhelp/Muconf.hh"
+#include "../NewNet/nnlog.h"
 
 #include <iostream>
 #include <cstdlib>

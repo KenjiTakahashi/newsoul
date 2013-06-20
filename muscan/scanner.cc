@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <system.h>
-
 #include <cstdlib>
 
 extern "C" {
@@ -34,9 +32,9 @@ extern "C" {
 # include <vorbis/vorbisfile.h>
 #endif
 
-#include <Muhelp/DirEntry.hh>
-#include <Muhelp/string_ext.hh>
-#include <NewNet/nnlog.h>
+#include "../Muhelp/DirEntry.hh"
+#include "../Muhelp/string_ext.hh"
+#include "../NewNet/nnlog.h"
 
 #include <iostream>
 

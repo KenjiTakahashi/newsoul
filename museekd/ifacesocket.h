@@ -23,8 +23,8 @@
 
 #include "messageprocessor.h"
 #include "ifacemessages.h"
-#include <NewNet/nnclientsocket.h>
-#include <NewNet/nnrefptr.h>
+#include "../NewNet/nnclientsocket.h"
+#include "../NewNet/nnrefptr.h"
 
 namespace NewNet
 {

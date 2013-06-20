@@ -25,11 +25,11 @@
 #include "servermessages.h"
 #include "configmanager.h"
 #include "peermessages.h"
-#include <NewNet/nnobject.h>
-#include <NewNet/nnrefptr.h>
-#include <NewNet/nnweakrefptr.h>
-#include <NewNet/nnclientsocket.h>
-#include <NewNet/nnserversocket.h>
+#include "../NewNet/nnobject.h"
+#include "../NewNet/nnrefptr.h"
+#include "../NewNet/nnweakrefptr.h"
+#include "../NewNet/nnclientsocket.h"
+#include "../NewNet/nnserversocket.h"
 
 namespace NewNet
 {

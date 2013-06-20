@@ -25,8 +25,10 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <errno.h>
+#include <cstdio>
 
-#include <museekd/mutypes.h>
+#include "../museekd/mutypes.h"
 
 class DirEntry {
 public:

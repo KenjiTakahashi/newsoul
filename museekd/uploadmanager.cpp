@@ -30,10 +30,10 @@
 #include "uploadsocket.h"
 #include "sharesdatabase.h"
 #include "ifacemanager.h"
-#include <Muhelp/string_ext.hh>
-#include <NewNet/nnreactor.h>
-#include <NewNet/util.h>
-#include <NewNet/nnratelimiter.h>
+#include "../Muhelp/string_ext.hh"
+#include "../NewNet/nnreactor.h"
+#include "../NewNet/util.h"
+#include "../NewNet/nnratelimiter.h"
 
 /**
   * Constructor

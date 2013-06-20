@@ -32,7 +32,7 @@
 #include "uploadmanager.h"
 #include "sharesdatabase.h"
 #include "searchmanager.h"
-#include <NewNet/nnreactor.h>
+#include "../NewNet/nnreactor.h"
 #include <fstream>
 
 Museek::Museekd::Museekd(NewNet::Reactor * reactor) : m_Reactor(reactor)

@@ -21,10 +21,10 @@
 #ifndef MUSEEK_DOWNLOADMANAGER_H
 #define MUSEEK_DOWNLOADMANAGER_H
 
-#include <NewNet/nnobject.h>
-#include <NewNet/nnweakrefptr.h>
-#include <NewNet/nnrefptr.h>
-#include <NewNet/nnevent.h>
+#include "../NewNet/nnobject.h"
+#include "../NewNet/nnweakrefptr.h"
+#include "../NewNet/nnrefptr.h"
+#include "../NewNet/nnevent.h"
 #include "configmanager.h"
 #include "mutypes.h"
 

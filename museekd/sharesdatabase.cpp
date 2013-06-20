@@ -26,13 +26,13 @@
 #include "museekd.h"
 #include "codesetmanager.h"
 #include "servermanager.h"
-#include <Muhelp/string_ext.hh>
+#include "../Muhelp/string_ext.hh"
 #include <zlib.h>
 #include <string>
 #include <map>
 #include <vector>
 #include <algorithm>
-#include <NewNet/nnpath.h>
+#include "../NewNet/nnpath.h"
 
 using std::string;
 using std::wstring;

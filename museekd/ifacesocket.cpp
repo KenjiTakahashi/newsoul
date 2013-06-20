@@ -22,7 +22,7 @@
 # include "config.h"
 #endif // HAVE_CONFIG_H
 #include "ifacesocket.h"
-#include <NewNet/nnreactor.h>
+#include "../NewNet/nnreactor.h"
 
 Museek::IfaceSocket::IfaceSocket() : NewNet::ClientSocket(), MessageProcessor(4), m_Authenticated(false)
 {

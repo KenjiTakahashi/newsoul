@@ -21,11 +21,11 @@
 #ifndef MUSEEK_SHARESDATABASE_H
 #define MUSEEK_SHARESDATABASE_H
 
-#include <NewNet/nnobject.h>
-#include <NewNet/nnweakrefptr.h>
+#include "../NewNet/nnobject.h"
+#include "../NewNet/nnweakrefptr.h"
 #include <string>
 #include <vector>
-#include <Muhelp/DirEntry.hh>
+#include "../Muhelp/DirEntry.hh"
 
 namespace Museek
 {

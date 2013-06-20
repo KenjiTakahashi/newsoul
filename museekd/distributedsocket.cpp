@@ -27,7 +27,7 @@
 #include "handshakemessages.h"
 #include "servermanager.h"
 #include "codesetmanager.h"
-#include <NewNet/nnreactor.h>
+#include "../NewNet/nnreactor.h"
 
 Museek::DistributedSocket::DistributedSocket(Museek::HandshakeSocket * that) : Museek::UserSocket(that, "D"), Museek::MessageProcessor(1)
 {

@@ -28,8 +28,8 @@
 #include "peermanager.h"
 #include "sharesdatabase.h"
 #include "ifacemanager.h"
-#include <NewNet/nnreactor.h>
-#include <NewNet/util.h>
+#include "../NewNet/nnreactor.h"
+#include "../NewNet/util.h"
 
 Museek::SearchManager::SearchManager(Museekd * museekd) : m_Museekd(museekd)
 {

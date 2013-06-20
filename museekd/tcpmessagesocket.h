@@ -22,7 +22,7 @@
 #define MUSEEK_TCPMESSAGESOCKET_H
 
 #include "messageprocessor.h"
-#include <NewNet/nntcpclientsocket.h>
+#include "../NewNet/nntcpclientsocket.h"
 
 namespace Museek
 {

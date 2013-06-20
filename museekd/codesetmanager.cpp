@@ -24,8 +24,8 @@
 #include "codesetmanager.h"
 #include "museekd.h"
 #include "configmanager.h"
-#include <Muhelp/string_ext.hh>
-#include <NewNet/nnpath.h>
+#include "../Muhelp/string_ext.hh"
+#include "../NewNet/nnpath.h"
 #include <errno.h>
 
 Museek::CodesetManager::CodesetManager(Museekd * museekd) : m_Museekd(museekd)

@@ -22,7 +22,7 @@
 # include "config.h"
 #endif // HAVE_CONFIG_H
 #include "messageprocessor.h"
-#include <NewNet/nnclientsocket.h>
+#include "../NewNet/nnclientsocket.h"
 
 bool
 Museek::MessageProcessor::parseMessage(NewNet::ClientSocket * socket)

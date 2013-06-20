@@ -21,8 +21,8 @@
 #ifndef MUSEEK_HANDSHAKESOCKET_H
 #define MUSEEK_HANDSHAKESOCKET_H
 
-#include <NewNet/nnclientsocket.h>
-#include <NewNet/nnweakrefptr.h>
+#include "../NewNet/nnclientsocket.h"
+#include "../NewNet/nnweakrefptr.h"
 #include "messageprocessor.h"
 
 namespace Museek

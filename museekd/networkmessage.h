@@ -27,8 +27,8 @@
 #include <vector>
 #include <iostream>
 #include <sys/types.h>
-#include <NewNet/nnbuffer.h>
-#include <NewNet/nnlog.h>
+#include "../NewNet/nnbuffer.h"
+#include "../NewNet/nnlog.h"
 
 /* This declares a GenericMessage. It's not used at the moment, but it could
    be in the future. */

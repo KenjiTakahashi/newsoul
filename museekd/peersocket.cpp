@@ -36,11 +36,11 @@
 #include "uploadsocket.h"
 #include "searchmanager.h"
 #include "sharesdatabase.h"
-#include <Muhelp/string_ext.hh>
+#include "../Muhelp/string_ext.hh"
 #include <fstream>
-#include <NewNet/nnratelimiter.h>
-#include <NewNet/nnpath.h>
-#include <NewNet/nntcpserversocket.h>
+#include "../NewNet/nnratelimiter.h"
+#include "../NewNet/nnpath.h"
+#include "../NewNet/nntcpserversocket.h"
 
 Museek::PeerSocket::PeerSocket(Museek::Museekd * museekd) : Museek::UserSocket(museekd, "P"), Museek::MessageProcessor(4)
 {
