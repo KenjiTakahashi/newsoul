@@ -18,8 +18,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __MUCIPHER_H__
-#define __MUCIPHER_H__
+#ifndef __CIPHER_H__
+#define __CIPHER_H__
 
 #include <nettle/aes.h>
 #include <nettle/md5.h>
@@ -46,4 +46,4 @@ void blockDecipher(CipherContext* ctx, unsigned char* dataIn, int length, unsign
 
 void hexDigest(unsigned char *digest, int length, char* digestOut);
 
-#endif /* __MUCIPHER_H__ */
+#endif /* __CIPHER_H__ */
