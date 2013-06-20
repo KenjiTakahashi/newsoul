@@ -1,6 +1,7 @@
 /* Mucipher - Cryptograhic library for Museek
  *
  * Copyright (C) 2003-2004 Hyriand <hyriand@thegraveyard.org>
+ * Karol 'Kenji Takahashi' Woźniak © 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,31 +21,28 @@
 #ifndef __MUCIPHER_H__
 #define __MUCIPHER_H__
 
-#include "system.h"
+#include <nettle/aes.h>
+#include <nettle/md5.h>
+#include <nettle/sha1.h>
+#include <nettle/sha2.h>
+#include <string>
+
+#define SHA256_KEY_SIZE 32
+#define MD5_KEY_SIZE 16
+
+#define CIPHER_BLOCK(length) (((length / 16) + ((length % 16) ? 1 : 0)) * 16)
 
 void shaBlock(unsigned char *dataIn, int len, unsigned char hashout[20]);
 void sha256Block(unsigned char *dataIn, int len, unsigned char hashout[32]);
 void md5Block(unsigned char *dataIn, int len, unsigned char hashout[16]);
 
-struct aes_ctx {
-	int key_length;
-	uint32 E[60];
-	uint32 D[60];
-};
-
 typedef struct aes_ctx CipherContext;
-
 
 void cipherKeySHA256(CipherContext* ctx, char* key, int len);
 void cipherKeyMD5(CipherContext* ctx, char* key, int len);
 
-#define CIPHER_BLOCK(length) (((length / 16) + ((length % 16) ? 1 : 0)) * 16)
-
-void blockCipher(CipherContext* ctx, unsigned char* dataIn, int length, unsigned char* dataOut);
+void blockCipher(CipherContext* ctx, const std::string& dataIn, int length, unsigned char* dataOut);
 void blockDecipher(CipherContext* ctx, unsigned char* dataIn, int length, unsigned char* dataOut);
-
-void _blockCipher(CipherContext *ctx, char *str, int len, char **s, int *slen);
-void _blockDecipher(CipherContext *ctx, char *str, int len, char **s, int *slen);
 
 void hexDigest(unsigned char *digest, int length, char* digestOut);
 
