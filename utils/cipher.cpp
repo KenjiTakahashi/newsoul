@@ -25,60 +25,62 @@ void shaBlock(unsigned char *dataIn, int len, unsigned char hashout[20]) {
 
     sha1_init(&ctx);
     sha1_update(&ctx, len, dataIn);
-    sha1_digest(&ctx, len, hashout);
+    sha1_digest(&ctx, SHA1_DIGEST_SIZE, hashout);
 }
 
 void sha256Block(unsigned char *dataIn, int len, unsigned char hashout[32]) {
-	struct sha256_ctx ctx;
-	sha256_init(&ctx);
-	sha256_update(&ctx, len, dataIn);
-    sha256_digest(&ctx, len, hashout);
+    struct sha256_ctx ctx;
+
+    sha256_init(&ctx);
+    sha256_update(&ctx, len, dataIn);
+    sha256_digest(&ctx, SHA256_DIGEST_SIZE, hashout);
 }
 
 void md5Block(unsigned char *dataIn, int len, unsigned char hashout[16]) {
     struct md5_ctx ctx;
+
     md5_init(&ctx);
     md5_update(&ctx, len, dataIn);
-    md5_digest(&ctx, len, hashout);
+    md5_digest(&ctx, MD5_DIGEST_SIZE, hashout);
 }
 
-void cipherKeySHA256(struct aes_ctx* ctx, char* key, int len) {
+void cipherKeySHA256(CipherContext* ctx, char* key, int len) {
     unsigned char digest[32];
-    
+
     sha256Block((unsigned char*)key, len, digest);
-    aes_set_encrypt_key(ctx, SHA256_KEY_SIZE, digest);
+    aes_set_encrypt_key(&ctx->E, SHA256_DIGEST_SIZE, digest);
+    aes_set_decrypt_key(&ctx->D, SHA256_DIGEST_SIZE, digest);
 }
 
-void cipherKeyMD5(struct aes_ctx* ctx, char* key, int len) {
+void cipherKeyMD5(CipherContext* ctx, char* key, int len) {
     unsigned char digest[16];
-    
+
     md5Block((unsigned char*)key, len, digest);
-    aes_set_encrypt_key(ctx, MD5_KEY_SIZE, digest);
+    aes_set_encrypt_key(&ctx->E, MD5_DIGEST_SIZE, digest);
+    aes_set_decrypt_key(&ctx->D, MD5_DIGEST_SIZE, digest);
 }
 
-void blockCipher(struct aes_ctx* ctx, const std::string& dataIn, int length, unsigned char* dataOut) {
+void blockCipher(CipherContext* ctx, const std::string& dataIn, int length, unsigned char* dataOut) {
     std::string buffer(dataIn);
     length = CIPHER_BLOCK(length);
     buffer.resize(length);
 
-    aes_set_encrypt_key(ctx, SHA256_KEY_SIZE, (const uint8_t*)ctx->keys);
-    aes_encrypt(ctx, length, dataOut, (unsigned char*)buffer.data());
+    aes_encrypt(&ctx->E, length, dataOut, (unsigned char*)buffer.data());
 }
 
-void blockDecipher(struct aes_ctx* ctx, unsigned char* dataIn, int length, unsigned char* dataOut) {
+void blockDecipher(CipherContext* ctx, unsigned char* dataIn, int length, unsigned char* dataOut) {
     length = CIPHER_BLOCK(length);
 
-    aes_set_decrypt_key(ctx, SHA256_KEY_SIZE, (const uint8_t*)ctx->keys);
-    aes_decrypt(ctx, length, dataOut, dataIn);
+    aes_decrypt(&ctx->D, length, dataOut, dataIn);
 }
 
 static char hextab[] = "0123456789abcdef";
 
 void hexDigest(unsigned char *digest, int length, char* digestOut) {
-	int i;
-	for(i = 0; i < length; i++) {
-		digestOut[i*2] = hextab[digest[i] >> 4];
-		digestOut[i*2 + 1] = hextab[digest[i] & 0x0f];
-	}
-	digestOut[i*2] = '\0';
+    int i;
+    for(i = 0; i < length; i++) {
+        digestOut[i*2] = hextab[digest[i] >> 4];
+        digestOut[i*2 + 1] = hextab[digest[i] & 0x0f];
+    }
+    digestOut[i*2] = '\0';
 }

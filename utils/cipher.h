@@ -27,16 +27,16 @@
 #include <nettle/sha2.h>
 #include <string>
 
-#define SHA256_KEY_SIZE 32
-#define MD5_KEY_SIZE 16
-
 #define CIPHER_BLOCK(length) (((length / 16) + ((length % 16) ? 1 : 0)) * 16)
 
 void shaBlock(unsigned char *dataIn, int len, unsigned char hashout[20]);
 void sha256Block(unsigned char *dataIn, int len, unsigned char hashout[32]);
 void md5Block(unsigned char *dataIn, int len, unsigned char hashout[16]);
 
-typedef struct aes_ctx CipherContext;
+typedef struct CIPHERCONTEXT {
+    struct aes_ctx D;
+    struct aes_ctx E;
+} CipherContext;
 
 void cipherKeySHA256(CipherContext* ctx, char* key, int len);
 void cipherKeyMD5(CipherContext* ctx, char* key, int len);
