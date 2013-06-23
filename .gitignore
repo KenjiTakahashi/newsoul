@@ -3,5 +3,5 @@
 *.a
 *.o
 .tup/
-muscan
-newsoul
+muscan/muscan
+newsoul/newsoul

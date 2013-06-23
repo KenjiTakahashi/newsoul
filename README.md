@@ -3,7 +3,6 @@
 * libxml2
 * libevent
 * libvorbis
-* libogg
 * nettle
 * tup (for compilation)
 * python2.x (for bindings and some misc utils)
