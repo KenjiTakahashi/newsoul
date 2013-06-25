@@ -23,7 +23,7 @@
 #endif // HAVE_CONFIG_H
 #include "downloadsocket.h"
 #include "downloadmanager.h"
-#include "museekd.h"
+#include "newsoul.h"
 #include "configmanager.h"
 #include "ticketsocket.h"
 #include <errno.h>
@@ -41,7 +41,7 @@ Museek::DownloadSocket::DownloadSocket(Museek::Museekd * museekd, Museek::Downlo
 
 Museek::DownloadSocket::~DownloadSocket()
 {
-    NNLOG("museekd.down.debug", "DownloadSocket destroyed");
+    NNLOG("newsoul.down.debug", "DownloadSocket destroyed");
     if(m_Output.is_open())
         m_Output.close();
 }
@@ -94,7 +94,7 @@ Museek::DownloadSocket::onConnected(NewNet::ClientSocket *)
 void
 Museek::DownloadSocket::onDisconnected(ClientSocket *)
 {
-	NNLOG("museekd.down.debug", "DownloadSocket disconnected");
+	NNLOG("newsoul.down.debug", "DownloadSocket disconnected");
 
 	if(m_Download->position() >= m_Download->size())
 		m_Download->setState(TS_Finished);
@@ -131,7 +131,7 @@ Museek::DownloadSocket::wait()
 void
 Museek::DownloadSocket::stop()
 {
-    NNLOG("museekd.down.debug", "Disconnecting download socket...");
+    NNLOG("newsoul.down.debug", "Disconnecting download socket...");
     disconnect();
 }
 
@@ -143,7 +143,7 @@ Museek::DownloadSocket::onTransferTicketReceived(TicketSocket * socket)
 {
     if((m_Download->state() == TS_Waiting) && (m_Download->ticket() == socket->ticket()) && (m_Download->user() == socket->user()))
     {
-        NNLOG("museekd.down.debug", "*does happy dance* (found a download)");
+        NNLOG("newsoul.down.debug", "*does happy dance* (found a download)");
 
         // Steal the socket and its data.
         setDescriptor(socket->descriptor());
@@ -173,18 +173,18 @@ bool
 Museek::DownloadSocket::openIncompleteFile()
 {
     // We received data, open the incomplete file if necessary.
-    NNLOG("museekd.down.debug", "Downloading to: %s.", m_Download->incompletePath().c_str());
+    NNLOG("newsoul.down.debug", "Downloading to: %s.", m_Download->incompletePath().c_str());
     m_Output.open(m_Download->incompletePath().c_str(), std::ofstream::binary | std::ofstream::app | std::ofstream::ate);
     if(! m_Output.is_open()) {
         // Couldn't open the incomplete file. Bail out.
-        NNLOG("museekd.down.warn", "Couldn't open '%s'.", m_Download->incompletePath().c_str());
+        NNLOG("newsoul.down.warn", "Couldn't open '%s'.", m_Download->incompletePath().c_str());
         stop();
         return false;
     }
 
     // Set the position of the download to EOF
     m_Download->setPosition(m_Output.tellp());
-    NNLOG("museekd.down.debug", "Set position to %llu (%llu).", m_Download->position(), (uint64)m_Output.tellp());
+    NNLOG("newsoul.down.debug", "Set position to %llu (%llu).", m_Download->position(), (uint64)m_Output.tellp());
 
     return true;
 }
@@ -210,7 +210,7 @@ Museek::DownloadSocket::onDataReceived(NewNet::ClientSocket * socket)
 
         // Finished?
         if(m_Download->position() >= m_Download->size()) {
-            NNLOG("museekd.down.debug", "Download of %s from %s finished.", m_Download->remotePath().c_str(), m_Download->user().c_str());
+            NNLOG("newsoul.down.debug", "Download of %s from %s finished.", m_Download->remotePath().c_str(), m_Download->user().c_str());
             // Close output.
             m_Output.close();
             // Rename / move file.
@@ -245,19 +245,19 @@ Museek::DownloadSocket::finish()
         if(errno == EXDEV) {
             /* Incomplete and destination path are on different partitions or
              mount points. We'll have to copy it manually. */
-            NNLOG("museekd.down.warn", "Having incomplete and download directory on different partitions is a bad idea!");
+            NNLOG("newsoul.down.warn", "Having incomplete and download directory on different partitions is a bad idea!");
             // Open the input stream.
             std::ifstream fin;
             fin.open(m_Download->incompletePath().c_str(), std::fstream::in | std::fstream::binary);
             if(! fin.is_open()) {
-                NNLOG("museekd.down.warn", "Couldn't open '%s' for reading.", m_Download->incompletePath().c_str());
+                NNLOG("newsoul.down.warn", "Couldn't open '%s' for reading.", m_Download->incompletePath().c_str());
                 return;
             }
             // Open the output stream.
             std::ofstream fout;
             fout.open(destpath.c_str(), std::fstream::out | std::fstream::binary | std::fstream::trunc);
             if(! fout.is_open()) {
-                NNLOG("museekd.down.warn", "Couldn't open '%s' for writing.", destpath.c_str());
+                NNLOG("newsoul.down.warn", "Couldn't open '%s' for writing.", destpath.c_str());
                 fin.close();
                 return;
             }
@@ -270,7 +270,7 @@ Museek::DownloadSocket::finish()
                 n = fin.readsome(buffer, 8192);
                 if(fin.fail()) {
                     // Problem...
-                    NNLOG("museekd.down.warn", "Couldn't read from '%s'.", m_Download->incompletePath().c_str());
+                    NNLOG("newsoul.down.warn", "Couldn't read from '%s'.", m_Download->incompletePath().c_str());
                     ok = false;
                     break;
                 }
@@ -280,7 +280,7 @@ Museek::DownloadSocket::finish()
                     fout.write(buffer, n);
                     if(fout.fail()) {
                         // Problem.
-                        NNLOG("museekd.down.warn", "Couldn't write to '%s'.", destpath.c_str());
+                        NNLOG("newsoul.down.warn", "Couldn't write to '%s'.", destpath.c_str());
                         ok = false;
                     }
                 }
@@ -293,17 +293,17 @@ Museek::DownloadSocket::finish()
             if(ok) {
                 // Everything went ok. Remove the incomplete file.
                 if(remove(m_Download->incompletePath().c_str()) == -1)
-                    NNLOG("museekd.down.warn", "Couldn't remove '%s'.", m_Download->incompletePath().c_str());
+                    NNLOG("newsoul.down.warn", "Couldn't remove '%s'.", m_Download->incompletePath().c_str());
             }
             else {
                 // Things went not ok. Delete the destination file.
-                NNLOG("museekd.down.debug", "Removing '%s'.", destpath.c_str());
+                NNLOG("newsoul.down.debug", "Removing '%s'.", destpath.c_str());
                 remove(destpath.c_str());
             }
         }
         else {
             // Something happened. But nobody knows what.
-            NNLOG("museekd.down.warn", "Renaming '%s' to '%s' failed for unknown reason.", m_Download->incompletePath().c_str(), destpath.c_str());
+            NNLOG("newsoul.down.warn", "Renaming '%s' to '%s' failed for unknown reason.", m_Download->incompletePath().c_str(), destpath.c_str());
         }
     }
 }
@@ -313,6 +313,6 @@ Museek::DownloadSocket::finish()
 */
 void
 Museek::DownloadSocket::dataTimeout(long) {
-    NNLOG("museekd.down.debug", "Data timeout while downloading.");
+    NNLOG("newsoul.down.debug", "Data timeout while downloading.");
     stop();
 }

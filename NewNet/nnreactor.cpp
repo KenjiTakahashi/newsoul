@@ -56,7 +56,7 @@ NewNet::Reactor::Reactor()
         m_maxSocketNo = rlim.rlim_cur;
 
 
-    NNLOG("newnet.net.debug", "%i file descriptors available for museekd.", m_maxSocketNo);
+    NNLOG("newnet.net.debug", "%i file descriptors available for newsoul.", m_maxSocketNo);
 
     event_init();
 }

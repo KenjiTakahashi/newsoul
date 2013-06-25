@@ -21,7 +21,7 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif // HAVE_CONFIG_H
-#include "museekd.h"
+#include "newsoul.h"
 #include "configmanager.h"
 #include "codesetmanager.h"
 #include "servermanager.h"
@@ -78,7 +78,7 @@ void Museek::Museekd::LoadDownloads() {
 Museek::Museekd::~Museekd()
 {
   /* This destructor doesn't do much. */
-  NNLOG("museekd.debug", "museekd destroyed");
+  NNLOG("newsoul.debug", "newsoul destroyed");
 }
 
 bool Museek::Museekd::isBanned(const std::string u) {
@@ -141,14 +141,14 @@ uint Museek::Museekd::downSlots() {
 void Museek::Museekd::addPrivilegedUser(const std::string & user) {
     if (!isPrivileged(user)) {
         mPrivilegedUsers.push_back(user);
-        NNLOG("museekd.debug", "%u privileged users", mPrivilegedUsers.size());
+        NNLOG("newsoul.debug", "%u privileged users", mPrivilegedUsers.size());
     }
 }
 
 // Replace the privileged users list with this new one
 void Museek::Museekd::setPrivilegedUsers(const std::vector<std::string> & users) {
     mPrivilegedUsers = users;
-    NNLOG("museekd.debug", "%u privileged users", mPrivilegedUsers.size());
+    NNLOG("newsoul.debug", "%u privileged users", mPrivilegedUsers.size());
 }
 
 void Museek::Museekd::sendSharedNumber() {

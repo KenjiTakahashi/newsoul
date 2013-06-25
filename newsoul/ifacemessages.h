@@ -25,7 +25,7 @@
 #include "networkmessage.h"
 #include "downloadmanager.h"
 #include "uploadmanager.h"
-#include "museekd.h"
+#include "newsoul.h"
 #include "../utils/cipher.h"
 
 namespace Museek
@@ -549,7 +549,7 @@ IFACEMESSAGE(IPeerStats, 0x0203)
 	MAKE
 		pack(user);
 		pack(userdata.avgspeed);
-		pack((uint32) userdata.downloadnum); // Slsk protocol uses 64bit int. It would be a good idea to do the same in museek protocol one day.
+		pack((uint32) userdata.downloadnum); // Slsk protocol uses 64bit int. It would be a good idea to do the same in newsoul protocol one day.
 		pack(userdata.files);
 		pack(userdata.dirs);
 		pack((unsigned char)userdata.slotsfull);
@@ -1528,7 +1528,7 @@ IFACEMESSAGE(ISearchReply, 0x0402)
 		pack(username);
 		pack((unsigned char)slotfree);
 		pack(speed);
-		pack(queue); // Slsk protocol uses 64bit int. It would be a good idea to do the same in museek protocol one day.
+		pack(queue); // Slsk protocol uses 64bit int. It would be a good idea to do the same in newsoul protocol one day.
 		pack((uint32)results.size());
 		Folder::const_iterator it = results.begin();
 		for(; it != results.end(); ++it) {

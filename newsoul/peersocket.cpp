@@ -22,7 +22,7 @@
 # include "config.h"
 #endif // HAVE_CONFIG_H
 #include "peersocket.h"
-#include "museekd.h"
+#include "newsoul.h"
 #include "codesetmanager.h"
 #include "configmanager.h"
 #include "handshakesocket.h"
@@ -60,7 +60,7 @@ Museek::PeerSocket::PeerSocket(Museek::HandshakeSocket * that) : Museek::UserSoc
 
 Museek::PeerSocket::~PeerSocket()
 {
-    NNLOG("museekd.peers.debug", "PeerSocket %d destroyed for %s", descriptor(), user().c_str());
+    NNLOG("newsoul.peers.debug", "PeerSocket %d destroyed for %s", descriptor(), user().c_str());
 }
 
 void
@@ -137,7 +137,7 @@ Museek::PeerSocket::onMessageReceived(const MessageData * data)
     #define MAP_MESSAGE(ID, TYPE, EVENT) \
       case ID: \
       { \
-        NNLOG("museek.messages.peer", "Received peer message " #TYPE "."); \
+        NNLOG("newsoul.messages.peer", "Received peer message " #TYPE "."); \
         TYPE msg; \
         msg.setPeerSocket(this); \
         msg.parse_network_packet(data->data, data->length); \
@@ -148,7 +148,7 @@ Museek::PeerSocket::onMessageReceived(const MessageData * data)
     #undef MAP_MESSAGE
 
     default:
-        NNLOG("museekd.peers.warn", "Received unknown peer message, type: %u, length: %u", data->type, data->length);
+        NNLOG("newsoul.peers.warn", "Received unknown peer message, type: %u, length: %u", data->type, data->length);
         NetworkMessage msg;
         msg.parse_network_packet(data->data, data->length);
   }
@@ -219,7 +219,7 @@ Museek::PeerSocket::onUploadQueueNotificationReceived(const PUploadQueueNotifica
     state = " is a buddy";
 
   std::string isbuddy = user() + state;
-  NNLOG("museekd.peers.debug", isbuddy.c_str());
+  NNLOG("newsoul.peers.debug", isbuddy.c_str());
 }
 
 void
@@ -236,17 +236,17 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
         std::string path = museekd()->codeset()->toNet(museekd()->codeset()->fromPeer(user(), request->filename));
 
         if (museekd()->uploads()->isUploadable(user(), path, &reason)) {
-	        NNLOG("museekd.peers.debug", "shared");
+	        NNLOG("newsoul.peers.debug", "shared");
 
             std::string pathFS = museekd()->codeset()->fromNetToFS(request->filename);
 	        museekd()->uploads()->add(user(), pathFS);
 	        Upload* upload = museekd()->uploads()->findUpload(user(), pathFS);
 	        if (upload && museekd()->uploads()->hasFreeSlots() && !museekd()->uploads()->isUploadingTo(user())) {
-		        NNLOG("museekd.peers.debug", "slot free");
+		        NNLOG("newsoul.peers.debug", "slot free");
 
 		        if (!upload->openFile()) {
                     reason = "Remote file error";
-			        NNLOG("museekd.peers.warn", "Local file error on %s", pathFS.c_str());
+			        NNLOG("newsoul.peers.warn", "Local file error on %s", pathFS.c_str());
                 }
                 else {
                     UploadSocket * uploadSocket = new UploadSocket(museekd(), upload);
@@ -255,12 +255,12 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
                     upload->setTicket(request->ticket);
                     museekd()->reactor()->add(uploadSocket);
                     uploadSocket->wait();
-			        NNLOG("museekd.peers.debug", "Initiating transfer, ticket %i", request->ticket);
+			        NNLOG("newsoul.peers.debug", "Initiating transfer, ticket %i", request->ticket);
 			        size = upload->size();
                 }
 	        }
 	        else {
-		        NNLOG("museekd.peers.debug", "queued");
+		        NNLOG("newsoul.peers.debug", "queued");
 		        reason = "Queued";
 	        }
         }
@@ -276,7 +276,7 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
     }
   else if (request->direction == 1)
     {
-      NNLOG("museekd.peers.debug", "request for download %s %s %u", user().c_str(), request->filename.c_str(), request->ticket);
+      NNLOG("newsoul.peers.debug", "request for download %s %s %u", user().c_str(), request->filename.c_str(), request->ticket);
       // Starting a download
       std::string path = museekd()->codeset()->fromPeer(user(), request->filename);
       Download * download = museekd()->downloads()->findDownload(user(), path);
@@ -285,7 +285,7 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
         // Check that we don't already have this file downloaded in destination dir
         std::ifstream file(download->destinationPath().c_str(), std::fstream::in | std::fstream::binary);
         if(file.is_open()) {
-            NNLOG("museekd.peers.debug", "%s has already been downloaded.", path.c_str());
+            NNLOG("newsoul.peers.debug", "%s has already been downloaded.", path.c_str());
             download->setState(TS_Finished);
             PDownloadReply reply(request->ticket, allowed, "Finished");
             sendMessage(reply.make_network_packet());
@@ -375,7 +375,7 @@ void
 Museek::PeerSocket::onQueueDownloadRequested(const PQueueDownload * message) {
     std::string reason, goodPath;
 
-    NNLOG("museekd.peers.debug", "request for queued upload %s %s", user().c_str(), message->filename.c_str());
+    NNLOG("newsoul.peers.debug", "request for queued upload %s %s", user().c_str(), message->filename.c_str());
 
     if (museekd()->uploads()->isUploadable(user(), message->filename, &reason)) {
         museekd()->uploads()->add(user(), museekd()->codeset()->fromNetToFS(message->filename));
@@ -386,7 +386,7 @@ Museek::PeerSocket::onQueueDownloadRequested(const PQueueDownload * message) {
         // If he's running the official client, we will get PQueueDownload with
         // the filename in lower case. If in our shares the path has upper letters, we'll throw "File not shared" error.
         // So let's try a case insensitive search: slower than previous one, with a risk to return a wrong file.
-        NNLOG("museekd.peers.debug", "File not shared but found a case insensitive match");
+        NNLOG("newsoul.peers.debug", "File not shared but found a case insensitive match");
         museekd()->uploads()->add(user(), museekd()->codeset()->fromNetToFS(goodPath),0 , true);
     }
     else {
@@ -454,7 +454,7 @@ Museek::PeerSocket::onFolderContentsReceived(const PFolderContentsReply * messag
 
 void
 Museek::PeerSocket::onSearchResultsReceived(const PSearchReply * message) {
-    NNLOG("museekd.peers.debug", "Search result from %s", user().c_str());
+    NNLOG("newsoul.peers.debug", "Search result from %s", user().c_str());
 
     Folder folders;
     Folder::const_iterator it = message->results.begin();
@@ -480,13 +480,13 @@ Museek::PeerSocket::addSearchResultsOnlyTimeout(long length) {
 
 void
 Museek::PeerSocket::onSearchResultsOnly(long) {
-    NNLOG("museekd.peers.debug", "We only received or sent search results: close this socket");
+    NNLOG("newsoul.peers.debug", "We only received or sent search results: close this socket");
     disconnect();
 }
 
 void
 Museek::PeerSocket::onSocketTimeout(long) {
-    NNLOG("museekd.peers.debug", "Ping timeout on a peer socket");
+    NNLOG("newsoul.peers.debug", "Ping timeout on a peer socket");
     disconnect();
 }
 
@@ -495,7 +495,7 @@ Museek::PeerSocket::initiateOurself()
 {
     setToken(museekd()->token());
 
-    NNLOG("museekd.distrib.debug", "Initiating active connection to ourself.");
+    NNLOG("newsoul.distrib.debug", "Initiating active connection to ourself.");
 
     HInitiate handshake(museekd()->server()->username(), type(), token());
     sendMessage(handshake.make_network_packet());

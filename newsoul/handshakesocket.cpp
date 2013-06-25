@@ -22,7 +22,7 @@
 # include "config.h"
 #endif // HAVE_CONFIG_H
 #include "handshakesocket.h"
-#include "museekd.h"
+#include "newsoul.h"
 #include "handshakemessages.h"
 #include "peersocket.h"
 #include "peermanager.h"
@@ -42,7 +42,7 @@ Museek::HandshakeSocket::HandshakeSocket() : NewNet::ClientSocket(), Museek::Mes
 
 Museek::HandshakeSocket::~HandshakeSocket()
 {
-  NNLOG("museekd.hand.debug", "HandshakeSocket %d destroyed", descriptor());
+  NNLOG("newsoul.hand.debug", "HandshakeSocket %d destroyed", descriptor());
 }
 
 void
@@ -59,7 +59,7 @@ Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
     case 0:
     {
       // Apparently, we requested somebody to connect to us.
-      NNLOG("museek.messages.handshake", "Received peer handshake message HPierceFirewall");
+      NNLOG("newsoul.messages.handshake", "Received peer handshake message HPierceFirewall");
       HPierceFirewall msg;
       msg.parse_network_packet(data->data, data->length);
       m_Token = msg.token;
@@ -73,10 +73,10 @@ Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
     case 1:
     {
       // Somebody wants to establish a connection.
-      NNLOG("museek.messages.handshake", "Received peer handshake message HInitiate");
+      NNLOG("newsoul.messages.handshake", "Received peer handshake message HInitiate");
       HInitiate msg;
       msg.parse_network_packet(data->data, data->length);
-      NNLOG("museekd.hand.debug", "HInitiate payload: %s %s %u", msg.user.c_str(), msg.type.c_str(), msg.token);
+      NNLOG("newsoul.hand.debug", "HInitiate payload: %s %s %u", msg.user.c_str(), msg.type.c_str(), msg.token);
       // Set some variables.
       m_Token = msg.token;
       m_User = msg.user;
@@ -114,7 +114,7 @@ Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
       }
       else
       {
-        NNLOG("museekd.hand.warn", "Invalid incoming connection type '%s'.", msg.type.c_str());
+        NNLOG("newsoul.hand.warn", "Invalid incoming connection type '%s'.", msg.type.c_str());
       }
       // Clear our receive buffer so we stop processing data.
       receiveBuffer().clear();
@@ -123,7 +123,7 @@ Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
       return;
     }
     default:
-        NNLOG("museekd.hand.warn", "Received unknown peer handshake message, type: %u, length: %u", data->type, data->length);
+        NNLOG("newsoul.hand.warn", "Received unknown peer handshake message, type: %u, length: %u", data->type, data->length);
         NetworkMessage msg;
         msg.parse_network_packet(data->data, data->length);
   }
@@ -131,7 +131,7 @@ Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
 
 void
 Museek::HandshakeSocket::onDisconnected(NewNet::ClientSocket * socket) {
-  NNLOG("museekd.hand.debug", "Handshake socket for %s has been disconnected.", m_User.c_str());
+  NNLOG("newsoul.hand.debug", "Handshake socket for %s has been disconnected.", m_User.c_str());
   if(reactor())
     reactor()->remove(this);
 }
@@ -139,6 +139,6 @@ Museek::HandshakeSocket::onDisconnected(NewNet::ClientSocket * socket) {
 void
 Museek::HandshakeSocket::onCannotConnect(NewNet::ClientSocket *)
 {
-  NNLOG("museekd.hand.debug", "Could not connect handshake socket for user %s.", m_User.c_str());
+  NNLOG("newsoul.hand.debug", "Could not connect handshake socket for user %s.", m_User.c_str());
   disconnect();
 }

@@ -15,9 +15,9 @@
 [\-h] [\-\-help]
 .SH "DESCRIPTION"
 .LP 
-Muscan scans paths & files to be shared by \fImuseekd\fP(1). It creates a database of files, with meta\-data for MP3 and OGG Vorbis files, if Vorbis support was compiled in. There are two available shares databases, Normal and Buddies\-Only. Buddies\-Only is an optional shares database that, if enabled, is only accessible by the users you've chosen as "Buddies".
+Muscan scans paths & files to be shared by \fInewsoul\fP(1). It creates a database of files, with meta\-data for MP3 and OGG Vorbis files, if Vorbis support was compiled in. There are two available shares databases, Normal and Buddies\-Only. Buddies\-Only is an optional shares database that, if enabled, is only accessible by the users you've chosen as "Buddies".
 .LP 
-Before running muscan, you will need a configured museekd,  which can be done with \fImusetup\fP(1) or fI>musetup\-gtk\fP(1), and add some shared paths with either of the setup tools or with \fImuscan\fP(1).
+Before running muscan, you will need a configured newsoul,  which can be done with \fImusetup\fP(1) or fI>musetup\-gtk\fP(1), and add some shared paths with either of the setup tools or with \fImuscan\fP(1).
 .SH "OPTIONS"
 .LP 
 Muscan accepts the following options:
@@ -65,19 +65,19 @@ Alternatively you use a different config file with:
 
 .SH "FILES"
 .TP 
- \fI~/.museekd/config.xml\fR
-The default location for the \fBmuseekd\fP config file.
+ \fI~/.newsoul/config.xml\fR
+The default location for the \fBnewsoul\fP config file.
 .TP 
- \fI~/.museekd/config.shares\fR
+ \fI~/.newsoul/config.shares\fR
 The default location for the Normal shares database.
 .TP 
- \fI~/.museekd/config.shares.state\fR
+ \fI~/.newsoul/config.shares.state\fR
 The default location for the active Normal shares database.
 .TP 
- \fI~/.museekd/config.buddyshares\fR
+ \fI~/.newsoul/config.buddyshares\fR
 The default location for the Buddy shares database.
 .TP 
- \fI~/.museekd/config.buddyshares.state\fR
+ \fI~/.newsoul/config.buddyshares.state\fR
 The default location for the active Buddy shares database's.
 .SH "AUTHORS"
 .LP 
@@ -86,4 +86,4 @@ Hyriand <hyriand@thegraveyard.org>
 daelstorm <daelstorm@gmail.com>
 .SH "SEE ALSO"
 .LP 
-\fImucous\fP(1) \fImulog\fP(1) \fImurmur\fP(1) \fImuscand\fP(1) \fImuseekcontrol\fP(1) \fImuseekd\fP(1) \fImuseeq\fP(1) \fImusetup\fP(1) \fImusetup\-gtk\fP(1)
+\fImucous\fP(1) \fImulog\fP(1) \fImurmur\fP(1) \fImuscand\fP(1) \fInewsoulcontrol\fP(1) \fInewsoul\fP(1) \fImuseeq\fP(1) \fImusetup\fP(1) \fImusetup\-gtk\fP(1)

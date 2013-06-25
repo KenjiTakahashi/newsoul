@@ -42,7 +42,7 @@ void help() {
 }
 
 int main(int argc, char **argv) {
-    string config_file = string(getenv("HOME")) + "/.museekd/config.xml";
+    string config_file = string(getenv("HOME")) + "/.newsoul/config.xml";
     vector<string> add, remove;
     bool doList = false, rescan = false, noscan = false, doBuddy = false;
 

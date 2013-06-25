@@ -1042,7 +1042,7 @@ SERVERMESSAGE(SPrivRoomUnknown138, 138)
 END
 
 SERVERMESSAGE(SPrivRoomAdded, 139)
-    // This is received from the server (never sent to the server) when we get added as member to a room by someone else. This is not used in museek as this is redundant with SPrivRoomAlterableMembers and SPrivRoomAlterableOperators which are always sent by the server just after this message.
+    // This is received from the server (never sent to the server) when we get added as member to a room by someone else. This is not used in newsoul as this is redundant with SPrivRoomAlterableMembers and SPrivRoomAlterableOperators which are always sent by the server just after this message.
 	SPrivRoomAdded() {}
 
 	PARSE
@@ -1053,7 +1053,7 @@ SERVERMESSAGE(SPrivRoomAdded, 139)
 END
 
 SERVERMESSAGE(SPrivRoomRemoved, 140)
-    // This is received from the server (never sent to the server) when we get removed from a room where we were member by someone else. This is not used in museek as this is redundant with SPrivRoomAlterableMembers and SPrivRoomAlterableOperators which are always sent by the server just after this message.
+    // This is received from the server (never sent to the server) when we get removed from a room where we were member by someone else. This is not used in newsoul as this is redundant with SPrivRoomAlterableMembers and SPrivRoomAlterableOperators which are always sent by the server just after this message.
 	SPrivRoomRemoved() {}
 
 	PARSE
@@ -1128,7 +1128,7 @@ SERVERMESSAGE(SPrivRoomRemoveOperator, 144)
 END
 
 SERVERMESSAGE(SPrivRoomOperatorAdded, 145)
-    // This is received from the server (never sent to the server) when we get added as an operator to a room by someone else. This is not used in museek as this is redundant with SPrivRoomAlterableMembers and SPrivRoomAlterableOperators which are always sent by the server just after this message.
+    // This is received from the server (never sent to the server) when we get added as an operator to a room by someone else. This is not used in newsoul as this is redundant with SPrivRoomAlterableMembers and SPrivRoomAlterableOperators which are always sent by the server just after this message.
 	SPrivRoomOperatorAdded() {}
 
 	PARSE
@@ -1139,7 +1139,7 @@ SERVERMESSAGE(SPrivRoomOperatorAdded, 145)
 END
 
 SERVERMESSAGE(SPrivRoomOperatorRemoved, 146)
-    // This is received from the server (never sent to the server) when we get removed from a room where we were operator by someone else. This is not used in museek as this is redundant with SPrivRoomAlterableMembers and SPrivRoomAlterableOperators which are always sent by the server just after this message.
+    // This is received from the server (never sent to the server) when we get removed from a room where we were operator by someone else. This is not used in newsoul as this is redundant with SPrivRoomAlterableMembers and SPrivRoomAlterableOperators which are always sent by the server just after this message.
 	SPrivRoomOperatorRemoved() {}
 
 	PARSE

@@ -22,7 +22,7 @@
     #include "config.h"
 #endif // HAVE_CONFIG_H
 #include "codesetmanager.h"
-#include "museekd.h"
+#include "newsoul.h"
 #include "configmanager.h"
 #include "../Muhelp/string_ext.hh"
 #include "../NewNet/nnpath.h"

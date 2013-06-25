@@ -37,13 +37,13 @@ Museek::ConfigManager::ConfigManager() : m_AutoSave(true)
 bool
 Museek::ConfigManager::load(const std::string & path)
 {
-  NNLOG("museekd.config.debug", "Loading configuration '%s'.", path.c_str());
+  NNLOG("newsoul.config.debug", "Loading configuration '%s'.", path.c_str());
 
   // Load and parse the specified configuration file.
   xmlDoc * doc = xmlReadFile(path.c_str(), 0, 0);
   if(! doc)
   {
-    NNLOG("museekd.config.warn", "Could not parse configuration file '%s'.", path.c_str());
+    NNLOG("newsoul.config.warn", "Could not parse configuration file '%s'.", path.c_str());
     return false;
   }
 
@@ -57,8 +57,8 @@ Museek::ConfigManager::load(const std::string & path)
   xmlNode * rootIter = xmlDocGetRootElement(doc);
   for(; rootIter; rootIter = rootIter->next)
   {
-    // Check the root element (should be a <museekd> element).
-    if((rootIter->type != XML_ELEMENT_NODE) || (strcmp((const char *)rootIter->name, "museekd") != 0))
+    // Check the root element (should be a <newsoul> element).
+    if((rootIter->type != XML_ELEMENT_NODE) || (strcmp((const char *)rootIter->name, "newsoul") != 0))
       continue;
     // Iterate over the root element's children. Domains live there.
     for(xmlNode * domainIter = rootIter->children; domainIter; domainIter = domainIter->next)
@@ -71,7 +71,7 @@ Museek::ConfigManager::load(const std::string & path)
       xmlChar * id = xmlGetProp(domainIter, (const xmlChar *)"id");
       if(! id)
       {
-        NNLOG("museekd.config.warn", "Domain without id encountered in config file.");
+        NNLOG("newsoul.config.warn", "Domain without id encountered in config file.");
         continue;
       }
       std::string domain((const char *)id);
@@ -88,7 +88,7 @@ Museek::ConfigManager::load(const std::string & path)
         xmlChar * id = xmlGetProp(keyIter, (const xmlChar *)"id");
         if(! id)
         {
-          NNLOG("museekd.config.warn", "Key without id encountered in config file.");
+          NNLOG("newsoul.config.warn", "Key without id encountered in config file.");
           continue;
         }
         std::string key((const char *)id);
@@ -129,16 +129,16 @@ Museek::ConfigManager::save(const std::string & path) const
   // Check if we know where to save the configuration.
   if(path.empty() && m_Path.empty())
   {
-    NNLOG("museekd.config.warn", "No path to save configuration to specified.");
+    NNLOG("newsoul.config.warn", "No path to save configuration to specified.");
     return false;
   }
 
-  NNLOG("museekd.config.config.debug", "Saving configuration to '%s'.", path.empty() ? m_Path.c_str() : path.c_str());
+  NNLOG("newsoul.config.config.debug", "Saving configuration to '%s'.", path.empty() ? m_Path.c_str() : path.c_str());
 
   // Build the xml document.
   xmlDocPtr doc = xmlNewDoc((const xmlChar *)"1.0");
-  // Create and set the root node (<museekd>).
-  xmlNodePtr rootNode = xmlNewNode(NULL, (const xmlChar *)"museekd");
+  // Create and set the root node (<newsoul>).
+  xmlNodePtr rootNode = xmlNewNode(NULL, (const xmlChar *)"newsoul");
   xmlDocSetRootElement(doc, rootNode);
 
   // Iterate over the domains.
@@ -180,7 +180,7 @@ Museek::ConfigManager::save(const std::string & path) const
   */
 void
 Museek::ConfigManager::updateConfigFile() {
-    std::string version = get("museekd", "version", "none");
+    std::string version = get("newsoul", "version", "none");
 
     if (version == "none") {
         // Probably updating from 0.1.13 or previous
@@ -196,7 +196,7 @@ Museek::ConfigManager::updateConfigFile() {
         // One new config key: "priv_rooms"/"enable_priv_room" -> false if not present
     }
     // Setting the new version
-    set("museekd", "version", "0.3.0");
+    set("newsoul", "version", "0.3.0");
 }
 
 std::string

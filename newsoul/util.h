@@ -58,7 +58,7 @@ static inline bool makedirs(const std::string & dir)
 #endif // ! WIN32
     {
       // Error and path didn't already exist. Issue a warning.
-      NNLOG("museekd.user.warn", "Couldn't create directory '%s'.", path.c_str());
+      NNLOG("newsoul.user.warn", "Couldn't create directory '%s'.", path.c_str());
       return false;
     }
   }
@@ -227,7 +227,7 @@ static inline bool wildcmp(const std::string & wildStr, const std::string & stri
           return false;
     }
 
-    NNLOG("museekd.util.warn", "Error while using regex %s.", regex.c_str());
+    NNLOG("newsoul.util.warn", "Error while using regex %s.", regex.c_str());
 
     return false;
 

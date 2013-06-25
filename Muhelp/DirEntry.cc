@@ -47,7 +47,7 @@ DirEntry* DirEntry::new_folder(bool fake) {
 }
 
 void DirEntry::fold(DirEntry* folded) {
-	NNLOG("museek.direntry", "fold %s", folded->path.c_str());
+	NNLOG("newsoul.direntry", "fold %s", folded->path.c_str());
 
 	if (! fake) {
 		if (folded->folders.find(path) != folded->folders.end())
@@ -128,7 +128,7 @@ static inline string _unpack_str(queue<unsigned char>& data) {
 }
 
 queue<unsigned char> DirEntry::pack() {
-	NNLOG("museek.direntry", "pack");
+	NNLOG("newsoul.direntry", "pack");
 
 	queue<unsigned char> data;
 
@@ -161,7 +161,7 @@ queue<unsigned char> DirEntry::pack() {
 }
 
 void DirEntry::save(const string& fn) {
-	NNLOG("museek.direntry", "save %s", fn.c_str());
+	NNLOG("newsoul.direntry", "save %s", fn.c_str());
 
 	queue<unsigned char> data = pack();
 	unsigned char *cdata = new unsigned char[data.size()];
@@ -181,7 +181,7 @@ void DirEntry::save(const string& fn) {
 }
 
 void DirEntry::unpack(queue<unsigned char>& data) {
-	NNLOG("museek.direntry", "unpack %d", data.size());
+	NNLOG("newsoul.direntry", "unpack %d", data.size());
 
 	for(map<string, DirEntry*>::iterator it = folders.begin(); it != folders.end(); ++it)
 		delete (*it).second;
@@ -214,7 +214,7 @@ void DirEntry::unpack(queue<unsigned char>& data) {
 }
 
 void DirEntry::load(const string& fn) {
-	NNLOG("museek.direntry", "load %s", fn.c_str());
+	NNLOG("newsoul.direntry", "load %s", fn.c_str());
 
 	long long size;
 
@@ -246,7 +246,7 @@ void DirEntry::load(const string& fn) {
 }
 
 void DirEntry::network_pack(queue<unsigned char>& data) {
-	NNLOG("museek.direntry", "network pack <...>");
+	NNLOG("newsoul.direntry", "network pack <...>");
 
 	_pack(data, (uint32)folders.size());
 	map<string, DirEntry*>::iterator dit = folders.begin();
@@ -270,7 +270,7 @@ void DirEntry::network_pack(queue<unsigned char>& data) {
 }
 
 void DirEntry::flatten(Folder& filemap) {
-	NNLOG("museek.direntry", "flatten <...>");
+	NNLOG("newsoul.direntry", "flatten <...>");
 
 	map<string, DirEntry*>::iterator dit = folders.begin();
 	for(; dit != folders.end(); ++dit)

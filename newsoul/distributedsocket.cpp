@@ -22,7 +22,7 @@
 # include "config.h"
 #endif // HAVE_CONFIG_H
 #include "distributedsocket.h"
-#include "museekd.h"
+#include "newsoul.h"
 #include "searchmanager.h"
 #include "handshakemessages.h"
 #include "servermanager.h"
@@ -61,7 +61,7 @@ Museek::DistributedSocket::~DistributedSocket()
     if (m_DataTimeout.isValid())
         museekd()->reactor()->removeTimeout(m_DataTimeout);
 
-    NNLOG("museekd.distrib.debug", "DistributedSocket destroyed");
+    NNLOG("newsoul.distrib.debug", "DistributedSocket destroyed");
 }
 
 /**
@@ -81,7 +81,7 @@ Museek::DistributedSocket::initiateActiveWithIP(const std::string & user, const 
     setUser(user);
     setToken(museekd()->token());
 
-    NNLOG("museekd.distrib.debug", "Initiating active distributed connection to %s (type %s, ip %s, port %d).", user.c_str(), type().c_str(), ip.c_str(), port);
+    NNLOG("newsoul.distrib.debug", "Initiating active distributed connection to %s (type %s, ip %s, port %d).", user.c_str(), type().c_str(), ip.c_str(), port);
 
     HInitiate handshake(museekd()->server()->username(), type(), token());
     sendMessage(handshake.make_network_packet());
@@ -121,7 +121,7 @@ Museek::DistributedSocket::onDisconnected(NewNet::ClientSocket * socket) {
 }
 
 void Museek::DistributedSocket::onCannotConnectActive(NewNet::ClientSocket * socket) {
-    NNLOG("museekd.distrib.debug", "Cannot connect a distributed socket in active mode. Trying passive.");
+    NNLOG("newsoul.distrib.debug", "Cannot connect a distributed socket in active mode. Trying passive.");
     socket->sendBuffer().clear(); // We have a HInitiate message still waiting in the buffer. We don't need it anymore
     disconnect();
     initiatePassive();
@@ -132,7 +132,7 @@ Museek::DistributedSocket::onFirewallPierceTimedOut(long)
 {
     // Distributed socket tries first active mode, then passive (unlike usersocket).
     // So no need to retry active when passive fails.
-    NNLOG("museekd.distrib.debug", "Passive connection failed: pierce firewall timed out.");
+    NNLOG("newsoul.distrib.debug", "Passive connection failed: pierce firewall timed out.");
 
     disconnect();
 }
@@ -154,7 +154,7 @@ void Museek::DistributedSocket::onChildDepthReceived(const DChildDepth * msg) {
 void Museek::DistributedSocket::onSearchRequested(const DSearchRequest * msg) {
     std::string query = museekd()->codeset()->fromNet(msg->query);
 
-    NNLOG("museekd.distrib.debug", "Received search request from our parent: %s for %s", query.c_str(), msg->username.c_str());
+    NNLOG("newsoul.distrib.debug", "Received search request from our parent: %s for %s", query.c_str(), msg->username.c_str());
 
     museekd()->searches()->transmitSearch(msg->unknown, msg->username, msg->ticket, query);
     museekd()->searches()->sendSearchResults(msg->username, query, msg->ticket);
@@ -171,7 +171,7 @@ Museek::DistributedSocket::onMessageReceived(const MessageData * data)
     #define MAP_MESSAGE(ID, TYPE, EVENT) \
       case ID: \
       { \
-        NNLOG("museekd.messages.distributed", "Received distributed message " #TYPE "."); \
+        NNLOG("newsoul.messages.distributed", "Received distributed message " #TYPE "."); \
         TYPE msg; \
         msg.setDistributedSocket(this); \
         msg.parse_network_packet(data->data, data->length); \
@@ -182,7 +182,7 @@ Museek::DistributedSocket::onMessageReceived(const MessageData * data)
     #undef MAP_MESSAGE
 
     default:
-        NNLOG("museekd.distrib.warn", "Received unknown distributed message, type: %u, length: %u", data->type, data->length);
+        NNLOG("newsoul.distrib.warn", "Received unknown distributed message, type: %u, length: %u", data->type, data->length);
         NetworkMessage msg;
         msg.parse_network_packet(data->data, data->length);
   }
@@ -206,6 +206,6 @@ Museek::DistributedSocket::onDisconnectNow(long) {
 void
 Museek::DistributedSocket::stop()
 {
-    NNLOG("museekd.distrib.debug", "Disconnecting distributed socket...");
+    NNLOG("newsoul.distrib.debug", "Disconnecting distributed socket...");
     disconnect();
 }

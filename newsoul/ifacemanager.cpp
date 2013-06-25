@@ -22,7 +22,7 @@
 # include "config.h"
 #endif // HAVE_CONFIG_H
 #include "ifacemanager.h"
-#include "museekd.h"
+#include "newsoul.h"
 #include "codesetmanager.h"
 #include "sharesdatabase.h"
 #include "servermanager.h"
@@ -144,7 +144,7 @@ Museek::IfaceManager::addListener(const std::string & path)
     factory->serverSocket()->listen(path);
     if(factory->serverSocket()->socketState() != NewNet::Socket::SocketListening)
     {
-      NNLOG("museekd.iface.warn", "Couldn't listen on unix path '%s'.", path.c_str());
+      NNLOG("newsoul.iface.warn", "Couldn't listen on unix path '%s'.", path.c_str());
       return false;
     }
     m_Factories[path] = factory;
@@ -157,7 +157,7 @@ Museek::IfaceManager::addListener(const std::string & path)
     std::string::size_type ix = path.find(':');
     if(ix == std::string::npos)
     {
-      NNLOG("museekd.iface.warn", "Invalid TCP description: '%s'.", path.c_str());
+      NNLOG("newsoul.iface.warn", "Invalid TCP description: '%s'.", path.c_str());
       return false;
     }
     std::string host = path.substr(0, ix);
@@ -168,7 +168,7 @@ Museek::IfaceManager::addListener(const std::string & path)
     factory->serverSocket()->listen(host, port);
     if(factory->serverSocket()->socketState() != NewNet::Socket::SocketListening)
     {
-      NNLOG("museekd.iface.warn", "Couldn't listen on '%s:%u'", host.c_str(), port);
+      NNLOG("newsoul.iface.warn", "Couldn't listen on '%s:%u'", host.c_str(), port);
       return false;
     }
     m_Factories[path] = factory;
@@ -176,7 +176,7 @@ Museek::IfaceManager::addListener(const std::string & path)
     museekd()->reactor()->add(factory->serverSocket());
   }
 
-  NNLOG("museekd.iface.debug", "Listening on '%s'.", path.c_str());
+  NNLOG("newsoul.iface.debug", "Listening on '%s'.", path.c_str());
   return true;
 }
 
@@ -275,7 +275,7 @@ Museek::IfaceManager::sendNewSearchToAll(const std::string & query, uint token) 
 void
 Museek::IfaceManager::onIfaceAccepted(IfaceSocket * socket)
 {
-  NNLOG("museekd.iface.debug", "Accepted new interface socket.");
+  NNLOG("newsoul.iface.debug", "Accepted new interface socket.");
   m_Ifaces.push_back(socket);
 
   // Connect the events
@@ -370,7 +370,7 @@ Museek::IfaceManager::onIfaceLogin(const ILogin * message)
   std::string password = museekd()->config()->get("interfaces", "password");
   if(password.empty())
   {
-    NNLOG("museekd.iface.warn", "Rejecting login attempt because of empty password.");
+    NNLOG("newsoul.iface.warn", "Rejecting login attempt because of empty password.");
     message->ifaceSocket()->setChallenge(challenge());
     SEND_MESSAGE(message->ifaceSocket(), ILogin(false, "INVPASS", message->ifaceSocket()->challenge()));
     return;
@@ -398,7 +398,7 @@ Museek::IfaceManager::onIfaceLogin(const ILogin * message)
   }
   else
   {
-    NNLOG("museekd.iface.warn", "Rejected login attempt because of unknown hash algorithm.");
+    NNLOG("newsoul.iface.warn", "Rejected login attempt because of unknown hash algorithm.");
     message->ifaceSocket()->setChallenge(challenge());
     SEND_MESSAGE(message->ifaceSocket(), ILogin(false, "INVHASH", message->ifaceSocket()->challenge()));
     return;
@@ -408,13 +408,13 @@ Museek::IfaceManager::onIfaceLogin(const ILogin * message)
   hexDigest(digest, digest_len, hexdigest);
   if(message->chresponse != hexdigest)
   {
-    NNLOG("museekd.iface.warn", "Rejected login attempt because of incorrect password.");
+    NNLOG("newsoul.iface.warn", "Rejected login attempt because of incorrect password.");
     message->ifaceSocket()->setChallenge(challenge());
     SEND_MESSAGE(message->ifaceSocket(), ILogin(false, "INVPASS", message->ifaceSocket()->challenge()));
   }
   else
   {
-    NNLOG("museekd.iface.debug", "Interface successfully logged in.");
+    NNLOG("newsoul.iface.debug", "Interface successfully logged in.");
     IfaceSocket * socket = message->ifaceSocket();
     socket->setAuthenticated(true);
     socket->setMask(message->mask);
@@ -974,7 +974,7 @@ Museek::IfaceManager::onServerKicked(const SKicked* message) {
     msg.ticket = 0;
     msg.timestamp = time(NULL);
     msg.user = "Server";
-    msg.message = "You've been kicked from soulseek server. Maybe you tried to launch several museekd instances. Or you did something *wrong*. Try reconnecting in a moment (usually >30min).";
+    msg.message = "You've been kicked from soulseek server. Maybe you tried to launch several newsoul instances. Or you did something *wrong*. Try reconnecting in a moment (usually >30min).";
     m_PrivateMessages.push_back(msg);
     flushPrivateMessages();
 }
@@ -1274,7 +1274,7 @@ Museek::IfaceManager::onServerItemSimilarUsersReceived(const SGetItemSimilarUser
 void
 Museek::IfaceManager::onServerUserInterestsReceived(const SUserInterests * message)
 {
-  NNLOG("museekd.iface.debug", "%s has %d likes and %d hates", message->user.c_str(), message->likes.size(), message->hates.size());
+  NNLOG("newsoul.iface.debug", "%s has %d likes and %d hates", message->user.c_str(), message->likes.size(), message->hates.size());
   SEND_MASK(EM_USERINFO, IUserInterests(message->user, message->likes, message->hates));
 }
 

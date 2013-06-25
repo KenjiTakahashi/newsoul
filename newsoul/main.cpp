@@ -21,7 +21,7 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif // HAVE_CONFIG_H
-#include "museekd.h"
+#include "newsoul.h"
 #include "servermanager.h"
 #include "ifacemanager.h"
 #include "downloadmanager.h"
@@ -32,10 +32,10 @@
 #include <sys/types.h>
 #include <signal.h>
 
-/* Global reference to the museekd instance. */
+/* Global reference to the newsoul instance. */
 static NewNet::RefPtr<Museek::Museekd> museekd;
 
-/* Returns 0 if museekd is already running, 1 otherwise. */
+/* Returns 0 if newsoul is already running, 1 otherwise. */
 int get_lock(void)
 {
 # ifdef HAVE_FCNTL_H
@@ -47,7 +47,7 @@ int get_lock(void)
   fl.l_start = 0;
   fl.l_len = 1;
 
-  if((fdlock = open("/tmp/museekd.lock", O_WRONLY|O_CREAT, 0666)) == -1)
+  if((fdlock = open("/tmp/newsoul.lock", O_WRONLY|O_CREAT, 0666)) == -1)
     return 0;
 
   if(fcntl(fdlock, F_SETLK, &fl) == -1)
@@ -62,16 +62,16 @@ int get_lock(void)
 static void museekd_signal_handler(int signal)
 {
     if (signal == SIGINT) {
-        NNLOG("museekd.debug", "Trapped signal %i. Stopping the reactor.", signal);
+        NNLOG("newsoul.debug", "Trapped signal %i. Stopping the reactor.", signal);
         museekd->reactor()->stop();
     }
 #ifndef WIN32
     else if (signal == SIGHUP) {
-        NNLOG("museekd.debug", "Trapped signal %i. Reloading shares.", signal);
+        NNLOG("newsoul.debug", "Trapped signal %i. Reloading shares.", signal);
         museekd->LoadShares();
     }
     else if (signal == SIGALRM) {
-        NNLOG("museekd.debug", "Trapped signal %i. Trying to reconnect to server.", signal);
+        NNLOG("newsoul.debug", "Trapped signal %i. Trying to reconnect to server.", signal);
         if (!museekd->server()->loggedIn())
             museekd->server()->connect();
     }
@@ -104,7 +104,7 @@ class KeySetCallback : public NewNet::Event<const Museek::ConfigManager::ChangeN
 public:
   virtual void operator()(const Museek::ConfigManager::ChangeNotify * notice)
   {
-    if(notice->domain == "museekd.debug")
+    if(notice->domain == "newsoul.debug")
     {
       if(museekd->config()->getBool(notice->domain, notice->key))
         NNLOG.enable(notice->key);
@@ -119,7 +119,7 @@ class KeyRemovedCallback : public NewNet::Event<const Museek::ConfigManager::Rem
 public:
   virtual void operator()(const Museek::ConfigManager::RemoveNotify * notice)
   {
-    if(notice->domain == "museekd.debug")
+    if(notice->domain == "newsoul.debug")
       NNLOG.disable(notice->key);
   }
 };
@@ -128,18 +128,18 @@ int main(int argc, char ** argv)
 {
   if(!get_lock())
   {
-    std::cerr << "Museekd already running!" << std::endl;
+    std::cerr << "newsoul already running!" << std::endl;
     return 1;
   }
 
-  std::string version("museekd :: Version 0.3.0 :: Museek Daemon Plus");
+  std::string version("newsoul :: Version 0.3.0 :: newsoul Daemon Plus");
 
 #ifndef WIN32
-  /* Load the configuration from ~/.museekd/config.xml. */
+  /* Load the configuration from ~/.newsoul/config.xml. */
   char *home = getenv("HOME");
   std::string configPath;
   if(home != NULL) {
-      configPath = std::string(std::string(home) + "/.museekd/config.xml");
+      configPath = std::string(std::string(home) + "/.newsoul/config.xml");
   }
 #else
   /* Load the configuration from %APPDIR%\Museekd\config.xml. */
@@ -164,12 +164,12 @@ int main(int argc, char ** argv)
       fullDebug = true;
     } else if(arg == "--help" || arg == "-h") {
       std::cout << version << std::endl;
-      std::cout << "Syntax: museekd [options]" << std::endl << std::endl;
+      std::cout << "Syntax: newsoul [options]" << std::endl << std::endl;
       std::cout << "Options:" << std::endl;
       std::cout << "-c --config <config file>\tUse alternative config file" << std::endl;
       std::cout << "-h --help\t\t\tDisplay this message and quit" << std::endl;
       std::cout << "-d --debug\t\t\tDisplay debugging messages" << std::endl;
-      std::cout << "-V --version\t\t\tDisplay museekd version and quit" << std::endl << std::endl;
+      std::cout << "-V --version\t\t\tDisplay newsoul version and quit" << std::endl << std::endl;
       std::cout << "Signals:" << std::endl;
       std::cout << "kill -HUP \tReload Shares Database(s)" << std::endl;
       std::cout << "kill -ALRM \tReconnect to Server" << std::endl;
@@ -184,7 +184,7 @@ int main(int argc, char ** argv)
   /* Check size of off_t */
   if(sizeof(off_t) < 8)
   {
-    NNLOG("museekd.warn", "Warning: No large file support. This means you can't download files larger than 4GB.");
+    NNLOG("newsoul.warn", "Warning: No large file support. This means you can't download files larger than 4GB.");
   }
 
   /* Create our Museek Daemon instance. */
@@ -196,12 +196,12 @@ int main(int argc, char ** argv)
 
   if(! museekd->config()->load(configPath))
   {
-    NNLOG("museek.config.warn", "Failed to load configuration, bailing out.");
+    NNLOG("newsoul.config.warn", "Failed to load configuration, bailing out.");
     return -1;
   }
 
   /* Disable the debug override. */
-  if(!museekd->config()->getBool("museekd.debug", "ALL") && !fullDebug)
+  if(!museekd->config()->getBool("newsoul.debug", "ALL") && !fullDebug)
     NNLOG.disable("ALL");
 
   /* Load the shares database. */
