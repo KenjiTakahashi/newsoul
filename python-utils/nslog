@@ -110,7 +110,7 @@ class Logger:
 
 
 
-config_dir = str(os.path.expanduser("~/.museekd/"))
+config_dir = str(os.path.expanduser("~/.newsoul/"))
 
 config_file = config_dir+"mulog.config"
 interface = None
@@ -159,7 +159,7 @@ parser = ConfigParser.ConfigParser()
 
 
 mulog_config = {"connection":{"interface":'localhost:2240', "password":None}, \
-	"mulog":{"log_dir": "~/.museekd/logs/"} 	}
+	"mulog":{"log_dir": "~/.newsoul/logs/"} 	}
 
 def create_config():
 

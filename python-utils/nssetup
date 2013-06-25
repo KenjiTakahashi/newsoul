@@ -4,12 +4,12 @@ import os, sys
 DATADIR = os.path.realpath(sys.argv[0])
 for i in range(2):
 	DATADIR = os.path.split(DATADIR)[0]
-DEFAULT_TEMPLATE = os.path.join(DATADIR, 'share', 'museek', 'museekd', 'config.xml.tmpl')
+DEFAULT_TEMPLATE = os.path.join(DATADIR, 'share', 'newsoul', 'config.xml.tmpl')
 if not os.path.exists(DEFAULT_TEMPLATE):
-	t_path = os.path.join('/usr', 'share', 'museek', 'museekd', 'config.xml.tmpl')
+	t_path = os.path.join('/usr', 'share', 'newsoul', 'config.xml.tmpl')
 	if os.path.exists(t_path):
 		DEFAULT_TEMPLATE = t_path
-DEFAULT_CONFIG = os.path.join('~', '.museekd', 'config.xml')
+DEFAULT_CONFIG = os.path.join('~', '.newsoul', 'config.xml')
 
 from xml.dom import minidom
 import time, stat, string, pwd
@@ -57,7 +57,7 @@ def readTemplate(path = 'config.xml.tmpl', config_path = 'config.xml'):
 def writeConfig(path = 'newconfig.xml'):
 	global config
 	doc = minidom.Document()
-	root = doc.appendChild(doc.createElement('museekd'))
+	root = doc.appendChild(doc.createElement('newsoul'))
 	for i in config.keys():
 		root.appendChild(doc.createTextNode('\n  '))
 		domain = root.appendChild(doc.createElement('domain'))

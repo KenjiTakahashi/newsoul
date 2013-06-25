@@ -10,7 +10,7 @@ setup(
     author="daelstorm",
     author_email="daelstorm@gmail.com",
     url="http://museek-plus.org/",
-    long_description="mulog (chat logging), museekcontrol (commandline client/tool), museekchat (curses chat client), musirc (irc gateway), musetup",
-    scripts=['mulog', 'museekchat', 'museekcontrol', 'musirc.py', 'musetup'],
-    data_files=[('man/man1', ['mulog.1', 'museekcontrol.1', 'musetup.1'])]
+    long_description="nslog (chat logging), nscontrol (commandline client/tool), nschat (curses chat client), nssirc (irc gateway), nssetup",
+    scripts=['nslog', 'nschat', 'nscontrol', 'nssirc.py', 'nssetup'],
+    data_files=[('man/man1', ['nslog.1', 'nscontrol.1', 'nssetup.1'])]
 )

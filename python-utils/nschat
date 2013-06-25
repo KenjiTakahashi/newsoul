@@ -21,7 +21,7 @@
 import curses, sys, time, pwd, os
 import select
 
-from museek import messages, driver
+from newsoul import messages, driver
 
 class editor:
 	def __init__(self, win, escaped, line = ""):

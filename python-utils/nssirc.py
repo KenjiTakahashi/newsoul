@@ -1,5 +1,5 @@
 #!/usr/bin/python2
-from museek import messages, driver
+from newsoul import messages, driver
 import socket
 import os, sys, select, urllib
 
