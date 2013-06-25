@@ -1,0 +1,10 @@
+[Unit]
+Description=newsoul daemon.
+
+[Service]
+User=%i
+Environment=VAR=/var/%i/newsoul.xml
+ExecStart=/usr/bin/newsoul --config $VAR
+
+[Install]
+WantedBy=multi-user.target
