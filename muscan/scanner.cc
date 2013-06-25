@@ -24,10 +24,6 @@ extern "C" {
 # include "mp3.h"
 }
 
-#ifndef HAVE_SCANDIR
-# include "scandir.hh"
-#endif
-
 #ifdef HAVE_VORBIS
 # include <vorbis/vorbisfile.h>
 #endif
