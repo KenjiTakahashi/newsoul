@@ -18,28 +18,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif // HAVE_CONFIG_H
+#include <zlib.h>
 #include "mutypes.h"
-#include "sharesdatabase.h"
 #include "newsoul.h"
+#include "sharesdatabase.h"
 #include "codesetmanager.h"
 #include "servermanager.h"
-#include "../Muhelp/string_ext.hh"
-#include <zlib.h>
-#include <string>
-#include <map>
-#include <vector>
-#include <algorithm>
+#include "../utils/string.h"
 #include "../NewNet/nnpath.h"
 
 using std::string;
 using std::wstring;
 using std::map;
 using std::vector;
-
-#include <iostream>
 
 Museek::SharesDatabase::SharesDatabase(Museekd* museekd) : mMuseekd(museekd), mNumFolders(0), mNumFiles(0) {
 }

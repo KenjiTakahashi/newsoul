@@ -2,6 +2,7 @@
  *
  * Copyright (C) 2003-2004 Hyriand <hyriand@thegraveyard.org>
  * Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+ * Karol 'Kenji Takahashi' Woźniak © 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +30,7 @@ extern "C" {
 #endif
 
 #include "../Muhelp/DirEntry.hh"
-#include "../Muhelp/string_ext.hh"
+#include "../utils/string.h"
 #include "../NewNet/nnlog.h"
 
 #include <iostream>

@@ -1,6 +1,7 @@
 /*  Museek - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,9 +19,7 @@
 
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif // HAVE_CONFIG_H
+#include <fstream>
 #include "ifacemanager.h"
 #include "newsoul.h"
 #include "codesetmanager.h"
@@ -31,12 +30,10 @@
 #include "uploadmanager.h"
 #include "searchmanager.h"
 #include "peermanager.h"
-#include "../Muhelp/string_ext.hh"
+#include "../utils/string.h"
 #include "../NewNet/nnunixfactorysocket.h"
 #include "../NewNet/nntcpfactorysocket.h"
 #include "../NewNet/nnlog.h"
-
-#include <fstream>
 
 #define SEND_MESSAGE(SOCKET, MESSAGE) (SOCKET)->sendMessage(MESSAGE.make_network_packet())
 #define SEND_ALL(MESSAGE) \
@@ -597,19 +594,17 @@ Museek::IfaceManager::onIfaceSendPrivateMessage(const IPrivateMessage * message)
   std::string line = museekd()->codeset()->toPeer(message->user, message->msg);
 
   // send one message per line
-  std::vector<std::string> lines;
-  std::vector<std::string>::const_iterator it;
-  split(line, lines, "\n");
+  std::vector<std::string> lines = split(line, "\n");
 
+  std::vector<std::string>::const_iterator it;
   for (it = lines.begin(); it != lines.end(); ++it) {
     SEND_MESSAGE(museekd()->server(), SPrivateMessage(message->user, *it));
   }
 
   // send one message per line
-  std::vector<std::string> ilines;
-  std::vector<std::string>::const_iterator iit;
-  split(message->msg, ilines, "\n");
+  std::vector<std::string> ilines = split(message->msg, "\n");
 
+  std::vector<std::string>::const_iterator iit;
   for (iit = ilines.begin(); iit != ilines.end(); ++iit) {
     IPrivateMessage msg(1, time(NULL), message->user, *iit);
 
@@ -646,10 +641,9 @@ Museek::IfaceManager::onIfaceSayRoom(const ISayRoom * message)
   std::string line = museekd()->codeset()->toRoom(message->room, message->line);
 
   // send one message per line
-  std::vector<std::string> lines;
-  std::vector<std::string>::const_iterator it;
-  split(line, lines, "\n");
+  std::vector<std::string> lines = split(line, "\n");
 
+  std::vector<std::string>::const_iterator it;
   for (it = lines.begin(); it != lines.end(); ++it) {
     SEND_MESSAGE(museekd()->server(), SSayRoom(message->room, *it));
   }
@@ -659,7 +653,7 @@ void
 Museek::IfaceManager::onIfaceSetRoomTicker(const IRoomTickerSet * message)
 {
   std::string ticker = museekd()->codeset()->toRoom(message->room, message->message);
-  ticker = str_replace(ticker, '\n', ' ');
+  ticker = replace(ticker, '\n', ' ');
   SEND_MESSAGE(museekd()->server(), SSetRoomTicker(message->room, ticker));
 }
 

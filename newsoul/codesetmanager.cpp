@@ -1,6 +1,7 @@
 /*  Museek - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,15 +19,12 @@
 
  */
 
-#ifdef HAVE_CONFIG_H
-    #include "config.h"
-#endif // HAVE_CONFIG_H
+#include <errno.h>
 #include "codesetmanager.h"
 #include "newsoul.h"
 #include "configmanager.h"
-#include "../Muhelp/string_ext.hh"
+#include "../utils/string.h"
 #include "../NewNet/nnpath.h"
-#include <errno.h>
 
 Museek::CodesetManager::CodesetManager(Museekd * museekd) : m_Museekd(museekd)
 {
@@ -160,7 +158,7 @@ Museek::CodesetManager::fromFSToNet(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = str_replace(str, NewNet::Path::separator(), '\\');
+        strToConvert = replace(str, NewNet::Path::separator(), '\\');
     return convert(getNetworkCodeset("encoding", "filesystem"), getNetworkCodeset("encoding", "network"), strToConvert);
 }
 
@@ -169,7 +167,7 @@ Museek::CodesetManager::fromNetToFS(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = str_replace(str, '\\', NewNet::Path::separator());
+        strToConvert = replace(str, '\\', NewNet::Path::separator());
     return convert(getNetworkCodeset("encoding", "network"), getNetworkCodeset("encoding", "filesystem"), strToConvert);
 }
 
@@ -178,7 +176,7 @@ Museek::CodesetManager::fromFSToPeer(const std::string & peer, const std::string
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = str_replace(str, NewNet::Path::separator(), '\\');
+        strToConvert = replace(str, NewNet::Path::separator(), '\\');
     return convert(getNetworkCodeset("encoding", "filesystem"), getNetworkCodeset("encoding.users", peer), strToConvert);
 }
 
@@ -187,7 +185,7 @@ Museek::CodesetManager::fromPeerToFS(const std::string & peer, const std::string
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = str_replace(str, '\\', NewNet::Path::separator());
+        strToConvert = replace(str, '\\', NewNet::Path::separator());
     return convert(getNetworkCodeset("encoding", "network"), getNetworkCodeset("encoding.users", peer), strToConvert);
 }
 
@@ -196,7 +194,7 @@ Museek::CodesetManager::fromUtf8ToFS(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = str_replace(str, '\\', NewNet::Path::separator());
+        strToConvert = replace(str, '\\', NewNet::Path::separator());
     return fromUtf8(getNetworkCodeset("encoding", "filesystem"), strToConvert);
 }
 
@@ -205,7 +203,7 @@ Museek::CodesetManager::fromFsToUtf8(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = str_replace(str, NewNet::Path::separator(), '\\');
+        strToConvert = replace(str, NewNet::Path::separator(), '\\');
     return toUtf8(getNetworkCodeset("encoding", "filesystem"), strToConvert);
 }
 

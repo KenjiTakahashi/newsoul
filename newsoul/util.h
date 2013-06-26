@@ -1,6 +1,7 @@
 /*  Museek - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,8 +22,6 @@
 #ifndef MUSEEK_UTIL_H
 #define MUSEEK_UTIL_H
 
-#include "../NewNet/nnpath.h"
-#include "../Muhelp/string_ext.hh"
 #ifndef WIN32
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -33,6 +32,8 @@
 #include <errno.h>
 #include <stdint.h>
 #include <fstream>
+#include "../utils/string.h"
+#include "../NewNet/nnpath.h"
 
 /* Make sure a directory exists by creating all the pieces from the ground
    up. Returns true if all went ok, false if things went bad. */
@@ -192,19 +193,19 @@ static inline bool wildcmp(const std::string & wildStr, const std::string & stri
     regex_t preg;
 
     std::string regex = wildStr;
-    regex = str_replace(regex, "\\", "\\\\");
-    regex = str_replace(regex, "+", "\\+");
-    regex = str_replace(regex, ".", "\\.");
-    regex = str_replace(regex, "{", "\\{");
-    regex = str_replace(regex, "}", "\\}");
-    regex = str_replace(regex, "|", "\\|");
-    regex = str_replace(regex, "(", "\\(");
-    regex = str_replace(regex, ")", "\\)");
-    regex = str_replace(regex, "^", "\\^");
-    regex = str_replace(regex, "$", "\\$");
+    regex = replace(regex, "\\", "\\\\");
+    regex = replace(regex, "+", "\\+");
+    regex = replace(regex, ".", "\\.");
+    regex = replace(regex, "{", "\\{");
+    regex = replace(regex, "}", "\\}");
+    regex = replace(regex, "|", "\\|");
+    regex = replace(regex, "(", "\\(");
+    regex = replace(regex, ")", "\\)");
+    regex = replace(regex, "^", "\\^");
+    regex = replace(regex, "$", "\\$");
 
-    regex = str_replace(regex, "*", ".*");
-    regex = str_replace(regex, "?", ".{1}"); // FIXME doesn't work
+    regex = replace(regex, "*", ".*");
+    regex = replace(regex, "?", ".{1}"); // FIXME doesn't work
 
     regex = "^"+regex+"$";
 

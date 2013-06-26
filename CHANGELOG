@@ -4,3 +4,5 @@ This file tracks changes since the last Museek+ svn trunk revision.
 -Dropped PyMucipher bindings in favour of pycrypto (affects python bindings).
 -Dropped Mucipher library in favour of nettle.
 -muscan uses newsoul's configmanager (drops whole libxml++ dependency chain).
+-Added systemd service file, but removed SysV one.
+-Made some minor fixes.

@@ -18,9 +18,7 @@
 
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif // HAVE_CONFIG_H
+#include <fstream>
 #include "peersocket.h"
 #include "newsoul.h"
 #include "codesetmanager.h"
@@ -36,8 +34,6 @@
 #include "uploadsocket.h"
 #include "searchmanager.h"
 #include "sharesdatabase.h"
-#include "../Muhelp/string_ext.hh"
-#include <fstream>
 #include "../NewNet/nnratelimiter.h"
 #include "../NewNet/nnpath.h"
 #include "../NewNet/nntcpserversocket.h"

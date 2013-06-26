@@ -18,9 +18,6 @@
 
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif // HAVE_CONFIG_H
 #include "uploadmanager.h"
 #include "newsoul.h"
 #include "codesetmanager.h"
@@ -30,7 +27,7 @@
 #include "uploadsocket.h"
 #include "sharesdatabase.h"
 #include "ifacemanager.h"
-#include "../Muhelp/string_ext.hh"
+#include "../utils/string.h"
 #include "../NewNet/nnreactor.h"
 #include "../NewNet/util.h"
 #include "../NewNet/nnratelimiter.h"

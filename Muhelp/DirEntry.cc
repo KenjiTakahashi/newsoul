@@ -2,6 +2,7 @@
  *
  * Copyright (C) 2003-2004 Hyriand <hyriand@thegraveyard.org>
  * Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+ * Karol 'Kenji Takahashi' Woźniak © 2013
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +19,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif // HAVE_CONFIG_H
-
 #include "DirEntry.hh"
-#include "string_ext.hh"
 
+#include "../utils/string.h"
 #include "../NewNet/nnlog.h"
 #include "../NewNet/nnpath.h"
 
@@ -278,5 +275,5 @@ void DirEntry::flatten(Folder& filemap) {
 
 	Folder::iterator fit = files.begin();
 	for(; fit != files.end(); ++fit)
-		filemap[str_replace(path, NewNet::Path::separator(), '\\') + "\\" + (*fit).first] = (*fit).second;
+		filemap[replace(path, NewNet::Path::separator(), '\\') + "\\" + (*fit).first] = (*fit).second;
 }

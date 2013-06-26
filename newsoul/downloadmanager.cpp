@@ -1,6 +1,7 @@
 /*  Museek - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,9 +19,6 @@
 
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif // HAVE_CONFIG_H
 #include "downloadmanager.h"
 #include "newsoul.h"
 #include "codesetmanager.h"
@@ -29,11 +27,11 @@
 #include "peermanager.h"
 #include "downloadsocket.h"
 #include "ifacemanager.h"
+#include "util.h"
+#include "../utils/string.h"
 #include "../NewNet/nnreactor.h"
 #include "../NewNet/nnpath.h"
 #include "../NewNet/util.h"
-#include "util.h"
-#include <sstream>
 
 /**
   * Constructor
@@ -487,8 +485,7 @@ void Museek::DownloadManager::addFolderContents(const std::string & user, const 
 
     // Don't download files matching a blacklist item
     std::string blacklist = museekd()->config()->get("transfers", "download_blacklist");
-    std::vector<std::string> blacklistItems;
-    split(blacklist, blacklistItems, ";");
+    std::vector<std::string> blacklistItems = split(blacklist, ";");
 
     for (fit = folders.begin(); fit != folders.end(); fit++) {
         // Folder we have asked the contents
