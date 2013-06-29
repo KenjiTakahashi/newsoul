@@ -1,4 +1,4 @@
 include_rules
 
-: foreach *.cc |> !cpp $(XMLFLAGS) |>
+: foreach *.cc |> !cpp |>
 : *.o |> !ar |>
