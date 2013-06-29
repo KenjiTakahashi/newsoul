@@ -18,6 +18,8 @@ $ tup upd
 # cp muscan/muscan /usr/bin
 ```
 
+**Note:** There are also manpages you might want to copy over.
+
 ## bindings
 
 There are python2.x bindings available inside python-bindings directory. They can be installed with

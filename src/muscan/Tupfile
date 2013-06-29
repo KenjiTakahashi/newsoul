@@ -1,0 +1,5 @@
+include_rules
+
+: mp3.c |> cc $(CFLAGS) -o %o -c %f |> %B.o
+: foreach s*.cc muscan.cc |> !cpp $(XMLFLAGS) -DHAVE_VORBIS |>
+: *.o ../NewNet/libNewNet.a ../Muhelp/libMuhelp.a ../utils/libutils.a ../configmanager.o |> c++ $(XMLLINKS) -lvorbis -lvorbisfile -o %o %f |> muscan

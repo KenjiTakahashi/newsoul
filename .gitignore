@@ -4,5 +4,5 @@
 *.o
 .tup/
 muscan/muscan
-newsoul/newsoul
+src/newsoul
 .td

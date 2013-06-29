@@ -1,4 +1,0 @@
-include_rules
-
-: foreach *.cpp |> !cpp $(CFLAGS) $(XMLFLAGS) |>
-: *.o ../NewNet/libNewNet.a ../Muhelp/libMuhelp.a ../utils/libutils.a |> c++ $(XMLLINKS) -lz -levent -lnettle -o %o %f |> newsoul
