@@ -12,13 +12,19 @@
 
 There is no installation script at this time, so you have to something like this
 ```sh
-$ tup init
-$ tup upd
-# cp newsoul/newsoul /usr/bin
-# cp muscan/muscan /usr/bin
+$ ./build
+# cp src/newsoul /usr/bin
+# cp src/muscan/muscan /usr/bin
 ```
+**Note:** There are also manpages you might want to copy over. Some of them might be a bit outdated, though.
 
-**Note:** There are also manpages you might want to copy over.
+## usage
+
+**Museek users:** Copy your configuration files (usually stored in `~/.museekd`) into `~/.newsoul` and you should be all set.
+
+* Use nssetup for first time configuration.
+* Run newsoul.
+* Use your favourite client (museek+ clients like Museeq still work).
 
 ## bindings
 

@@ -1,9 +1,14 @@
-CFLAGS = -Wall -O2 -fPIC
+CFLAGS = -Wall -fPIC
+ifdef DEBUG
+    CFLAGS += -O0 -g -ggdb3 -fno-inline
+else
+    CFLAGS += -O2
+endif
 
 NNFLAGS = -DNN_PTR_DEBUG -DNN_PTR_DEBUG_ASSERT
 
 XMLFLAGS = -I/usr/include/libxml2
 XMLLINKS = -lxml2
 
-!cpp = |> c++ $(CFLAGS) $(NNFLAGS) -c %f -o %o |> %B.o
-!ar = |> ar crs %o %f |> lib%d.a
+!cpp = |> @(DEBUG) c++ $(CFLAGS) $(NNFLAGS) -c %f -o %o |> %B.o
+!ar = |> @(DEBUG) ar crs %o %f |> lib%d.a

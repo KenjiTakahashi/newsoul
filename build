@@ -1,0 +1,19 @@
+#!/bin/sh
+usage="./build\t\tto compile in release (default) mode\n./build debug\tto compile in debug mode (with debugging symbols and chrooted)"
+
+if [ -n "$1" ]; then
+    if [[ ( "$1" = "help" ) || ( "$1" = "h" ) ]]; then
+        echo -e "$usage"
+    elif [ "$1" = "debug" ]; then
+        echo "CONFIG_DEBUG=^c^" >> tup.config
+    else
+        echo -e "Unrecognized option. Ignoring."
+    fi
+fi
+if [ ! -d ".tup" ]; then
+    tup init
+fi
+tup upd
+if [ -f "tup.config" ]; then
+    rm tup.config
+fi
