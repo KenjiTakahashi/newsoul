@@ -1,4 +1,4 @@
-/* Tools - Tools for Museek (muscan)
+/* Tools - Tools for newsoul (nsscan)
  *
  * Copyright (C) 2003-2004 Hyriand <hyriand@thegraveyard.org>
  * Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
@@ -34,10 +34,10 @@ using std::endl;
 using std::map;
 
 void help() {
-    cout << "muscan [-c --config PATH] [-b --buddy] [-v --verbose] [-r --rescan] [-n --noscan] [-s --share PATH]... [-u --unshare PATH]..." << endl;
+    cout << "nsscan [-c --config PATH] [-b --buddy] [-v --verbose] [-r --rescan] [-n --noscan] [-s --share PATH]... [-u --unshare PATH]..." << endl;
     cout << "or:" << endl;
-    cout << "muscan [-c --config PATH] -l --list" << endl;
-    cout << "Version 0.2.0" << endl;
+    cout << "nsscan [-c --config PATH] -l --list" << endl;
+    cout << "Version 0.1" << endl;
     exit(-1);
 }
 

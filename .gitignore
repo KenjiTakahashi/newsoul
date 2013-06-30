@@ -3,6 +3,6 @@
 *.a
 *.o
 .tup/
-src/muscan/muscan
+src/nsscan/nsscan
 src/newsoul
 .td

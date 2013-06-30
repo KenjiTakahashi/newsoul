@@ -14,7 +14,7 @@ There is no installation script at this time, so you have to something like this
 ```sh
 $ ./build
 # cp src/newsoul /usr/bin
-# cp src/muscan/muscan /usr/bin
+# cp src/nsscan/nsscan /usr/bin
 ```
 **Note:** There are also manpages you might want to copy over. Some of them might be a bit outdated, though.
 
@@ -25,6 +25,8 @@ $ ./build
 * Use nssetup for first time configuration.
 * Run newsoul.
 * Use your favourite client (museek+ clients like Museeq still work).
+
+**Note:** Unfortunately, you cannot refresh shares from client applications anymore. Use **nsscan** directly instead.
 
 ## bindings
 
