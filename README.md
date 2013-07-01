@@ -1,3 +1,9 @@
+**newsoul** is a daemon/server based [Soulseek](http://www.slsknet.org) client, a successor of Museek+.
+
+It is basicaly my attempt to resurrect Museek+, which development ceased few years ago.
+
+This is *only* the daemon/server part, no clients (besides CLI) are developed here.
+
 ## requirements
 
 * libxml2
@@ -10,7 +16,7 @@
 
 ## installation
 
-There is no installation script at this time, so you have to something like this
+There is no installation script at this time, so you have to something like
 ```sh
 $ ./build
 # cp src/newsoul /usr/bin
@@ -20,7 +26,7 @@ $ ./build
 
 ## usage
 
-**Museek users:** Copy your configuration files (usually stored in `~/.museekd`) into `~/.newsoul` and you should be all set.
+**Museek+ users:** Copy your configuration files (usually stored in `~/.museekd`) into `~/.newsoul` and you should be all set.
 
 * Use nssetup for first time configuration.
 * Run newsoul.
