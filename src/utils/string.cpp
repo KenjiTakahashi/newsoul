@@ -19,7 +19,7 @@
 #include "string.h"
 
 std::string tolower(const std::string &s) {
-    std::string lowered;
+    std::string lowered(s);
 
     std::transform(s.begin(), s.end(), lowered.begin(), static_cast<int(*)(int)>(std::tolower));
 
@@ -41,7 +41,7 @@ std::vector<std::string> split(const std::string &s, const std::string &delim) {
 }
 
 std::string replace(const std::string &s, char from, char to) {
-    std::string replaced;
+    std::string replaced(s);
 
     std::replace_copy(s.begin(), s.end(), replaced.begin(), from, to);
 
