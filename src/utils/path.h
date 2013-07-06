@@ -23,6 +23,13 @@
 #include <string>
 
 namespace path {
+    /*!
+     * Joins given list a path chunks into one, proper path.
+     * Detects whether on windows or *NIX and uses proper delimiter.
+     * Makes sure that there are no double delimiters on join places.
+     * \param paths List of path chunks to join.
+     * \return All paths joined into one.
+     */
     std::string join(std::initializer_list<std::string> paths);
 }
 
