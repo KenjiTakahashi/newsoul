@@ -28,6 +28,7 @@
 #include "NewNet/nnweakrefptr.h"
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnevent.h"
+#include "sharesdb.h"
 
 /* Forward declarations. */
 class SGetStatus;

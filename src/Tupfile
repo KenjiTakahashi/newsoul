@@ -1,4 +1,4 @@
 include_rules
 
 : foreach *.cpp |> !cpp $(XMLFLAGS) |>
-: *.o NewNet/libNewNet.a Muhelp/libMuhelp.a utils/libutils.a |> @(DEBUG) c++ $(XMLLINKS) -lz -levent -lnettle -o %o %f |> newsoul
+: *.o NewNet/libNewNet.a Muhelp/libMuhelp.a utils/libutils.a efsw/lib/libefsw-static-release.a |> @(DEBUG) c++ $(XMLLINKS) -lz -levent -lnettle -ldb_cxx -lpthread -ltag -o %o %f |> newsoul

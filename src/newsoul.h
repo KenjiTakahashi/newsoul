@@ -1,6 +1,7 @@
 /*  Museek - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,13 +22,21 @@
 #ifndef MUSEEK_MUSEEKD_H
 #define MUSEEK_MUSEEKD_H
 
+namespace newsoul {
+    class SharesDB;
+}
+
+#include <string>
+#include "sharesdb.h"
+#include "servermessages.h"
+#include "NewNet/nnrefptr.h"
+
 namespace NewNet
 {
   class Reactor;
 }
 
-#include "servermessages.h"
-#include "NewNet/nnrefptr.h"
+using namespace newsoul; // FIXME: remove it once we move to new ns
 
 namespace Museek
 {
@@ -38,7 +47,6 @@ namespace Museek
   class PeerManager;
   class DownloadManager;
   class UploadManager;
-  class SharesDatabase;
   class SearchManager;
   class IfaceManager;
 
@@ -105,12 +113,12 @@ namespace Museek
       return m_Ifaces;
     }
 
-     SharesDatabase * shares() const
+    SharesDB *shares() const
     {
       return m_Shares;
     }
 
-    SharesDatabase * buddyshares() const
+    SharesDB *buddyshares() const
     {
       return m_BuddyShares;
     }
@@ -152,7 +160,7 @@ namespace Museek
     NewNet::RefPtr<DownloadManager> m_Downloads;
     NewNet::RefPtr<UploadManager> m_Uploads;
     NewNet::RefPtr<IfaceManager> m_Ifaces;
-    NewNet::RefPtr<SharesDatabase> m_Shares, m_BuddyShares;
+    SharesDB *m_Shares, *m_BuddyShares;
     NewNet::RefPtr<SearchManager> m_Searches;
 
     int m_Token;

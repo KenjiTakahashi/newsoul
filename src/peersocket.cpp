@@ -1,6 +1,7 @@
 /*  Museek - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -179,7 +180,7 @@ Museek::PeerSocket::onInfoRequested(const PInfoRequest *)
 void
 Museek::PeerSocket::onSharesRequested(const PSharesRequest *)
 {
-    SharesDatabase* db;
+    SharesDB *db;
     if (museekd()->isBuddied(user()))
         db = museekd()->buddyshares();
     else
@@ -425,12 +426,12 @@ Museek::PeerSocket::onFolderContentsRequested(const PFolderContentsRequest * mes
             std::string dir = *it;
             Shares content;
             if (museekd()->haveBuddyShares() && museekd()->isBuddied(user())) {
-                content = museekd()->buddyshares()->folder_contents(dir);
+                content = museekd()->buddyshares()->contents(dir);
                 if (content.size() > 0)
                     reply[dir] = content;
             }
             else {
-                content = museekd()->shares()->folder_contents(dir);
+                content = museekd()->shares()->contents(dir);
                 if (content.size() > 0)
                     reply[dir] = content;
             }

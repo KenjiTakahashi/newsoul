@@ -29,6 +29,7 @@
 #include <cstdio>
 
 #include "../mutypes.h"
+#include "../sharesdb.h"
 
 class DirEntry {
 public:

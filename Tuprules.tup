@@ -1,4 +1,4 @@
-CFLAGS = -Wall -fPIC
+CFLAGS = -Wall -fPIC -std=c++11
 ifdef DEBUG
     CFLAGS += -O0 -g -ggdb3 -fno-inline
 else

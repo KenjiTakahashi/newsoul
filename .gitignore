@@ -6,3 +6,6 @@
 src/nsscan/nsscan
 src/newsoul
 .td
+src/efsw/lib
+src/efsw/make
+src/efsw/obj

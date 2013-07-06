@@ -77,12 +77,6 @@ struct _FolderRequest {
   std::string folder;
 };
 
-struct _FileEntry {
-  uint64 size;
-  std::string ext;
-  std::vector<uint32> attrs;
-};
-
 typedef std::map<std::string, std::string> StringMap;
 typedef std::vector<std::string> StringList;
 typedef std::vector<std::wstring> WStringList;
@@ -90,8 +84,6 @@ typedef std::vector<std::wstring> WStringList;
 typedef struct _UserData UserData;
 typedef enum _TrState TrState;
 typedef enum _BaseConnState BaseConnState;
-
-typedef struct _FileEntry FileEntry;
 
 typedef struct _FolderRequest FolderRequest;
 typedef StringMap Tickers;
@@ -104,14 +96,5 @@ typedef std::map<std::string, std::pair<uint32, uint32> > PrivRoomList;
 typedef std::map<std::string, UserData> RoomData;
 typedef std::map<std::string, std::vector<std::string> > PrivRoomOperators;
 typedef std::map<std::string, std::string> PrivRoomOwners;
-
-typedef std::map<std::string, FileEntry> Folder;
-typedef std::map<std::wstring, FileEntry> WFolder;
-
-typedef std::map<std::string, Folder> Shares;
-typedef std::map<std::wstring, WFolder> WShares;
-
-typedef std::map<std::string, Shares> Folders;
-typedef std::map<std::wstring, WShares> WFolders;
 
 #endif // MUSEEK_MUTYPES_H

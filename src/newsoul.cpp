@@ -1,6 +1,7 @@
 /*  Museek - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,18 +20,15 @@
  */
 
 #include "newsoul.h"
-#include "configmanager.h"
 #include "codesetmanager.h"
-#include "servermanager.h"
-#include "peermanager.h"
-#include "ifacemanager.h"
-#include "peersocket.h"
+#include "configmanager.h"
 #include "downloadmanager.h"
-#include "uploadmanager.h"
-#include "sharesdatabase.h"
+#include "ifacemanager.h"
+#include "peermanager.h"
 #include "searchmanager.h"
+#include "servermanager.h"
+#include "uploadmanager.h"
 #include "NewNet/nnreactor.h"
-#include <fstream>
 
 Museek::Museekd::Museekd(NewNet::Reactor * reactor) : m_Reactor(reactor)
 {
@@ -52,20 +50,18 @@ Museek::Museekd::Museekd(NewNet::Reactor * reactor) : m_Reactor(reactor)
   m_Downloads = new DownloadManager(this);
   m_Uploads = new UploadManager(this);
   m_Ifaces = new IfaceManager(this);
-  m_Shares = new SharesDatabase(this);
-  m_BuddyShares = new SharesDatabase(this);
   m_Searches = new SearchManager(this);
 }
 
 void Museek::Museekd::LoadShares() {
-  std::string shares = m_Config->get("shares", "database");
-  if (! shares.empty()) {
-    m_Shares->load(shares);
-    m_BuddyShares->load(shares);
-  }
-  std::string bshares = m_Config->get("buddy.shares", "database");
-  if (! bshares.empty() && haveBuddyShares())
-    m_BuddyShares->load(bshares, (!shares.empty()));
+    std::string shares = m_Config->get("shares", "database");
+    if (!shares.empty()) {
+        m_Shares = new SharesDB(this, shares);
+    }
+    std::string bshares = m_Config->get("buddy.shares", "database");
+    if (!bshares.empty() && haveBuddyShares()) {
+        m_BuddyShares = new SharesDB(this, bshares);
+    }
 }
 
 void Museek::Museekd::LoadDownloads() {
@@ -149,11 +145,11 @@ void Museek::Museekd::setPrivilegedUsers(const std::vector<std::string> & users)
 }
 
 void Museek::Museekd::sendSharedNumber() {
-    uint32 numFiles = m_Shares->files();
-    uint32 numFolders = m_Shares->folders();
+    unsigned int numFiles = m_Shares->filesCount();
+    unsigned int numFolders = m_Shares->dirsCount();
     if (numFiles == 0) {
-        numFiles = m_BuddyShares->files();
-        numFolders = m_BuddyShares->folders();
+        numFiles = m_BuddyShares->filesCount();
+        numFolders = m_BuddyShares->dirsCount();
     }
 
 	if  (server()->loggedIn()) {

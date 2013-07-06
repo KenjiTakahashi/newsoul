@@ -1,6 +1,7 @@
 /*  Museek - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -353,15 +354,14 @@ void Museek::SearchManager::transmitSearch(uint unknown, const std::string & use
   */
 void Museek::SearchManager::sendSearchResults(const std::string & username, const std::string & query, uint token) {
 	if(! museekd()->isBanned(username) && (username != museekd()->server()->username())) {
-        SharesDatabase* db;
+        SharesDB *db;
 
         if (museekd()->isBuddied(username))
             db = museekd()->buddyshares();
         else
             db = museekd()->shares();
 
-        Folder results;
-        db->search(query, results);
+        Folder results = db->query(query);
 
         if (!results.empty()) {
             m_PendingResults[username][token] = results;

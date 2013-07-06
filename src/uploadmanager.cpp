@@ -1,6 +1,7 @@
 /*  Museek - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -606,9 +607,9 @@ Museek::UploadManager::addFolder(const std::string & user, const std::string & l
     if (! museekd()->isBanned(user)) {
         Shares content;
         if (museekd()->haveBuddyShares() && museekd()->isBuddied(user))
-            content = museekd()->buddyshares()->folder_contents(dir);
+            content = museekd()->buddyshares()->contents(dir);
         else
-            content = museekd()->shares()->folder_contents(dir);
+            content = museekd()->shares()->contents(dir);
 
         Shares::const_iterator it;
         Folder::const_iterator fit;
@@ -916,8 +917,8 @@ bool Museek::UploadManager::isUploadable(const std::string & user, const std::st
 
     *error = std::string();
 
-    bool buddyShared = museekd()->buddyshares()->is_shared(path);
-    bool normalShared = museekd()->shares()->is_shared(path);
+    bool buddyShared = museekd()->buddyshares()->isShared(path);
+    bool normalShared = museekd()->shares()->isShared(path);
 
     if ( user == museekd()->server()->username() )
         *error = "Cannot Transfer to yourself";
@@ -957,7 +958,7 @@ bool Museek::UploadManager::findUploadableNoCase(const std::string & user, const
 
     *goodPath = std::string();
 
-    std::string normalShared = museekd()->shares()->find_shared_nocase(path);
+    std::string normalShared = museekd()->shares()->toProperCase(path);
 
     if (!normalShared.empty()) {
         *goodPath = normalShared;
@@ -965,7 +966,7 @@ bool Museek::UploadManager::findUploadableNoCase(const std::string & user, const
         return true;
     }
     else if (museekd()->haveBuddyShares() && museekd()->isBuddied(user)) {
-        std::string buddyShared = museekd()->buddyshares()->find_shared_nocase(path);
+        std::string buddyShared = museekd()->buddyshares()->toProperCase(path);
         if (!buddyShared.empty()) {
             *goodPath = buddyShared;
             NNLOG("newsoul.up.debug", "Found an uploadable file for %s to user %s: %s", path.c_str(), user.c_str(), goodPath->c_str());

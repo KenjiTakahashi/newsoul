@@ -13,6 +13,14 @@ fi
 if [ ! -d ".tup" ]; then
     tup init
 fi
+
+cwd=$PWD
+cd src/efsw
+premake4 gmake
+cd make/linux
+make config=release efsw-static-lib
+
+cd $cwd
 tup upd
 if [ -f "tup.config" ]; then
     rm tup.config
