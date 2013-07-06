@@ -47,8 +47,24 @@ typedef std::map<std::string, Shares> Folders;
 
 namespace newsoul {
     class SharesDB : public efsw::FileWatchListener {
-        efsw::FileWatcher *fw;
+        efsw::FileWatcher *fw; /*!< Real time FS watcher (efsw) */
+        /*!
+         * Stores shared directory structure.
+         * It is a K/V storage with duplicates.
+         * Keys are FS paths and values are dirs and files inside them
+         * (thus we need duplicated keys).
+         */
         Db dirsdb;
+        /*!
+         * Stores info about a file.
+         * It is a K/V storage with a little trickery.
+         * Keys are:
+         * 1) Filepath + "s" for size value,
+         * 2) Filepath + "e" for ext value,
+         * 3) Filepath + "a" for attrs array,
+         * 3) Filepath + "l" for 3) size,
+         * where values are corresponding with these in FileEntry structure.
+         */
         Db attrdb;
         NewNet::WeakRefPtr<Museek::Museekd> app;
         std::vector<unsigned char> compressed;
