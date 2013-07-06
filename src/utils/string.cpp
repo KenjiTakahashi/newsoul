@@ -18,7 +18,7 @@
 
 #include "string.h"
 
-std::string tolower(const std::string &s) {
+std::string string::tolower(const std::string &s) {
     std::string lowered(s);
 
     std::transform(s.begin(), s.end(), lowered.begin(), static_cast<int(*)(int)>(std::tolower));
@@ -26,7 +26,7 @@ std::string tolower(const std::string &s) {
     return lowered;
 }
 
-std::vector<std::string> split(const std::string &s, const std::string &delim) {
+std::vector<std::string> string::split(const std::string &s, const std::string &delim) {
     std::vector<std::string> result;
 
     std::string::size_type last = s.find_first_not_of(delim, 0);
@@ -40,7 +40,7 @@ std::vector<std::string> split(const std::string &s, const std::string &delim) {
     return result;
 }
 
-std::string replace(const std::string &s, char from, char to) {
+std::string string::replace(const std::string &s, char from, char to) {
     std::string replaced(s);
 
     std::replace_copy(s.begin(), s.end(), replaced.begin(), from, to);
@@ -48,7 +48,7 @@ std::string replace(const std::string &s, char from, char to) {
     return replaced;
 }
 
-std::string replace(const std::string &s, const std::string &from, const std::string &to) {
+std::string string::replace(const std::string &s, const std::string &from, const std::string &to) {
     std::string replaced(s);
 
     std::string::size_type pos = 0;

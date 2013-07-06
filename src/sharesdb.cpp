@@ -43,7 +43,7 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, c
     if(!fp.isNull() && fp.audioProperties()) {
         TagLib::AudioProperties *props = fp.audioProperties();
 
-        ext = tolower(fn.substr(fn.rfind('.') + 1));
+        ext = string::tolower(fn.substr(fn.rfind('.') + 1));
         unsigned int size = 3;
         attrs.push_back(props->bitrate());
         attrs.push_back(props->length());
@@ -278,7 +278,7 @@ std::string newsoul::SharesDB::toProperCase(const std::string &lower) {
     attrdb.cursor(NULL, &cursor, 0);
     while(cursor->get(&key, &dat, DB_NEXT) == 0) {
         std::string s((char*)key.get_data());
-        if(tolower(s) == lower) {
+        if(string::tolower(s) == lower) {
             return s;
         }
     }

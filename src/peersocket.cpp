@@ -34,7 +34,6 @@
 #include "uploadmanager.h"
 #include "uploadsocket.h"
 #include "searchmanager.h"
-#include "sharesdatabase.h"
 #include "NewNet/nnratelimiter.h"
 #include "NewNet/nnpath.h"
 #include "NewNet/nntcpserversocket.h"

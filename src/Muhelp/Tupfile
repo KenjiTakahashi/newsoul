@@ -1,4 +1,0 @@
-include_rules
-
-: foreach *.cc |> !cpp |>
-: *.o |> !ar |>

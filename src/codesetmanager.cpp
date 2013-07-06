@@ -158,7 +158,7 @@ Museek::CodesetManager::fromFSToNet(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = replace(str, NewNet::Path::separator(), '\\');
+        strToConvert = string::replace(str, NewNet::Path::separator(), '\\');
     return convert(getNetworkCodeset("encoding", "filesystem"), getNetworkCodeset("encoding", "network"), strToConvert);
 }
 
@@ -167,7 +167,7 @@ Museek::CodesetManager::fromNetToFS(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = replace(str, '\\', NewNet::Path::separator());
+        strToConvert = string::replace(str, '\\', NewNet::Path::separator());
     return convert(getNetworkCodeset("encoding", "network"), getNetworkCodeset("encoding", "filesystem"), strToConvert);
 }
 
@@ -176,7 +176,7 @@ Museek::CodesetManager::fromFSToPeer(const std::string & peer, const std::string
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = replace(str, NewNet::Path::separator(), '\\');
+        strToConvert = string::replace(str, NewNet::Path::separator(), '\\');
     return convert(getNetworkCodeset("encoding", "filesystem"), getNetworkCodeset("encoding.users", peer), strToConvert);
 }
 
@@ -185,7 +185,7 @@ Museek::CodesetManager::fromPeerToFS(const std::string & peer, const std::string
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = replace(str, '\\', NewNet::Path::separator());
+        strToConvert = string::replace(str, '\\', NewNet::Path::separator());
     return convert(getNetworkCodeset("encoding", "network"), getNetworkCodeset("encoding.users", peer), strToConvert);
 }
 
@@ -194,7 +194,7 @@ Museek::CodesetManager::fromUtf8ToFS(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = replace(str, '\\', NewNet::Path::separator());
+        strToConvert = string::replace(str, '\\', NewNet::Path::separator());
     return fromUtf8(getNetworkCodeset("encoding", "filesystem"), strToConvert);
 }
 
@@ -203,7 +203,7 @@ Museek::CodesetManager::fromFsToUtf8(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = replace(str, NewNet::Path::separator(), '\\');
+        strToConvert = string::replace(str, NewNet::Path::separator(), '\\');
     return toUtf8(getNetworkCodeset("encoding", "filesystem"), strToConvert);
 }
 

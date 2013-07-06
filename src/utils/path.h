@@ -16,9 +16,14 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __UTILS_PATH_H__
+#define __UTILS_PATH_H__
+
 #include <initializer_list>
 #include <string>
 
 namespace path {
     std::string join(std::initializer_list<std::string> paths);
 }
+
+#endif /* __UTILS_PATH_H__ */

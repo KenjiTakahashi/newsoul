@@ -24,7 +24,6 @@
 #include "codesetmanager.h"
 #include "servermanager.h"
 #include "peermanager.h"
-#include "sharesdatabase.h"
 #include "ifacemanager.h"
 #include "NewNet/nnreactor.h"
 #include "NewNet/util.h"

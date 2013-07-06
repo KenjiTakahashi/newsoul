@@ -485,7 +485,7 @@ void Museek::DownloadManager::addFolderContents(const std::string & user, const 
 
     // Don't download files matching a blacklist item
     std::string blacklist = museekd()->config()->get("transfers", "download_blacklist");
-    std::vector<std::string> blacklistItems = split(blacklist, ";");
+    std::vector<std::string> blacklistItems = string::split(blacklist, ";");
 
     for (fit = folders.begin(); fit != folders.end(); fit++) {
         // Folder we have asked the contents

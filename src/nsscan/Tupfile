@@ -1,5 +1,0 @@
-include_rules
-
-: mp3.c |> @(DEBUG) cc $(CFLAGS) -o %o -c %f |> %B.o
-: foreach s*.cc nsscan.cc |> !cpp $(XMLFLAGS) -DHAVE_VORBIS |>
-: *.o ../NewNet/libNewNet.a ../Muhelp/libMuhelp.a ../utils/libutils.a ../configmanager.o |> @(DEBUG) c++ $(XMLLINKS) -lvorbis -lvorbisfile -o %o %f |> nsscan

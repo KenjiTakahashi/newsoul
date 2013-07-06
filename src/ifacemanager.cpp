@@ -23,7 +23,6 @@
 #include "ifacemanager.h"
 #include "newsoul.h"
 #include "codesetmanager.h"
-#include "sharesdatabase.h"
 #include "servermanager.h"
 #include "peersocket.h"
 #include "downloadmanager.h"
@@ -594,7 +593,7 @@ Museek::IfaceManager::onIfaceSendPrivateMessage(const IPrivateMessage * message)
   std::string line = museekd()->codeset()->toPeer(message->user, message->msg);
 
   // send one message per line
-  std::vector<std::string> lines = split(line, "\n");
+  std::vector<std::string> lines = string::split(line, "\n");
 
   std::vector<std::string>::const_iterator it;
   for (it = lines.begin(); it != lines.end(); ++it) {
@@ -602,7 +601,7 @@ Museek::IfaceManager::onIfaceSendPrivateMessage(const IPrivateMessage * message)
   }
 
   // send one message per line
-  std::vector<std::string> ilines = split(message->msg, "\n");
+  std::vector<std::string> ilines = string::split(message->msg, "\n");
 
   std::vector<std::string>::const_iterator iit;
   for (iit = ilines.begin(); iit != ilines.end(); ++iit) {
@@ -641,7 +640,7 @@ Museek::IfaceManager::onIfaceSayRoom(const ISayRoom * message)
   std::string line = museekd()->codeset()->toRoom(message->room, message->line);
 
   // send one message per line
-  std::vector<std::string> lines = split(line, "\n");
+  std::vector<std::string> lines = string::split(line, "\n");
 
   std::vector<std::string>::const_iterator it;
   for (it = lines.begin(); it != lines.end(); ++it) {
@@ -653,7 +652,7 @@ void
 Museek::IfaceManager::onIfaceSetRoomTicker(const IRoomTickerSet * message)
 {
   std::string ticker = museekd()->codeset()->toRoom(message->room, message->message);
-  ticker = replace(ticker, '\n', ' ');
+  ticker = string::replace(ticker, '\n', ' ');
   SEND_MESSAGE(museekd()->server(), SSetRoomTicker(message->room, ticker));
 }
 

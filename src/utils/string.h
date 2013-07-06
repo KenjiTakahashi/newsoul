@@ -16,17 +16,19 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __STRING_H__
-#define __STRING_H__
+#ifndef __UTILS_STRING_H__
+#define __UTILS_STRING_H__
 
 #include <algorithm>
 #include <cctype>
 #include <string>
 #include <vector>
 
-std::string tolower(const std::string &s);
-std::vector<std::string> split(const std::string &s, const std::string &delim);
-std::string replace(const std::string &s, char from, char to);
-std::string replace(const std::string &s, const std::string &from, const std::string &to);
+namespace string {
+    std::string tolower(const std::string &s);
+    std::vector<std::string> split(const std::string &s, const std::string &delim);
+    std::string replace(const std::string &s, char from, char to);
+    std::string replace(const std::string &s, const std::string &from, const std::string &to);
+}
 
-#endif /* __STRING_H__ */
+#endif /* __UTILS_STRING_H__ */

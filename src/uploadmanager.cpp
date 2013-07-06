@@ -26,7 +26,6 @@
 #include "servermanager.h"
 #include "peermanager.h"
 #include "uploadsocket.h"
-#include "sharesdatabase.h"
 #include "ifacemanager.h"
 #include "utils/string.h"
 #include "NewNet/nnreactor.h"
@@ -355,7 +354,7 @@ void Museek::Upload::initiate(PeerSocket * socket) {
 
 	std::string path = museekd()->codeset()->fromFSToNet(m_LocalPath);
 	if (m_CaseProblem)
-        path = tolower(path);
+        path = string::tolower(path);
 	if(! path.empty()) {
 		PTransferRequest msg(m_Ticket, path, m_Size);
         socket->sendMessage(msg.make_network_packet());
@@ -730,7 +729,7 @@ uint Museek::UploadManager::queueLength(const std::string& user, const std::stri
         if (found && (*it)->state() == TS_QueuedLocally && !priv && (museekd()->isPrivileged((*it)->user()) || (museekd()->privilegeBuddies() && museekd()->isBuddied((*it)->user()))))
 			uploads++;
 
-		if(((*it)->localPath() == stopAt) || ((*it)->hasCaseProblem() && (tolower((*it)->localPath()) == stopAt)))
+		if(((*it)->localPath() == stopAt) || ((*it)->hasCaseProblem() && (string::tolower((*it)->localPath()) == stopAt)))
 			found = true;
 	}
 
