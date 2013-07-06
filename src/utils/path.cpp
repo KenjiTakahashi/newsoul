@@ -20,21 +20,24 @@
 
 std::string path::join(std::initializer_list<std::string> paths) {
     std::string result;
+#ifdef _WIN32
+    char sep = '\\';
+#else
+    char sep = '/';
+#endif
 
     for(const std::string &path : paths) {
         if(result.empty()) {
             result = path;
             continue;
         }
-#ifdef _WIN32
-        if(result.back() != '\\' && path.front() != '\\') {
-            result += '\\' + path;
+        if(result.back() != sep && path.front() != sep) {
+            result += sep + path;
+        } else if(result.back() == sep && path.front() == sep) {
+            result += std::string(path.begin() + 1, path.end());
+        } else {
+            result += path;
         }
-#else
-        if(result.back() != '/' && path.front() != '/') {
-            result += '/' + path;
-        }
-#endif
     }
 
     return result;
