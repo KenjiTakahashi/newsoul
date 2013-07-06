@@ -16,6 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../catch.hpp"
 #include "../../src/utils/path.h"
 
 TEST_CASE("join", "[utils][path]") {

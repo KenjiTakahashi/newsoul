@@ -25,9 +25,37 @@
 #include <vector>
 
 namespace string {
+    /*!
+     * Converts given string to lowercase.
+     * \param s String to convert.
+     * \return Lowercased copy of s.
+     */
     std::string tolower(const std::string &s);
+    /*!
+     * Splits given string on specified delimiter.
+     * Note that "delimiter" is actually a "list of delimiting chars",
+     * so "s=b,a.r,delim=,." will return {b,a,r}.
+     * Possible empty strings are omitted in the result.
+     * \param s String to split.
+     * \param delim Delimiter string to split on.
+     * \return Vector of string split by delimiter.
+     */
     std::vector<std::string> split(const std::string &s, const std::string &delim);
+    /*!
+     * Replaces all occurences of a char with other char.
+     * \param s String to replace on.
+     * \param from Char to get replaced.
+     * \param to Char to replace with.
+     * \return Copy of s with from replaced by to.
+     */
     std::string replace(const std::string &s, char from, char to);
+    /*!
+     * Same as above, but replacing whole string chunks.
+     * \param s String to replace on.
+     * \param from String chunk to get replaced.
+     * \param to String chunk to replace with.
+     * \return Copy of s with from replaced by to.
+     */
     std::string replace(const std::string &s, const std::string &from, const std::string &to);
 }
 
