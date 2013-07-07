@@ -21,32 +21,18 @@
 #ifndef MUSEEK_UPLOADMANAGER_H
 #define MUSEEK_UPLOADMANAGER_H
 
-#include "NewNet/nnobject.h"
-#include "NewNet/nnweakrefptr.h"
-#include "NewNet/nnrefptr.h"
-#include "NewNet/nnevent.h"
-#include "NewNet/nnbuffer.h"
-#include "mutypes.h"
-#include "servermessages.h"
 #include "configmanager.h"
-
-/* Forward declarations. */
-class SGetStatus;
-class PTransferReply;
-
-namespace NewNet
-{
-  class ClientSocket;
-  class RateLimiter;
-}
+#include "peersocket.h"
+#include "servermessages.h"
+#include "uploadsocket.h"
+#include "utils/string.h"
+#include "NewNet/nnobject.h"
+#include "NewNet/nnratelimiter.h"
+#include "NewNet/nnrefptr.h"
+#include "NewNet/nnweakrefptr.h"
 
 namespace Museek
 {
-  class Museekd;
-  class PeerSocket;
-  class TicketSocket;
-  class UploadSocket;
-
   /* Definition of the upload structure. */
   class UploadManager;
   class Upload : public NewNet::Object

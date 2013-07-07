@@ -21,12 +21,10 @@
 #ifndef MUSEEK_NETWORKMESSAGE_H
 #define MUSEEK_NETWORKMESSAGE_H
 
+#include <iomanip>
+#include <sstream>
+#include <zlib.h>
 #include "mutypes.h"
-
-#include <string>
-#include <vector>
-#include <iostream>
-#include <sys/types.h>
 #include "NewNet/nnbuffer.h"
 #include "NewNet/nnlog.h"
 

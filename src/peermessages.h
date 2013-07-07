@@ -21,11 +21,7 @@
 #ifndef MUSEEK_PEERMESSAGES_H
 #define MUSEEK_PEERMESSAGES_H
 
-#include "networkmessage.h"
 #include "sharesdb.h"
-#include <string>
-#include <vector>
-#include <queue>
 
 namespace Museek
 {

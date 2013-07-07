@@ -20,13 +20,6 @@
  */
 
 #include "searchmanager.h"
-#include "newsoul.h"
-#include "codesetmanager.h"
-#include "servermanager.h"
-#include "peermanager.h"
-#include "ifacemanager.h"
-#include "NewNet/nnreactor.h"
-#include "NewNet/util.h"
 
 Museek::SearchManager::SearchManager(Museekd * museekd) : m_Museekd(museekd)
 {

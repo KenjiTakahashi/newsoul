@@ -19,12 +19,7 @@
 
  */
 
-#include <errno.h>
 #include "codesetmanager.h"
-#include "newsoul.h"
-#include "configmanager.h"
-#include "utils/string.h"
-#include "NewNet/nnpath.h"
 
 Museek::CodesetManager::CodesetManager(Museekd * museekd) : m_Museekd(museekd)
 {

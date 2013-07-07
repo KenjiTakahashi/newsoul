@@ -19,13 +19,7 @@
  */
 
 #include "usersocket.h"
-#include "newsoul.h"
-#include "configmanager.h"
-#include "handshakesocket.h"
-#include "handshakemessages.h"
 #include "servermanager.h"
-#include "peermanager.h"
-#include "NewNet/nnreactor.h"
 
 Museek::UserSocket::UserSocket(Museek::Museekd * museekd, const std::string & type) : NewNet::TcpClientSocket(), m_Museekd(museekd), m_Type(type)
 {

@@ -21,6 +21,8 @@
 #ifndef MUSEEK_TICKETSOCKET_H
 #define MUSEEK_TICKETSOCKET_H
 
+#include "downloadmanager.h"
+#include "uploadmanager.h"
 #include "usersocket.h"
 
 namespace Museek

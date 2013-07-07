@@ -19,10 +19,6 @@
  */
 
 #include "networkmessage.h"
-#include <cstdio>
-#include <zlib.h>
-#include <sstream>
-#include <iomanip>
 
 /* Pack a string. trslash indicates wether / to \ translation is in order,
    used to convert unix paths to slsk (win32) paths. */

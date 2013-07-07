@@ -19,24 +19,9 @@
 
  */
 
-#include <fstream>
 #include "peersocket.h"
-#include "newsoul.h"
-#include "codesetmanager.h"
-#include "configmanager.h"
-#include "handshakesocket.h"
-#include "handshakemessages.h"
-#include "servermanager.h"
-#include "peermanager.h"
 #include "ifacemanager.h"
-#include "downloadmanager.h"
-#include "downloadsocket.h"
-#include "uploadmanager.h"
 #include "uploadsocket.h"
-#include "searchmanager.h"
-#include "NewNet/nnratelimiter.h"
-#include "NewNet/nnpath.h"
-#include "NewNet/nntcpserversocket.h"
 
 Museek::PeerSocket::PeerSocket(Museek::Museekd * museekd) : Museek::UserSocket(museekd, "P"), Museek::MessageProcessor(4)
 {

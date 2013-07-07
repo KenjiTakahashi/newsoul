@@ -21,18 +21,16 @@
 #ifndef MUSEEK_PEERMANAGER_H
 #define MUSEEK_PEERMANAGER_H
 
+#include "configmanager.h"
+#include "peersocket.h"
+#include "NewNet/nnfactorysocket.h"
 #include "NewNet/nnobject.h"
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnweakrefptr.h"
-#include "NewNet/nnfactorysocket.h"
-#include "configmanager.h"
-#include "servermessages.h"
-#include "peersocket.h"
 
 namespace NewNet
 {
   class TcpServerSocket;
-  class ClientSocket;
 }
 
 namespace Museek

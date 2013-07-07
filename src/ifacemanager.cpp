@@ -19,20 +19,7 @@
 
  */
 
-#include <fstream>
 #include "ifacemanager.h"
-#include "newsoul.h"
-#include "codesetmanager.h"
-#include "servermanager.h"
-#include "peersocket.h"
-#include "downloadmanager.h"
-#include "uploadmanager.h"
-#include "searchmanager.h"
-#include "peermanager.h"
-#include "utils/string.h"
-#include "NewNet/nnunixfactorysocket.h"
-#include "NewNet/nntcpfactorysocket.h"
-#include "NewNet/nnlog.h"
 
 #define SEND_MESSAGE(SOCKET, MESSAGE) (SOCKET)->sendMessage(MESSAGE.make_network_packet())
 #define SEND_ALL(MESSAGE) \

@@ -25,7 +25,6 @@
 #include "networkmessage.h"
 #include "downloadmanager.h"
 #include "uploadmanager.h"
-#include "newsoul.h"
 #include "utils/cipher.h"
 
 namespace Museek

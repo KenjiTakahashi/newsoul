@@ -21,24 +21,19 @@
 #ifndef MUSEEK_SERVERMANAGER_H
 #define MUSEEK_SERVERMANAGER_H
 
+#include "codesetmanager.h"
+#include "configmanager.h"
+#include "newsoul.h"
+#include "peermanager.h"
+#include "servermessages.h"
+#include "tcpmessagesocket.h"
+#include "NewNet/nnlog.h"
 #include "NewNet/nnobject.h"
-#include "NewNet/nnbuffer.h"
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnweakrefptr.h"
-#include "tcpmessagesocket.h"
-#include "servermessages.h"
-#include "configmanager.h"
-#include <string>
-
-namespace NewNet
-{
-  class ClientSocket;
-}
 
 namespace Museek
 {
-  class Museekd;
-
   class ServerManager : public NewNet::Object
   {
   public:

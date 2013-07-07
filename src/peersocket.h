@@ -21,16 +21,14 @@
 #ifndef MUSEEK_PEERSOCKET_H
 #define MUSEEK_PEERSOCKET_H
 
-#include "usersocket.h"
 #include "messageprocessor.h"
 #include "peermessages.h"
-#include "servermessages.h"
+#include "usersocket.h"
 
 namespace Museek
 {
   class Museekd;
   class IfaceManager;
-  class HandshakeSocket;
 
   class PeerSocket : public UserSocket, public MessageProcessor
   {

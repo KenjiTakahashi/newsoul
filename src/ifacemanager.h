@@ -22,14 +22,15 @@
 #define MUSEEK_IFACEMANAGER_H
 
 #include "ifacesocket.h"
-#include "servermessages.h"
-#include "configmanager.h"
-#include "peermessages.h"
+#include "searchmanager.h"
+#include "utils/string.h"
+#include "NewNet/nnlog.h"
 #include "NewNet/nnobject.h"
 #include "NewNet/nnrefptr.h"
-#include "NewNet/nnweakrefptr.h"
-#include "NewNet/nnclientsocket.h"
 #include "NewNet/nnserversocket.h"
+#include "NewNet/nntcpfactorysocket.h"
+#include "NewNet/nnunixfactorysocket.h"
+#include "NewNet/nnweakrefptr.h"
 
 namespace NewNet
 {

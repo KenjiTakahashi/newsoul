@@ -21,14 +21,13 @@
 #ifndef MUSEEK_USERSOCKET_H
 #define MUSEEK_USERSOCKET_H
 
-#include "NewNet/nntcpclientsocket.h"
-#include "servermessages.h"
+#include "handshakemessages.h"
 #include "handshakesocket.h"
+#include "servermessages.h"
+#include "NewNet/nntcpclientsocket.h"
 
 namespace Museek
 {
-  class Museekd;
-
   class UserSocket : public NewNet::TcpClientSocket
   {
   public:

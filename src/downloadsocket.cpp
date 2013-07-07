@@ -19,12 +19,6 @@
  */
 
 #include "downloadsocket.h"
-#include "downloadmanager.h"
-#include "newsoul.h"
-#include "configmanager.h"
-#include "ticketsocket.h"
-#include <errno.h>
-#include "NewNet/nnreactor.h"
 
 Museek::DownloadSocket::DownloadSocket(Museek::Museekd * museekd, Museek::Download * download)
               : UserSocket(museekd, "F"), m_Download(download)

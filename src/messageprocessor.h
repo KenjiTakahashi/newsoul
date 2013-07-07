@@ -22,13 +22,7 @@
 #define MUSEEK_MESSAGEPROCESSOR_H
 
 #include "mutypes.h"
-#include "NewNet/nnevent.h"
-
-/* Forward declarations. */
-namespace NewNet
-{
-  class ClientSocket;
-}
+#include "NewNet/nnclientsocket.h"
 
 namespace Museek
 {

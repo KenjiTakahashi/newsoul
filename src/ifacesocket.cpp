@@ -19,7 +19,6 @@
  */
 
 #include "ifacesocket.h"
-#include "NewNet/nnreactor.h"
 
 Museek::IfaceSocket::IfaceSocket() : NewNet::ClientSocket(), MessageProcessor(4), m_Authenticated(false)
 {

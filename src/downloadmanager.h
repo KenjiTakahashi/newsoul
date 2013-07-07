@@ -22,13 +22,18 @@
 #define MUSEEK_DOWNLOADMANAGER_H
 
 #include <sstream>
+#include "codesetmanager.h"
 #include "configmanager.h"
-#include "mutypes.h"
+#include "downloadsocket.h"
+#include "peermanager.h"
+#include "servermanager.h"
+#include "sharesdb.h"
+#include "util.h"
+#include "utils/string.h"
 #include "NewNet/nnobject.h"
 #include "NewNet/nnweakrefptr.h"
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnevent.h"
-#include "sharesdb.h"
 
 /* Forward declarations. */
 class SGetStatus;

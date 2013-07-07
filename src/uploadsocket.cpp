@@ -19,11 +19,7 @@
  */
 
 #include "uploadsocket.h"
-#include "uploadmanager.h"
-#include "newsoul.h"
-#include "configmanager.h"
 #include "ticketsocket.h"
-#include "NewNet/nnreactor.h"
 
 Museek::UploadSocket::UploadSocket(Museek::Museekd * museekd, Museek::Upload * upload)
               : UserSocket(museekd, "F")

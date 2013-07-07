@@ -20,18 +20,7 @@
  */
 
 #include "downloadmanager.h"
-#include "newsoul.h"
-#include "codesetmanager.h"
-#include "peersocket.h"
-#include "servermanager.h"
-#include "peermanager.h"
-#include "downloadsocket.h"
 #include "ifacemanager.h"
-#include "util.h"
-#include "utils/string.h"
-#include "NewNet/nnreactor.h"
-#include "NewNet/nnpath.h"
-#include "NewNet/util.h"
 
 /**
   * Constructor

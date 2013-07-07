@@ -22,11 +22,9 @@
 #define MUSEEK_UPLOADSOCKET_H
 
 #include "usersocket.h"
-#include <fstream>
 
 namespace Museek
 {
-  class Museekd;
   class Upload;
   class TicketSocket;
 

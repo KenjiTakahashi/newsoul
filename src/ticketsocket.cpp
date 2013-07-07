@@ -19,10 +19,6 @@
  */
 
 #include "ticketsocket.h"
-#include "downloadmanager.h"
-#include "uploadmanager.h"
-#include "newsoul.h"
-#include "NewNet/nnreactor.h"
 
 Museek::TicketSocket::TicketSocket(Museek::HandshakeSocket * that) : UserSocket(that, "F")
 {

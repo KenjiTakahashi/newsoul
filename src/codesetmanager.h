@@ -21,11 +21,14 @@
 #ifndef MUSEEK_CODESETMANAGER_H
 #define MUSEEK_CODESETMANAGER_H
 
-#include "NewNet/nnobject.h"
-#include "NewNet/nnweakrefptr.h"
-#include <string>
-#include <map>
 #include <iconv.h>
+#include <map>
+#include "configmanager.h"
+#include "newsoul.h"
+#include "utils/string.h"
+#include "NewNet/nnobject.h"
+#include "NewNet/nnpath.h"
+#include "NewNet/nnweakrefptr.h"
 
 #ifndef ICONV_CONST
 # define ICONV_CONST

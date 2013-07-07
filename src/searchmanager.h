@@ -20,30 +20,16 @@
 #ifndef MUSEEK_SEARCHMANAGER_H
 #define MUSEEK_SEARCHMANAGER_H
 
-#include "NewNet/nnobject.h"
-#include "NewNet/nnweakrefptr.h"
-#include "NewNet/nnrefptr.h"
-#include "NewNet/nnevent.h"
-#include "NewNet/nnbuffer.h"
-#include "mutypes.h"
-#include "servermessages.h"
-#include "peermessages.h"
 #include "distributedsocket.h"
-#include "configmanager.h"
-
-/* Forward declarations. */
-class SGetStatus;
-
-namespace NewNet
-{
-  class ClientSocket;
-}
+#include "ifacemanager.h"
+#include "peersocket.h"
+#include "NewNet/nnclientsocket.h"
+#include "NewNet/nnobject.h"
+#include "NewNet/nnrefptr.h"
+#include "NewNet/nnweakrefptr.h"
 
 namespace Museek
 {
-  class Museekd;
-  class PeerSocket;
-
   /* The search manager manages .. searches. */
   class SearchManager : public NewNet::Object
   {

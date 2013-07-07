@@ -21,15 +21,8 @@
 #ifndef MUSEEK_IFACESOCKET_H
 #define MUSEEK_IFACESOCKET_H
 
-#include "messageprocessor.h"
 #include "ifacemessages.h"
 #include "NewNet/nnclientsocket.h"
-#include "NewNet/nnrefptr.h"
-
-namespace NewNet
-{
-  class Reactor;
-}
 
 namespace Museek
 {

@@ -19,14 +19,9 @@
  */
 
 #include "handshakesocket.h"
-#include "newsoul.h"
-#include "handshakemessages.h"
-#include "peersocket.h"
+#include "distributedsocket.h"
 #include "peermanager.h"
 #include "ticketsocket.h"
-#include "distributedsocket.h"
-#include "searchmanager.h"
-#include "NewNet/nnreactor.h"
 
 Museek::HandshakeSocket::HandshakeSocket() : NewNet::ClientSocket(), Museek::MessageProcessor(1)
 {

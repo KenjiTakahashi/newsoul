@@ -18,16 +18,7 @@
 
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif // HAVE_CONFIG_H
 #include "distributedsocket.h"
-#include "newsoul.h"
-#include "searchmanager.h"
-#include "handshakemessages.h"
-#include "servermanager.h"
-#include "codesetmanager.h"
-#include "NewNet/nnreactor.h"
 
 Museek::DistributedSocket::DistributedSocket(Museek::HandshakeSocket * that) : Museek::UserSocket(that, "D"), Museek::MessageProcessor(1)
 {

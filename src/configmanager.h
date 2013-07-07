@@ -21,10 +21,13 @@
 #ifndef MUSEEK_CONFIGMANAGER_H
 #define MUSEEK_CONFIGMANAGER_H
 
-#include "NewNet/nnobject.h"
-#include "NewNet/nnevent.h"
-#include <string>
+#include <cstring>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 #include <map>
+#include "NewNet/nnevent.h"
+#include "NewNet/nnlog.h"
+#include "NewNet/nnobject.h"
 
 namespace Museek
 {

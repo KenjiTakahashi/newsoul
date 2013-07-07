@@ -18,14 +18,7 @@
 
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif // HAVE_CONFIG_H
 #include "configmanager.h"
-#include "NewNet/nnlog.h"
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <cstring>
 
 Museek::ConfigManager::ConfigManager() : m_AutoSave(true)
 {

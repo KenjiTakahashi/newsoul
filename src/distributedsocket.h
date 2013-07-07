@@ -21,9 +21,13 @@
 #ifndef MUSEEK_DISTRIBUTEDSOCKET_H
 #define MUSEEK_DISTRIBUTEDSOCKET_H
 
-#include "usersocket.h"
-#include "messageprocessor.h"
+#include "codesetmanager.h"
 #include "distributedmessages.h"
+#include "handshakemessages.h"
+#include "searchmanager.h"
+#include "servermanager.h"
+#include "usersocket.h"
+#include "NewNet/nnreactor.h"
 
 namespace Museek
 {

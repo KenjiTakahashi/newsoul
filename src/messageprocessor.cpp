@@ -19,7 +19,6 @@
  */
 
 #include "messageprocessor.h"
-#include "NewNet/nnclientsocket.h"
 
 bool
 Museek::MessageProcessor::parseMessage(NewNet::ClientSocket * socket)
