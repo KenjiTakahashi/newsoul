@@ -22,9 +22,6 @@
 #define MUSEEK_DISTRIBUTEDMESSAGES_H
 
 #include "networkmessage.h"
-#include <string>
-#include <vector>
-#include <queue>
 
 namespace Museek
 {

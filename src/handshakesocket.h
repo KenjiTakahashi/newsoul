@@ -22,13 +22,12 @@
 #define MUSEEK_HANDSHAKESOCKET_H
 
 #include "messageprocessor.h"
+#include "newsoul.h"
 #include "NewNet/nnclientsocket.h"
 #include "NewNet/nnweakrefptr.h"
 
 namespace Museek
 {
-  class Museekd;
-
   /* HandshakeSocket is used when a new incoming connection has been
      established. HandshakeSocket reads one message then creates the
      appropriate socket type re-using the same descriptor. */

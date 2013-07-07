@@ -29,12 +29,8 @@ namespace newsoul {
 #include <string>
 #include "sharesdb.h"
 #include "servermessages.h"
+#include "NewNet/nnreactor.h"
 #include "NewNet/nnrefptr.h"
-
-namespace NewNet
-{
-  class Reactor;
-}
 
 using namespace newsoul; // FIXME: remove it once we move to new ns
 

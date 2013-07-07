@@ -28,6 +28,7 @@
 #include "peermanager.h"
 #include "servermanager.h"
 #include "sharesdb.h"
+#include "ticketsocket.h"
 #include "util.h"
 #include "utils/string.h"
 #include "NewNet/nnobject.h"
@@ -35,21 +36,8 @@
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnevent.h"
 
-/* Forward declarations. */
-class SGetStatus;
-class PTransferReply;
-
-namespace NewNet
-{
-  class ClientSocket;
-  class RateLimiter;
-}
-
 namespace Museek
 {
-  class Museekd;
-  class PeerSocket;
-  class TicketSocket;
   class DownloadSocket;
 
   /* Definition of the download structure. */

@@ -21,7 +21,6 @@
 
 #include "peersocket.h"
 #include "ifacemanager.h"
-#include "uploadsocket.h"
 
 Museek::PeerSocket::PeerSocket(Museek::Museekd * museekd) : Museek::UserSocket(museekd, "P"), Museek::MessageProcessor(4)
 {

@@ -27,9 +27,6 @@
 
 namespace Museek
 {
-  class Museekd;
-  class IfaceManager;
-
   class PeerSocket : public UserSocket, public MessageProcessor
   {
   public:

@@ -20,15 +20,7 @@
  */
 
 #include "newsoul.h"
-#include "codesetmanager.h"
-#include "configmanager.h"
-#include "downloadmanager.h"
-#include "ifacemanager.h"
-#include "peermanager.h"
 #include "searchmanager.h"
-#include "servermanager.h"
-#include "uploadmanager.h"
-#include "NewNet/nnreactor.h"
 
 Museek::Museekd::Museekd(NewNet::Reactor * reactor) : m_Reactor(reactor)
 {

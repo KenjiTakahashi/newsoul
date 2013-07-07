@@ -37,8 +37,6 @@
 
 namespace Museek
 {
-  class Museekd;
-
   class CodesetManager : public NewNet::Object
   {
   public:

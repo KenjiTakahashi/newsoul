@@ -28,7 +28,6 @@
 
 namespace Museek
 {
-  class Museekd;
   class Download;
   class TicketSocket;
 

@@ -32,17 +32,8 @@
 #include "NewNet/nnunixfactorysocket.h"
 #include "NewNet/nnweakrefptr.h"
 
-namespace NewNet
-{
-  class Reactor;
-}
-
 namespace Museek
 {
-  class IfaceSocket;
-  class Museekd;
-  class ServerManager;
-
   class IfaceManager : public NewNet::Object
   {
   public:

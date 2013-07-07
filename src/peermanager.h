@@ -26,19 +26,11 @@
 #include "NewNet/nnfactorysocket.h"
 #include "NewNet/nnobject.h"
 #include "NewNet/nnrefptr.h"
+#include "NewNet/nntcpserversocket.h"
 #include "NewNet/nnweakrefptr.h"
-
-namespace NewNet
-{
-  class TcpServerSocket;
-}
 
 namespace Museek
 {
-  class Museekd;
-  class HandshakeSocket;
-  class SharesDatabase;
-
   class PeerManager : public NewNet::Object
   {
   public:

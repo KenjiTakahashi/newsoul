@@ -20,8 +20,6 @@
 
 #include "handshakesocket.h"
 #include "distributedsocket.h"
-#include "peermanager.h"
-#include "ticketsocket.h"
 
 Museek::HandshakeSocket::HandshakeSocket() : NewNet::ClientSocket(), Museek::MessageProcessor(1)
 {
