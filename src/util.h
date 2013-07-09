@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
     Karol 'Kenji Takahashi' Woźniak © 2013
@@ -19,8 +19,8 @@
 
  */
 
-#ifndef MUSEEK_UTIL_H
-#define MUSEEK_UTIL_H
+#ifndef NEWSOUL_UTIL_H
+#define NEWSOUL_UTIL_H
 
 #ifndef WIN32
 #include <sys/stat.h>
@@ -236,4 +236,4 @@ static inline bool wildcmp(const std::string & wildStr, const std::string & stri
 
 return false; // For Win32
 }
-#endif // MUSEEK_UTIL_H
+#endif // NEWSOUL_UTIL_H

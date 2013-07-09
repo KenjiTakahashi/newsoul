@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -20,30 +20,30 @@
 
 #include "ticketsocket.h"
 
-Museek::TicketSocket::TicketSocket(Museek::HandshakeSocket * that) : UserSocket(that, "F")
+newsoul::TicketSocket::TicketSocket(newsoul::HandshakeSocket * that) : UserSocket(that, "F")
 {
     // Sometimes, the ticket is sent at the connection of the socket so the data received event is not called.
     // You should call findTicket when you create a new TicketSocket, after adding it to the reactor
     dataReceivedEvent.connect(this, &TicketSocket::onDataReceived);
 }
 
-Museek::TicketSocket::TicketSocket(Museek::Museekd * museekd) : UserSocket(museekd, "F")
+newsoul::TicketSocket::TicketSocket(newsoul::Newsoul * newsoul) : UserSocket(newsoul, "F")
 {
   dataReceivedEvent.connect(this, &TicketSocket::onDataReceived);
 }
 
-Museek::TicketSocket::~TicketSocket()
+newsoul::TicketSocket::~TicketSocket()
 {
   NNLOG("newsoul.ticket.debug", "TicketSocket destroyed");
 }
 
 void
-Museek::TicketSocket::onDataReceived(NewNet::ClientSocket *) {
+newsoul::TicketSocket::onDataReceived(NewNet::ClientSocket *) {
     findTicket();
 }
 
 void
-Museek::TicketSocket::findTicket() {
+newsoul::TicketSocket::findTicket() {
     if(receiveBuffer().count() < 4)
         return;
 
@@ -57,10 +57,10 @@ Museek::TicketSocket::findTicket() {
 
     // Notify our waiting downloadsockets
     NNLOG("newsoul.ticket.debug", "Yay! We received ticket %u.. Now what..", m_Ticket);
-    museekd()->downloads()->transferTicketReceivedEvent(this);
-    museekd()->uploads()->transferTicketReceivedEvent(this);
+    newsoul()->downloads()->transferTicketReceivedEvent(this);
+    newsoul()->uploads()->transferTicketReceivedEvent(this);
 
     // Self-terminate
     receiveBuffer().clear();
-    museekd()->reactor()->remove(this);
+    newsoul()->reactor()->remove(this);
 }

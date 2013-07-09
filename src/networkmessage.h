@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_NETWORKMESSAGE_H
-#define MUSEEK_NETWORKMESSAGE_H
+#ifndef NEWSOUL_NETWORKMESSAGE_H
+#define NEWSOUL_NETWORKMESSAGE_H
 
 #include <iomanip>
 #include <sstream>
@@ -171,4 +171,4 @@ private:
   public:
 #define END };
 
-#endif // MUSEEK_NETWORKMESSAGE_H
+#endif // NEWSOUL_NETWORKMESSAGE_H

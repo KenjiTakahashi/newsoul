@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
     Karol 'Kenji Takahashi' Woźniak © 2013
@@ -22,29 +22,29 @@
 #include "peersocket.h"
 #include "ifacemanager.h"
 
-Museek::PeerSocket::PeerSocket(Museek::Museekd * museekd) : Museek::UserSocket(museekd, "P"), Museek::MessageProcessor(4)
+newsoul::PeerSocket::PeerSocket(newsoul::Newsoul * newsoul) : newsoul::UserSocket(newsoul, "P"), newsoul::MessageProcessor(4)
 {
   connectMessageSignals();
 }
 
-Museek::PeerSocket::PeerSocket(Museek::HandshakeSocket * that) : Museek::UserSocket(that, "P"), Museek::MessageProcessor(4)
+newsoul::PeerSocket::PeerSocket(newsoul::HandshakeSocket * that) : newsoul::UserSocket(that, "P"), newsoul::MessageProcessor(4)
 {
   connectMessageSignals();
 
   // If there's no activity within the next 130 seconds, then the socket should be closed (timeout)
-  m_SocketTimeout = museekd()->reactor()->addTimeout(130000, this, &PeerSocket::onSocketTimeout);
+  m_SocketTimeout = newsoul()->reactor()->addTimeout(130000, this, &PeerSocket::onSocketTimeout);
 
   if(! receiveBuffer().empty())
     dataReceivedEvent(this);
 }
 
-Museek::PeerSocket::~PeerSocket()
+newsoul::PeerSocket::~PeerSocket()
 {
     NNLOG("newsoul.peers.debug", "PeerSocket %d destroyed for %s", descriptor(), user().c_str());
 }
 
 void
-Museek::PeerSocket::connectMessageSignals()
+newsoul::PeerSocket::connectMessageSignals()
 {
     dataReceivedEvent.connect(this, &TcpMessageSocket::onDataReceived);
     dataReceivedEvent.connect(this, &PeerSocket::onDataReceived);
@@ -66,50 +66,50 @@ Museek::PeerSocket::connectMessageSignals()
 }
 
 void
-Museek::PeerSocket::onConnected(NewNet::ClientSocket *)
+newsoul::PeerSocket::onConnected(NewNet::ClientSocket *)
 {
     // If there's no activity within the next 130 seconds, then the socket should be closed (timeout)
     if (m_SocketTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_SocketTimeout);
+        newsoul()->reactor()->removeTimeout(m_SocketTimeout);
 
-    m_SocketTimeout = museekd()->reactor()->addTimeout(130000, this, &PeerSocket::onSocketTimeout);
+    m_SocketTimeout = newsoul()->reactor()->addTimeout(130000, this, &PeerSocket::onSocketTimeout);
 }
 
 void
-Museek::PeerSocket::onDisconnected(NewNet::ClientSocket *)
+newsoul::PeerSocket::onDisconnected(NewNet::ClientSocket *)
 {
     if (m_SearchResultsOnlyTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_SearchResultsOnlyTimeout);
+        newsoul()->reactor()->removeTimeout(m_SearchResultsOnlyTimeout);
 
     if (m_SocketTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_SocketTimeout);
+        newsoul()->reactor()->removeTimeout(m_SocketTimeout);
 }
 
 /*
     Some data has been received
 */
 void
-Museek::PeerSocket::onDataReceived(NewNet::ClientSocket * socket)
+newsoul::PeerSocket::onDataReceived(NewNet::ClientSocket * socket)
 {
   if (m_SocketTimeout.isValid()) {
-    museekd()->reactor()->removeTimeout(m_SocketTimeout);
+    newsoul()->reactor()->removeTimeout(m_SocketTimeout);
 
     // If there's no activity in the next 130 seconds, then the socket should be closed (timeout)
-    m_SocketTimeout = museekd()->reactor()->addTimeout(130000, this, &PeerSocket::onSocketTimeout);
+    m_SocketTimeout = newsoul()->reactor()->addTimeout(130000, this, &PeerSocket::onSocketTimeout);
   }
 }
 
 void
-Museek::PeerSocket::onMessageReceived(const MessageData * data)
+newsoul::PeerSocket::onMessageReceived(const MessageData * data)
 {
   if (m_SearchResultsOnlyTimeout.isValid())
-    museekd()->reactor()->removeTimeout(m_SearchResultsOnlyTimeout);
+    newsoul()->reactor()->removeTimeout(m_SearchResultsOnlyTimeout);
 
   if (m_SocketTimeout.isValid()) {
-    museekd()->reactor()->removeTimeout(m_SocketTimeout);
+    newsoul()->reactor()->removeTimeout(m_SocketTimeout);
 
     // If there's no activity in the next 130 seconds, then the socket should be closed (timeout)
-    m_SocketTimeout = museekd()->reactor()->addTimeout(130000, this, &PeerSocket::onSocketTimeout);
+    m_SocketTimeout = newsoul()->reactor()->addTimeout(130000, this, &PeerSocket::onSocketTimeout);
   }
 
   switch(data->type)
@@ -135,10 +135,10 @@ Museek::PeerSocket::onMessageReceived(const MessageData * data)
 }
 
 void
-Museek::PeerSocket::onInfoRequested(const PInfoRequest *)
+newsoul::PeerSocket::onInfoRequested(const PInfoRequest *)
 {
-  std::string text = museekd()->config()->get("userinfo", "text");
-  std::string path = museekd()->config()->get("userinfo", "image");
+  std::string text = newsoul()->config()->get("userinfo", "text");
+  std::string path = newsoul()->config()->get("userinfo", "image");
   std::vector<uchar> imgdata;
   if(path != "")
   {
@@ -155,47 +155,47 @@ Museek::PeerSocket::onInfoRequested(const PInfoRequest *)
     ifs.close();
   }
 
-  PInfoReply reply(museekd()->codeset()->toPeer(user(), text), imgdata, museekd()->upSlots(), museekd()->uploads()->queueTotalLength(), museekd()->uploads()->hasFreeSlots());
+  PInfoReply reply(newsoul()->codeset()->toPeer(user(), text), imgdata, newsoul()->upSlots(), newsoul()->uploads()->queueTotalLength(), newsoul()->uploads()->hasFreeSlots());
   sendMessage(reply.make_network_packet());
-  museekd()->ifaces()->sendStatusMessage(true, std::string("User Info sent to: ") + user());
+  newsoul()->ifaces()->sendStatusMessage(true, std::string("User Info sent to: ") + user());
 }
 
 void
-Museek::PeerSocket::onSharesRequested(const PSharesRequest *)
+newsoul::PeerSocket::onSharesRequested(const PSharesRequest *)
 {
     SharesDB *db;
-    if (museekd()->isBuddied(user()))
-        db = museekd()->buddyshares();
+    if (newsoul()->isBuddied(user()))
+        db = newsoul()->buddyshares();
     else
-        db = museekd()->shares();
+        db = newsoul()->shares();
 
     PSharesReply reply(db->shares());
     sendMessage(reply.make_network_packet());
 
-    museekd()->ifaces()->sendStatusMessage(true, std::string("Shares sent to: ") + user());
+    newsoul()->ifaces()->sendStatusMessage(true, std::string("Shares sent to: ") + user());
 }
 
 void
-Museek::PeerSocket::onPlaceInQueueRequested(const PPlaceInQueueRequest * message) {
-    size_t place = museekd()->uploads()->queueLength(user(), museekd()->codeset()->fromPeerToFS(user(), message->filename));
+newsoul::PeerSocket::onPlaceInQueueRequested(const PPlaceInQueueRequest * message) {
+    size_t place = newsoul()->uploads()->queueLength(user(), newsoul()->codeset()->fromPeerToFS(user(), message->filename));
 
     PPlaceInQueueReply reply(message->filename, place);
     sendMessage(reply.make_network_packet());
 }
 
 void
-Museek::PeerSocket::onPlaceInQueueReplyReceived(const PPlaceInQueueReply * message) {
-    Download * download = museekd()->downloads()->findDownload(user(), museekd()->codeset()->fromPeer(user(), message->filename));
+newsoul::PeerSocket::onPlaceInQueueReplyReceived(const PPlaceInQueueReply * message) {
+    Download * download = newsoul()->downloads()->findDownload(user(), newsoul()->codeset()->fromPeer(user(), message->filename));
 
     if (download)
         download->setPlace(message->place);
 }
 
 void
-Museek::PeerSocket::onUploadQueueNotificationReceived(const PUploadQueueNotification *)
+newsoul::PeerSocket::onUploadQueueNotificationReceived(const PUploadQueueNotification *)
 {
   std::string state = " is not a buddy";
-  if (museekd()->config()->hasKey("buddies", user()))
+  if (newsoul()->config()->hasKey("buddies", user()))
     state = " is a buddy";
 
   std::string isbuddy = user() + state;
@@ -203,7 +203,7 @@ Museek::PeerSocket::onUploadQueueNotificationReceived(const PUploadQueueNotifica
 }
 
 void
-Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
+newsoul::PeerSocket::onTransferRequested(const PTransferRequest * request)
 {
   std::string reason;
   uint64 size = 0;
@@ -213,15 +213,15 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
         // Since slsk 157, we're not supposed to received an upload request like this.
         // The peer sends us PQueueDownload and then WE send him transfer request.
         // So this code is not much useful anymore. That's why we haven't fixed the case problem (see Upload::setCaseProblem())
-        std::string path = museekd()->codeset()->toNet(museekd()->codeset()->fromPeer(user(), request->filename));
+        std::string path = newsoul()->codeset()->toNet(newsoul()->codeset()->fromPeer(user(), request->filename));
 
-        if (museekd()->uploads()->isUploadable(user(), path, &reason)) {
+        if (newsoul()->uploads()->isUploadable(user(), path, &reason)) {
 	        NNLOG("newsoul.peers.debug", "shared");
 
-            std::string pathFS = museekd()->codeset()->fromNetToFS(request->filename);
-	        museekd()->uploads()->add(user(), pathFS);
-	        Upload* upload = museekd()->uploads()->findUpload(user(), pathFS);
-	        if (upload && museekd()->uploads()->hasFreeSlots() && !museekd()->uploads()->isUploadingTo(user())) {
+            std::string pathFS = newsoul()->codeset()->fromNetToFS(request->filename);
+	        newsoul()->uploads()->add(user(), pathFS);
+	        Upload* upload = newsoul()->uploads()->findUpload(user(), pathFS);
+	        if (upload && newsoul()->uploads()->hasFreeSlots() && !newsoul()->uploads()->isUploadingTo(user())) {
 		        NNLOG("newsoul.peers.debug", "slot free");
 
 		        if (!upload->openFile()) {
@@ -229,11 +229,11 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
 			        NNLOG("newsoul.peers.warn", "Local file error on %s", pathFS.c_str());
                 }
                 else {
-                    UploadSocket * uploadSocket = new UploadSocket(museekd(), upload);
+                    UploadSocket * uploadSocket = new UploadSocket(newsoul(), upload);
                     upload->setSocket(uploadSocket);
                     upload->setState(TS_Establishing);
                     upload->setTicket(request->ticket);
-                    museekd()->reactor()->add(uploadSocket);
+                    newsoul()->reactor()->add(uploadSocket);
                     uploadSocket->wait();
 			        NNLOG("newsoul.peers.debug", "Initiating transfer, ticket %i", request->ticket);
 			        size = upload->size();
@@ -258,8 +258,8 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
     {
       NNLOG("newsoul.peers.debug", "request for download %s %s %u", user().c_str(), request->filename.c_str(), request->ticket);
       // Starting a download
-      std::string path = museekd()->codeset()->fromPeer(user(), request->filename);
-      Download * download = museekd()->downloads()->findDownload(user(), path);
+      std::string path = newsoul()->codeset()->fromPeer(user(), request->filename);
+      Download * download = newsoul()->downloads()->findDownload(user(), path);
       if(download)
       {
         // Check that we don't already have this file downloaded in destination dir
@@ -272,7 +272,7 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
             file.close();
         }
 
-        if (!museekd()->downloads()->hasFreeSlots()) {
+        if (!newsoul()->downloads()->hasFreeSlots()) {
           PDownloadReply reply(request->ticket, allowed, "Remotely Queued");
           sendMessage(reply.make_network_packet());
         }
@@ -284,19 +284,19 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
                 || download->state() == TS_LocalError
                 || download->state() == TS_Offline) {
             // If we're already downloading/initiating another download from this user, stop it
-            Download * downloading = museekd()->downloads()->isDownloadingFrom(user());
+            Download * downloading = newsoul()->downloads()->isDownloadingFrom(user());
             if (downloading && downloading != download) {
                 downloading->setSocket(0);
                 downloading->setState(TS_QueuedRemotely);
                 downloading->setEnqueued(false);
-                museekd()->downloads()->enqueueDownload(downloading);
+                newsoul()->downloads()->enqueueDownload(downloading);
             }
             // Prepare the download
             download->setTicket(request->ticket);
             download->setSize(request->filesize);
-            DownloadSocket * downloadSocket = new DownloadSocket(museekd(), download);
+            DownloadSocket * downloadSocket = new DownloadSocket(newsoul(), download);
             download->setSocket(downloadSocket);
-            museekd()->reactor()->add(downloadSocket);
+            newsoul()->reactor()->add(downloadSocket);
             downloadSocket->wait();
             PDownloadReply reply(request->ticket, true);
             sendMessage(reply.make_network_packet());
@@ -306,36 +306,36 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
             sendMessage(reply.make_network_packet());
         }
       }
-      else if (museekd()->trustingUploads() && museekd()->isTrusted(user())) {
+      else if (newsoul()->trustingUploads() && newsoul()->isTrusted(user())) {
         // If we're already downloading/initiating another download from this user, stop it
-        Download * downloading = museekd()->downloads()->isDownloadingFrom(user());
+        Download * downloading = newsoul()->downloads()->isDownloadingFrom(user());
         if (downloading && downloading != download) {
             downloading->setSocket(0);
             downloading->setState(TS_QueuedRemotely);
             downloading->setEnqueued(false);
-            museekd()->downloads()->enqueueDownload(downloading);
+            newsoul()->downloads()->enqueueDownload(downloading);
         }
         // Prepare the download
         std::stringstream localPath;
         // Construct the destination path
-        localPath << museekd()->config()->get("transfers", "download-dir") << NewNet::Path::separator() << "upload" << NewNet::Path::separator()  << museekd()->codeset()->fromNetToFS(user());
+        localPath << newsoul()->config()->get("transfers", "download-dir") << NewNet::Path::separator() << "upload" << NewNet::Path::separator()  << newsoul()->codeset()->fromNetToFS(user());
         // Create the download and prepare it
-        museekd()->downloads()->add(user(), path, localPath.str());
-        Download * newDownload = museekd()->downloads()->findDownload(user(), path);
+        newsoul()->downloads()->add(user(), path, localPath.str());
+        Download * newDownload = newsoul()->downloads()->findDownload(user(), path);
         if (!newDownload)
             return; // Check this just in case it disappers between add() and find() calls
 
         newDownload->setTicket(request->ticket);
         newDownload->setSize(request->filesize);
 
-        if (!museekd()->downloads()->hasFreeSlots()) {
+        if (!newsoul()->downloads()->hasFreeSlots()) {
             PDownloadReply reply(request->ticket, allowed, "Remotely Queued");
             sendMessage(reply.make_network_packet());
         }
         else {
-            DownloadSocket * downloadSocket = new DownloadSocket(museekd(), newDownload);
+            DownloadSocket * downloadSocket = new DownloadSocket(newsoul(), newDownload);
             newDownload->setSocket(downloadSocket);
-            museekd()->reactor()->add(downloadSocket);
+            newsoul()->reactor()->add(downloadSocket);
             downloadSocket->wait();
             PDownloadReply reply(request->ticket, true);
             sendMessage(reply.make_network_packet());
@@ -352,22 +352,22 @@ Museek::PeerSocket::onTransferRequested(const PTransferRequest * request)
     The peer asks us to put an upload in queue. We don't need to check if it is allowed.
 */
 void
-Museek::PeerSocket::onQueueDownloadRequested(const PQueueDownload * message) {
+newsoul::PeerSocket::onQueueDownloadRequested(const PQueueDownload * message) {
     std::string reason, goodPath;
 
     NNLOG("newsoul.peers.debug", "request for queued upload %s %s", user().c_str(), message->filename.c_str());
 
-    if (museekd()->uploads()->isUploadable(user(), message->filename, &reason)) {
-        museekd()->uploads()->add(user(), museekd()->codeset()->fromNetToFS(message->filename));
+    if (newsoul()->uploads()->isUploadable(user(), message->filename, &reason)) {
+        newsoul()->uploads()->add(user(), newsoul()->codeset()->fromNetToFS(message->filename));
     }
-    else if ((reason == "File not shared") && museekd()->uploads()->findUploadableNoCase(user(), message->filename, &goodPath)) {
+    else if ((reason == "File not shared") && newsoul()->uploads()->findUploadableNoCase(user(), message->filename, &goodPath)) {
         // We don't have this file!
         // This happens frequently after sending a PFolderContentReply to a peer.
         // If he's running the official client, we will get PQueueDownload with
         // the filename in lower case. If in our shares the path has upper letters, we'll throw "File not shared" error.
         // So let's try a case insensitive search: slower than previous one, with a risk to return a wrong file.
         NNLOG("newsoul.peers.debug", "File not shared but found a case insensitive match");
-        museekd()->uploads()->add(user(), museekd()->codeset()->fromNetToFS(goodPath),0 , true);
+        newsoul()->uploads()->add(user(), newsoul()->codeset()->fromNetToFS(goodPath),0 , true);
     }
     else {
         PQueueFailed msg(message->filename, reason);
@@ -379,10 +379,10 @@ Museek::PeerSocket::onQueueDownloadRequested(const PQueueDownload * message) {
     We asked to queue a download but there's a problem
 */
 void
-Museek::PeerSocket::onQueueFailedReceived(const PQueueFailed * message)
+newsoul::PeerSocket::onQueueFailedReceived(const PQueueFailed * message)
 {
-    std::string path = museekd()->codeset()->fromPeer(user(), message->filename);
-    Download * download = museekd()->downloads()->findDownload(user(), path);
+    std::string path = newsoul()->codeset()->fromPeer(user(), message->filename);
+    Download * download = newsoul()->downloads()->findDownload(user(), path);
     if(download)
         download->setRemoteError(message->reason);
 }
@@ -391,30 +391,30 @@ Museek::PeerSocket::onQueueFailedReceived(const PQueueFailed * message)
     We asked to download a file but there's a problem
 */
 void
-Museek::PeerSocket::onUploadFailedReceived(const PUploadFailed * message)
+newsoul::PeerSocket::onUploadFailedReceived(const PUploadFailed * message)
 {
-    std::string path = museekd()->codeset()->fromPeer(user(), message->filename);
-    Download * download = museekd()->downloads()->findDownload(user(), path);
+    std::string path = newsoul()->codeset()->fromPeer(user(), message->filename);
+    Download * download = newsoul()->downloads()->findDownload(user(), path);
     if(download && download->state() != TS_Aborted && download->state() != TS_LocalError)
         download->setRemoteError("Failed");
 }
 
 void
-Museek::PeerSocket::onFolderContentsRequested(const PFolderContentsRequest * message)
+newsoul::PeerSocket::onFolderContentsRequested(const PFolderContentsRequest * message)
 {
-    if (! museekd()->isBanned(user())) {
+    if (! newsoul()->isBanned(user())) {
         std::vector<std::string>::const_iterator it;
         Folders reply;
         for (it = message->dirs.begin(); it != message->dirs.end(); it++) {
             std::string dir = *it;
             Shares content;
-            if (museekd()->haveBuddyShares() && museekd()->isBuddied(user())) {
-                content = museekd()->buddyshares()->contents(dir);
+            if (newsoul()->haveBuddyShares() && newsoul()->isBuddied(user())) {
+                content = newsoul()->buddyshares()->contents(dir);
                 if (content.size() > 0)
                     reply[dir] = content;
             }
             else {
-                content = museekd()->shares()->contents(dir);
+                content = newsoul()->shares()->contents(dir);
                 if (content.size() > 0)
                     reply[dir] = content;
             }
@@ -428,61 +428,61 @@ Museek::PeerSocket::onFolderContentsRequested(const PFolderContentsRequest * mes
 }
 
 void
-Museek::PeerSocket::onFolderContentsReceived(const PFolderContentsReply * message) {
-    museekd()->downloads()->addFolderContents(user(), message->folders);
+newsoul::PeerSocket::onFolderContentsReceived(const PFolderContentsReply * message) {
+    newsoul()->downloads()->addFolderContents(user(), message->folders);
 }
 
 void
-Museek::PeerSocket::onSearchResultsReceived(const PSearchReply * message) {
+newsoul::PeerSocket::onSearchResultsReceived(const PSearchReply * message) {
     NNLOG("newsoul.peers.debug", "Search result from %s", user().c_str());
 
     Folder folders;
     Folder::const_iterator it = message->results.begin();
     for(; it != message->results.end(); ++it) {
-        std::string encodedFilename = museekd()->codeset()->fromPeer(user(), (*it).first);
+        std::string encodedFilename = newsoul()->codeset()->fromPeer(user(), (*it).first);
         folders[encodedFilename] = (*it).second;
         }
 
-    museekd()->searches()->searchReplyReceived(message->ticket, user(), message->slotfree, message->avgspeed, message->queuelen, folders);
+    newsoul()->searches()->searchReplyReceived(message->ticket, user(), message->slotfree, message->avgspeed, message->queuelen, folders);
 
     addSearchResultsOnlyTimeout(2000);
 }
 
 void
-Museek::PeerSocket::addSearchResultsOnlyTimeout(long length) {
+newsoul::PeerSocket::addSearchResultsOnlyTimeout(long length) {
     // If we don't receive any other message in the next seconds, we should delete this socket as:
     // -we will probably not receive anything else soon
     // -there's a limit on the number of opened sockets (1024 for example): this can be a problem when doing big searches
     if (m_SearchResultsOnlyTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_SearchResultsOnlyTimeout);
-    m_SearchResultsOnlyTimeout = museekd()->reactor()->addTimeout(length, this, &PeerSocket::onSearchResultsOnly);
+        newsoul()->reactor()->removeTimeout(m_SearchResultsOnlyTimeout);
+    m_SearchResultsOnlyTimeout = newsoul()->reactor()->addTimeout(length, this, &PeerSocket::onSearchResultsOnly);
 }
 
 void
-Museek::PeerSocket::onSearchResultsOnly(long) {
+newsoul::PeerSocket::onSearchResultsOnly(long) {
     NNLOG("newsoul.peers.debug", "We only received or sent search results: close this socket");
     disconnect();
 }
 
 void
-Museek::PeerSocket::onSocketTimeout(long) {
+newsoul::PeerSocket::onSocketTimeout(long) {
     NNLOG("newsoul.peers.debug", "Ping timeout on a peer socket");
     disconnect();
 }
 
 void
-Museek::PeerSocket::initiateOurself()
+newsoul::PeerSocket::initiateOurself()
 {
-    setToken(museekd()->token());
+    setToken(newsoul()->token());
 
     NNLOG("newsoul.distrib.debug", "Initiating active connection to ourself.");
 
-    HInitiate handshake(museekd()->server()->username(), type(), token());
+    HInitiate handshake(newsoul()->server()->username(), type(), token());
     sendMessage(handshake.make_network_packet());
 
     m_CannotConnectOurselfCallback = cannotConnectEvent.connect(this, & PeerManager::onCannotConnectOurself);
 
-    uint port = museekd()->peers()->peerFactory()->serverSocket()->listenPort();
+    uint port = newsoul()->peers()->peerFactory()->serverSocket()->listenPort();
 
     if(port == 0) {
         cannotConnectEvent(this);
@@ -492,7 +492,7 @@ Museek::PeerSocket::initiateOurself()
 }
 
 void
-Museek::PeerSocket::stopConnectOurself() {
+newsoul::PeerSocket::stopConnectOurself() {
     disconnect(false);
 
     if (m_CannotConnectOurselfCallback.isValid()) {

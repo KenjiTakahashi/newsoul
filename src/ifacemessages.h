@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
     Karol 'Kenji Takahashi' Woźniak © 2013
@@ -19,15 +19,15 @@
 
  */
 
-#ifndef MUSEEK_IFACEMESSAGES_H
-#define MUSEEK_IFACEMESSAGES_H
+#ifndef NEWSOUL_IFACEMESSAGES_H
+#define NEWSOUL_IFACEMESSAGES_H
 
 #include "networkmessage.h"
 #include "downloadmanager.h"
 #include "uploadmanager.h"
 #include "utils/cipher.h"
 
-namespace Museek
+namespace newsoul
 {
 	class IfaceSocket;
 }
@@ -36,8 +36,8 @@ class IfaceMessage : public NetworkMessage {
 protected:
     void default_garbage_collector() { }
 public:
-	Museek::IfaceSocket * ifaceSocket() const { return m_IfaceSocket; }
-	void setIfaceSocket(Museek::IfaceSocket * socket) { m_IfaceSocket = socket; }
+	newsoul::IfaceSocket * ifaceSocket() const { return m_IfaceSocket; }
+	void setIfaceSocket(newsoul::IfaceSocket * socket) { m_IfaceSocket = socket; }
 
 	void pack(const std::string& s, const bool trslash=false) { NetworkMessage::pack(s, trslash); }
 	void pack(uint32 i) { NetworkMessage::pack(i); }
@@ -64,7 +64,7 @@ public:
 			pack(*ait);
 	}
 
-	inline void pack(const Museek::Download * download)
+	inline void pack(const newsoul::Download * download)
 	{
 		pack((uchar)0);
 		pack(download->user());
@@ -77,11 +77,11 @@ public:
 		pack((uint32)download->rate());
 	}
 
-	inline void pack(const Museek::Upload* upload) {
+	inline void pack(const newsoul::Upload* upload) {
 		pack((uchar)1);
 		pack(upload->user());
 		pack(upload->localPath(), true);
-		pack((uint32)upload->museekd()->uploads()->queueLength(upload->user(), upload->localPath()));
+		pack((uint32)upload->newsoul()->uploads()->queueLength(upload->user(), upload->localPath()));
 		pack((uint32)upload->state());
 		pack(upload->error());
 		pack(upload->position());
@@ -124,7 +124,7 @@ public:
 		return std::string((char*)deciph, s_len);
 	}
 private:
-	Museek::IfaceSocket * m_IfaceSocket;
+	newsoul::IfaceSocket * m_IfaceSocket;
 };
 
 #define IFACEMESSAGE(mtype, m_id) NETWORKMESSAGE(IfaceMessage, mtype, m_id)
@@ -1648,26 +1648,26 @@ IFACEMESSAGE(ITransferState, 0x0500)
 		transfer entry -- The transfer entry
 */
 
-	ITransferState(const std::vector<NewNet::RefPtr<Museek::Download> >* _t1) : downloads(_t1), uploads(0) { }
-	ITransferState(const std::vector<NewNet::RefPtr<Museek::Upload> >* _t1) : downloads(0), uploads(_t1) { }
+	ITransferState(const std::vector<NewNet::RefPtr<newsoul::Download> >* _t1) : downloads(_t1), uploads(0) { }
+	ITransferState(const std::vector<NewNet::RefPtr<newsoul::Upload> >* _t1) : downloads(0), uploads(_t1) { }
 
 	MAKE
         if (downloads) {
             pack((uint32)(downloads->size()));
-            std::vector<NewNet::RefPtr<Museek::Download> >::const_iterator dit;
+            std::vector<NewNet::RefPtr<newsoul::Download> >::const_iterator dit;
             for(dit = downloads->begin(); dit != downloads->end(); ++dit)
                 pack(*dit);
         }
         else {
             pack((uint32)(uploads->size()));
-            std::vector<NewNet::RefPtr<Museek::Upload> >::const_iterator uit;
+            std::vector<NewNet::RefPtr<newsoul::Upload> >::const_iterator uit;
             for(uit = uploads->begin(); uit != uploads->end(); ++uit)
                 pack(*uit);
         }
 	END_MAKE
 
-	const std::vector<NewNet::RefPtr<Museek::Download> > * downloads;
-	const std::vector<NewNet::RefPtr<Museek::Upload> > * uploads;
+	const std::vector<NewNet::RefPtr<newsoul::Download> > * downloads;
+	const std::vector<NewNet::RefPtr<newsoul::Upload> > * uploads;
 END
 
 IFACEMESSAGE(ITransferUpdate, 0x0501)
@@ -1680,8 +1680,8 @@ IFACEMESSAGE(ITransferUpdate, 0x0501)
 	transfer entry -- The new state of the transfer
 */
 	ITransferUpdate() { }
-	ITransferUpdate(const Museek::Download * _d) : download(_d), upload(0) { }
-	ITransferUpdate(const Museek::Upload * _u) : download(0), upload(_u) { }
+	ITransferUpdate(const newsoul::Download * _d) : download(_d), upload(0) { }
+	ITransferUpdate(const newsoul::Upload * _u) : download(0), upload(_u) { }
 
 	MAKE
         if (download)
@@ -1695,8 +1695,8 @@ IFACEMESSAGE(ITransferUpdate, 0x0501)
 		path = unpack_string();
 	END_PARSE
 
-	const Museek::Download * download;
-	const Museek::Upload * upload;
+	const newsoul::Download * download;
+	const newsoul::Upload * upload;
 	std::string user, path;
 END
 
@@ -2240,5 +2240,5 @@ IFACEMESSAGE(IReloadShares, 0x0703)
 	END_PARSE
 END
 
-#endif // MUSEEK_IFACEMESSAGES_H
+#endif // NEWSOUL_IFACEMESSAGES_H
 

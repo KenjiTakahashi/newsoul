@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_CODESETMANAGER_H
-#define MUSEEK_CODESETMANAGER_H
+#ifndef NEWSOUL_CODESETMANAGER_H
+#define NEWSOUL_CODESETMANAGER_H
 
 #include <iconv.h>
 #include <map>
@@ -35,20 +35,20 @@
 #endif // ! ICONV_CONST
 #define ICONV_INPUT_TYPE ICONV_CONST char **
 
-namespace Museek
+namespace newsoul
 {
   class CodesetManager : public NewNet::Object
   {
   public:
-    CodesetManager(Museekd * museekd);
+    CodesetManager(Newsoul * newsoul);
 
     /* Frees all stored iconv contexts. */
     ~CodesetManager();
 
-    /* Return pointer to museekd instance. */
-    Museekd * museekd() const
+    /* Return pointer to newsoul instance. */
+    Newsoul * newsoul() const
     {
-      return m_Museekd;
+      return m_Newsoul;
     }
 
     /* Convert 'str' from character set 'from' to character set 'to' */
@@ -107,11 +107,11 @@ namespace Museek
     /* Get an iconv conversion context from character set 'from' to 'to'. */
     iconv_t getContext(const std::string & from, const std::string & to);
 
-    /* Weak reference to museekd instance. */
-    NewNet::WeakRefPtr<Museekd> m_Museekd;
+    /* Weak reference to newsoul instance. */
+    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
     /* Iconv context cache. */
     std::map<std::pair<std::string, std::string>, iconv_t> m_Contexts;
   };
 }
 
-#endif // MUSEEK_CODESETMANAGER_H
+#endif // NEWSOUL_CODESETMANAGER_H

@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
     Karol 'Kenji Takahashi' Woźniak © 2013
@@ -27,11 +27,11 @@
   * The remote path should be encoded with utf8 encoding. Separator should be the network one (backslash).
   * The localDir should be encoded with FS encoding. Separator should be the FS one.
   */
-Museek::Download::Download(Museek::Museekd * museekd, const std::string & user, const std::string & remotePath, const std::string & localDir)
+newsoul::Download::Download(newsoul::Newsoul * newsoul, const std::string & user, const std::string & remotePath, const std::string & localDir)
 {
     NNLOG("newsoul.down.debug", "Creating download from %s, %s", user.c_str(), remotePath.c_str());
 
-    m_Museekd = museekd;
+    m_Newsoul = newsoul;
     m_User = user;
     m_Enqueued = false;
     m_RemotePath = remotePath;
@@ -48,13 +48,13 @@ Museek::Download::Download(Museek::Museekd * museekd, const std::string & user, 
 
 	m_CollectStart.tv_sec = m_CollectStart.tv_usec = 0;
 
-    museekd->downloads()->downloadUpdatedEvent(this);
+    newsoul->downloads()->downloadUpdatedEvent(this);
 }
 
-Museek::Download::~Download()
+newsoul::Download::~Download()
 {
   NNLOG("newsoul.down.debug", "Download destroyed.");
-  museekd()->downloads()->downloadRemovedEvent(this);
+  newsoul()->downloads()->downloadRemovedEvent(this);
 }
 
 /**
@@ -62,7 +62,7 @@ Museek::Download::~Download()
   * Encoded with utf8 encoding. Separator is the network one (backslash).
   */
 std::string
-Museek::Download::filename() const
+newsoul::Download::filename() const
 {
     if(m_Filename != std::string())
         return m_Filename;
@@ -81,16 +81,16 @@ Museek::Download::filename() const
   * Encoded with FS encoding. Separator is the FS one.
   */
 std::string
-Museek::Download::incompletePath() const
+newsoul::Download::incompletePath() const
 {
     if(m_IncompletePath != std::string())
         return m_IncompletePath;
 
     // Get the incomplete directory
-    std::string incompletedir = m_Museekd->config()->get("transfers", "incomplete-dir");
+    std::string incompletedir = m_Newsoul->config()->get("transfers", "incomplete-dir");
     // Fall back to download directory.
     if(incompletedir.empty())
-        incompletedir = m_Museekd->config()->get("transfers", "download-dir");
+        incompletedir = m_Newsoul->config()->get("transfers", "download-dir");
     // Fall back to current directory.
     if(incompletedir.empty())
         incompletedir = ".";
@@ -103,7 +103,7 @@ Museek::Download::incompletePath() const
     path << incompletedir << NewNet::Path::separator() << "incomplete." << size() << ".";
     path << filename();
 
-    m_IncompletePath = museekd()->codeset()->fromUtf8ToFS(path.str());
+    m_IncompletePath = newsoul()->codeset()->fromUtf8ToFS(path.str());
     return m_IncompletePath;
 }
 
@@ -112,14 +112,14 @@ Museek::Download::incompletePath() const
   * Encoded with FS encoding. Separator is the FS one.
   */
 std::string
-Museek::Download::destinationPath(bool create) const
+newsoul::Download::destinationPath(bool create) const
 {
     // Build destination directory.
     std::stringstream path;
     // Was an absolute path provided with the download?
     if(! NewNet::Path(m_LocalDir).isAbsolute()) {
         // Nope, use the download directory
-        std::string downloaddir = museekd()->codeset()->fromUtf8ToFS(m_Museekd->config()->get("transfers", "download-dir"));
+        std::string downloaddir = newsoul()->codeset()->fromUtf8ToFS(m_Newsoul->config()->get("transfers", "download-dir"));
         // Fallback to current directory.
         if(downloaddir.empty())
             downloaddir = ".";
@@ -139,7 +139,7 @@ Museek::Download::destinationPath(bool create) const
     path << NewNet::Path::separator();
 
     // Add the filename to the directory.
-    path << museekd()->codeset()->fromUtf8ToFS(filename());
+    path << newsoul()->codeset()->fromUtf8ToFS(filename());
 
     return path.str();
 }
@@ -148,30 +148,30 @@ Museek::Download::destinationPath(bool create) const
   * Set the size of the downloaded file
   */
 void
-Museek::Download::setSize(uint64 size)
+newsoul::Download::setSize(uint64 size)
 {
     m_Size = size;
     if (state() == TS_Finished)
         setPosition(size);
 
-    m_Museekd->downloads()->downloadUpdatedEvent(this);
+    m_Newsoul->downloads()->downloadUpdatedEvent(this);
 }
 
 /**
   * Set the position in the downloaded file
   */
 void
-Museek::Download::setPosition(uint64 position)
+newsoul::Download::setPosition(uint64 position)
 {
     m_Position = position;
-    m_Museekd->downloads()->downloadUpdatedEvent(this);
+    m_Newsoul->downloads()->downloadUpdatedEvent(this);
 }
 
 /**
   * Set the position in the downloaded file looking at the possibly existing incomplete file
   */
 void
-Museek::Download::setPositionFromIncompleteFile()
+newsoul::Download::setPositionFromIncompleteFile()
 {
     std::string temppath = incompletePath();
 
@@ -194,7 +194,7 @@ Museek::Download::setPositionFromIncompleteFile()
   * Called when some data has been received from the peer
   */
 void
-Museek::Download::received(uint bytes)
+newsoul::Download::received(uint bytes)
 {
 	struct timeval now;
 	gettimeofday(&now, NULL);
@@ -222,7 +222,7 @@ Museek::Download::received(uint bytes)
 		m_Collected = 0;
 		m_CollectStart = now;
 
-        m_Museekd->downloads()->downloadUpdatedEvent(this);
+        m_Newsoul->downloads()->downloadUpdatedEvent(this);
 	}
 }
 
@@ -230,16 +230,16 @@ Museek::Download::received(uint bytes)
   * Set the place in queue for this download
   */
 void
-Museek::Download::setPlace(uint place) {
+newsoul::Download::setPlace(uint place) {
     m_Place = place;
-    m_Museekd->downloads()->downloadUpdatedEvent(this);
+    m_Newsoul->downloads()->downloadUpdatedEvent(this);
 }
 
 /**
   * Change the current state of the upload and consequences
   */
 void
-Museek::Download::setState(TrState state)
+newsoul::Download::setState(TrState state)
 {
     bool changed = false;
     if (m_State != state)
@@ -251,7 +251,7 @@ Museek::Download::setState(TrState state)
     if (state == TS_Finished)
         setPosition(size());
 
-    m_Museekd->downloads()->downloadUpdatedEvent(this);
+    m_Newsoul->downloads()->downloadUpdatedEvent(this);
 
     if (    state != TS_Transferring
             && state != TS_Negotiating
@@ -259,52 +259,52 @@ Museek::Download::setState(TrState state)
             && state != TS_Establishing
             && state != TS_Initiating
             && state != TS_Connecting)
-        m_Museekd->downloads()->checkDownloads();
+        m_Newsoul->downloads()->checkDownloads();
 
     if (changed && (state == TS_Finished)) {
         if (previous != TS_Transferring)
-            m_Museekd->ifaces()->sendStatusMessage(true, std::string("Download already finished: '") + destinationPath() + std::string("' from ") + user());
+            m_Newsoul->ifaces()->sendStatusMessage(true, std::string("Download already finished: '") + destinationPath() + std::string("' from ") + user());
         else
-            m_Museekd->ifaces()->sendStatusMessage(true, std::string("Download finished: '") + destinationPath() + std::string("' from ") + user());
+            m_Newsoul->ifaces()->sendStatusMessage(true, std::string("Download finished: '") + destinationPath() + std::string("' from ") + user());
 
-        if (m_Museekd->autoClearFinishedDownloads())
-            m_Museekd->downloads()->remove(user(), remotePath());
+        if (m_Newsoul->autoClearFinishedDownloads())
+            m_Newsoul->downloads()->remove(user(), remotePath());
     }
     else if (changed && (state == TS_Transferring)) {
         if (position() > 0)
-            m_Museekd->ifaces()->sendStatusMessage(true, std::string("Continuing download: '") + destinationPath() + std::string("' from ") + user());
+            m_Newsoul->ifaces()->sendStatusMessage(true, std::string("Continuing download: '") + destinationPath() + std::string("' from ") + user());
         else
-            m_Museekd->ifaces()->sendStatusMessage(true, std::string("Download started: '") + destinationPath() + std::string("' from ") + user());
+            m_Newsoul->ifaces()->sendStatusMessage(true, std::string("Download started: '") + destinationPath() + std::string("' from ") + user());
     }
     else if (changed && ((state == TS_RemoteError) || (state == TS_CannotConnect) || (state == TS_ConnectionClosed) || (state == TS_LocalError))) {
         std::string retryMsg = "";
-        if (m_Museekd->autoRetryDownloads()) {
+        if (m_Newsoul->autoRetryDownloads()) {
             long timeout = 30000; // 30 seconds
-            museekd()->reactor()->addTimeout(timeout, this, &Download::retry);
+            newsoul()->reactor()->addTimeout(timeout, this, &Download::retry);
             std::stringstream msg;
             msg << ". Will retry in " << timeout/1000 << "s.";
             retryMsg = msg.str();
         }
-        m_Museekd->ifaces()->sendStatusMessage(true, std::string("Download failed: '") + destinationPath() + std::string("' from ") + user() + retryMsg);
+        m_Newsoul->ifaces()->sendStatusMessage(true, std::string("Download failed: '") + destinationPath() + std::string("' from ") + user() + retryMsg);
     }
     else if (changed && (state == TS_Aborted))
-        m_Museekd->ifaces()->sendStatusMessage(true, std::string("Download aborted: '") + destinationPath() + std::string("' from ") + user());
+        m_Newsoul->ifaces()->sendStatusMessage(true, std::string("Download aborted: '") + destinationPath() + std::string("' from ") + user());
 }
 
 /**
   * Retry the download if it in a failed state
   */
 void
-Museek::Download::retry(long) {
-    m_Museekd->ifaces()->sendStatusMessage(true, std::string("Download retried: '") + destinationPath() + std::string("' from ") + user());
-    museekd()->downloads()->add(user(), remotePath()); // Re-adding ourself is a convenient way to retry a download
+newsoul::Download::retry(long) {
+    m_Newsoul->ifaces()->sendStatusMessage(true, std::string("Download retried: '") + destinationPath() + std::string("' from ") + user());
+    newsoul()->downloads()->add(user(), remotePath()); // Re-adding ourself is a convenient way to retry a download
 }
 
 /**
   * An error has occured. The problem comes from the uploader.
   */
 void
-Museek::Download::setRemoteError(const std::string & error)
+newsoul::Download::setRemoteError(const std::string & error)
 {
     setSocket(0);
     setEnqueued(false);
@@ -316,7 +316,7 @@ Museek::Download::setRemoteError(const std::string & error)
   * This download will use this socket
   */
 void
-Museek::Download::setSocket(DownloadSocket * socket)
+newsoul::Download::setSocket(DownloadSocket * socket)
 {
     // If we already have a download socket, first stop it and then replace it by the new one
     if(m_Socket.isValid() && m_Socket != socket)
@@ -327,9 +327,9 @@ Museek::Download::setSocket(DownloadSocket * socket)
 	m_CollectStart.tv_sec = m_CollectStart.tv_usec = 0;
 
     if (socket)
-        socket->setDownRateLimiter(museekd()->downloads()->limiter());
+        socket->setDownRateLimiter(newsoul()->downloads()->limiter());
 
-    museekd()->reactor()->removeTimeout(m_InitTimeout);
+    newsoul()->reactor()->removeTimeout(m_InitTimeout);
 }
 
 /**
@@ -337,14 +337,14 @@ Museek::Download::setSocket(DownloadSocket * socket)
   * Should not be necessary anymore (since 157)
   */
 void
-Museek::Download::initiate(PeerSocket * socket) {
+newsoul::Download::initiate(PeerSocket * socket) {
     if (!socket) {
         setState(TS_LocalError);
-        NNLOG("newsoul.down.warn", "Invalid PeerSocket in Museek::Download::initiate()");
+        NNLOG("newsoul.down.warn", "Invalid PeerSocket in newsoul::Download::initiate()");
         return;
     }
 
-    if (!museekd()->downloads()->hasFreeSlots())
+    if (!newsoul()->downloads()->hasFreeSlots())
         return;
 
     if(m_State != TS_QueuedRemotely)
@@ -352,15 +352,15 @@ Museek::Download::initiate(PeerSocket * socket) {
 
 	setState(TS_Initiating);
 
-	m_Ticket = m_Museekd->token();
+	m_Ticket = m_Newsoul->token();
 
 	NNLOG("newsoul.down.debug", "Initiating download sequence %u", m_Ticket);
 
-    museekd()->downloads()->setTransferReplyCallback(socket->transferReplyReceivedEvent.connect(museekd()->downloads(), &DownloadManager::onPeerTransferReplyReceived));
+    newsoul()->downloads()->setTransferReplyCallback(socket->transferReplyReceivedEvent.connect(newsoul()->downloads(), &DownloadManager::onPeerTransferReplyReceived));
 
-	std::string path = museekd()->codeset()->toPeer(user(), m_RemotePath);
+	std::string path = newsoul()->codeset()->toPeer(user(), m_RemotePath);
 	if(! path.empty()) {
-		PTransferRequest msg(m_Ticket, museekd()->codeset()->toPeer(socket->user(), path), m_Size);
+		PTransferRequest msg(m_Ticket, newsoul()->codeset()->toPeer(socket->user(), path), m_Size);
         socket->sendMessage(msg.make_network_packet());
 	}
 }
@@ -369,23 +369,23 @@ Museek::Download::initiate(PeerSocket * socket) {
   * Init timeout is finished
   */
 void
-Museek::Download::initTimedOut(long) {
+newsoul::Download::initTimedOut(long) {
     if (state() == TS_Initiating)
         setState(TS_QueuedRemotely);
 }
 
 
-Museek::DownloadManager::DownloadManager(Museekd * museekd) : m_Museekd(museekd)
+newsoul::DownloadManager::DownloadManager(Newsoul * newsoul) : m_Newsoul(newsoul)
 {
     // Connect some events.
-    museekd->server()->loggedInStateChangedEvent.connect(this, &DownloadManager::onServerLoggedInStateChanged);
-    museekd->peers()->peerSocketReadyEvent.connect(this, &DownloadManager::onPeerSocketReady);
-    museekd->peers()->peerSocketUnavailableEvent.connect(this, &DownloadManager::onPeerSocketUnavailable);
-    museekd->peers()->peerOfflineEvent.connect(this, &DownloadManager::onPeerOffline);
+    newsoul->server()->loggedInStateChangedEvent.connect(this, &DownloadManager::onServerLoggedInStateChanged);
+    newsoul->peers()->peerSocketReadyEvent.connect(this, &DownloadManager::onPeerSocketReady);
+    newsoul->peers()->peerSocketUnavailableEvent.connect(this, &DownloadManager::onPeerSocketUnavailable);
+    newsoul->peers()->peerOfflineEvent.connect(this, &DownloadManager::onPeerOffline);
     downloadAddedEvent.connect(this, &DownloadManager::onDownloadAdded);
     downloadUpdatedEvent.connect(this, &DownloadManager::onDownloadUpdated);
-    museekd->config()->keySetEvent.connect(this, &DownloadManager::onConfigKeySet);
-    museekd->config()->keyRemovedEvent.connect(this, &DownloadManager::onConfigKeyRemoved);
+    newsoul->config()->keySetEvent.connect(this, &DownloadManager::onConfigKeySet);
+    newsoul->config()->keyRemovedEvent.connect(this, &DownloadManager::onConfigKeyRemoved);
 
     m_AllowUpdate = false;
     m_AllowSave = true;
@@ -394,7 +394,7 @@ Museek::DownloadManager::DownloadManager(Museekd * museekd) : m_Museekd(museekd)
     m_Limiter->setLimit(-1);
 }
 
-Museek::DownloadManager::~DownloadManager()
+newsoul::DownloadManager::~DownloadManager()
 {
     NNLOG("newsoul.down.debug", "Download Manager destroyed");
 }
@@ -405,16 +405,16 @@ Museek::DownloadManager::~DownloadManager()
   * The localPath should be encoded with FS encoding. Separator should be the FS one.
   */
 void
-Museek::DownloadManager::addFolder(const std::string & user, const std::string & path, const std::string & localPath) {
+newsoul::DownloadManager::addFolder(const std::string & user, const std::string & path, const std::string & localPath) {
     m_ContentsPending[user][path] = localPath;
-    m_Museekd->peers()->peerSocket(user);
+    m_Newsoul->peers()->peerSocket(user);
 }
 
 /**
   * Look if there's some PFolderContentsRequest pending the given peersocket
   */
 void
-Museek::DownloadManager::askPendingFolderContents(PeerSocket * socket) {
+newsoul::DownloadManager::askPendingFolderContents(PeerSocket * socket) {
     if (socket) {
         std::map<std::string, std::map<std::string, std::string> >::iterator it;
         std::map<std::string, std::string>::iterator fit;
@@ -427,7 +427,7 @@ Museek::DownloadManager::askPendingFolderContents(PeerSocket * socket) {
                 for (fit = (*it).second.begin(); fit != (*it).second.end(); fit++) {
                     m_ContentsAsked[(*it).first][(*fit).first] = (*fit).second;
 
-                    PFolderContentsRequest msg(m_Museekd->codeset()->toPeer((*it).first, (*fit).first));
+                    PFolderContentsRequest msg(m_Newsoul->codeset()->toPeer((*it).first, (*fit).first));
                     socket->sendMessage(msg.make_network_packet());
                 }
                 m_ContentsPending.erase(it->first);
@@ -440,7 +440,7 @@ Museek::DownloadManager::askPendingFolderContents(PeerSocket * socket) {
   * Look if there's some PPlaceInQueueRequest pending the given peersocket
   */
 void
-Museek::DownloadManager::askPendingPlaces(PeerSocket * socket) {
+newsoul::DownloadManager::askPendingPlaces(PeerSocket * socket) {
     if (socket) {
         std::map<std::string, std::vector<std::string> >::iterator it;
         std::vector<std::string>::iterator pit;
@@ -451,7 +451,7 @@ Museek::DownloadManager::askPendingPlaces(PeerSocket * socket) {
             if (socket->user() == it->first) {
                 NNLOG("newsoul.down.debug", "Asking pending place in queue to %s", it->first.c_str());
                 for (pit = (*it).second.begin(); pit != (*it).second.end(); pit++) {
-                    PPlaceInQueueRequest msg(museekd()->codeset()->toPeer((*it).first, *pit));
+                    PPlaceInQueueRequest msg(newsoul()->codeset()->toPeer((*it).first, *pit));
                     socket->sendMessage(msg.make_network_packet());
                 }
                 m_PlacesPending.erase(it->first);
@@ -463,22 +463,22 @@ Museek::DownloadManager::askPendingPlaces(PeerSocket * socket) {
 /**
  * Analyse the folder contents we've received and look if we can start some download with it
  */
-void Museek::DownloadManager::addFolderContents(const std::string & user, const Folders & folders) {
+void newsoul::DownloadManager::addFolderContents(const std::string & user, const Folders & folders) {
     if (m_ContentsAsked.find(user) == m_ContentsAsked.end()) {
         NNLOG("newsoul.down.warn", "Unexpected folder content from %s.", user.c_str());
         return;
     }
 
     Folders::const_iterator fit;
-    std::string downloadDir = museekd()->config()->get("transfers", "download-dir");
+    std::string downloadDir = newsoul()->config()->get("transfers", "download-dir");
 
     // Don't download files matching a blacklist item
-    std::string blacklist = museekd()->config()->get("transfers", "download_blacklist");
+    std::string blacklist = newsoul()->config()->get("transfers", "download_blacklist");
     std::vector<std::string> blacklistItems = string::split(blacklist, ";");
 
     for (fit = folders.begin(); fit != folders.end(); fit++) {
         // Folder we have asked the contents
-        std::string remotePathBase = museekd()->codeset()->fromPeer(user, fit->first);
+        std::string remotePathBase = newsoul()->codeset()->fromPeer(user, fit->first);
         // The (optional) local path where the folder should be downloaded
         std::string localPathBase = m_ContentsAsked[user].find(remotePathBase)->second;
         if (m_ContentsAsked[user].find(remotePathBase) == m_ContentsAsked[user].end()) {
@@ -490,7 +490,7 @@ void Museek::DownloadManager::addFolderContents(const std::string & user, const 
         m_AllowUpdate = false;
         for (sit = fit->second.begin(); sit != fit->second.end(); sit++) {
             // Remote path where the file is located (=remotePath without the filename)
-            std::string remotePathDir = museekd()->codeset()->fromPeer(user, sit->first);
+            std::string remotePathDir = newsoul()->codeset()->fromPeer(user, sit->first);
 
             // Some clients (official one for example) sends us files from folder /example/folder2 when asking only for /example/folder
             // Just throw away the wrongly sent files
@@ -506,12 +506,12 @@ void Museek::DownloadManager::addFolderContents(const std::string & user, const 
             // We need to recreate the folder structure inside the folder we're downloading
             size_t posB = remotePathBase.find_last_of('\\');
             if (posB != std::string::npos && posB < remotePathDir.size())
-                localPath += museekd()->codeset()->fromUtf8ToFS(remotePathDir.substr(posB));
+                localPath += newsoul()->codeset()->fromUtf8ToFS(remotePathDir.substr(posB));
 
             Folder::const_iterator fiit;
             bool blacklisted = false;
             for (fiit = sit->second.begin(); fiit != sit->second.end(); fiit++) {
-                std::string filename = museekd()->codeset()->fromPeer(user, fiit->first);
+                std::string filename = newsoul()->codeset()->fromPeer(user, fiit->first);
 
                 // Don't download files matching a blacklist item
                 std::vector<std::string>::const_iterator bit;
@@ -520,7 +520,7 @@ void Museek::DownloadManager::addFolderContents(const std::string & user, const 
                     blacklisted = wildcmp(*bit, filename);
                     if (blacklisted) {
                         NNLOG("newsoul.down.debug", "File %s blacklisted by %s.", filename.c_str(), bit->c_str());
-                        m_Museekd->ifaces()->sendStatusMessage(true, std::string("File '") + filename.c_str() + "' is blacklisted (" + bit->c_str()+")");
+                        m_Newsoul->ifaces()->sendStatusMessage(true, std::string("File '") + filename.c_str() + "' is blacklisted (" + bit->c_str()+")");
                         break;
                     }
                 }
@@ -559,7 +559,7 @@ void Museek::DownloadManager::addFolderContents(const std::string & user, const 
   * Called when a download is added.
   * Add the user to the list of user we're downloading from
   */
-void Museek::DownloadManager::onDownloadAdded(Download * download) {
+void newsoul::DownloadManager::onDownloadAdded(Download * download) {
     if (download->state() == TS_Transferring ||
             download->state() == TS_Negotiating ||
             download->state() == TS_Waiting ||
@@ -580,7 +580,7 @@ void Museek::DownloadManager::onDownloadAdded(Download * download) {
   * Called when an download is updated.
   * Add or remove the user to/from the list of user we're downloading from
   */
-void Museek::DownloadManager::onDownloadUpdated(Download * download) {
+void newsoul::DownloadManager::onDownloadUpdated(Download * download) {
     if (download->state() == TS_Transferring)
         addDownloading(download);
     else if (download->state() == TS_Negotiating ||
@@ -602,7 +602,7 @@ void Museek::DownloadManager::onDownloadUpdated(Download * download) {
 /**
   * We're downloading from this user
   */
-void Museek::DownloadManager::addDownloading(Download * download) {
+void newsoul::DownloadManager::addDownloading(Download * download) {
     if (isDownloadingFrom(download->user()) != download) {
         NNLOG("newsoul.down.debug", "We're downloading from %s", download->user().c_str());
         m_Downloading[download->user()] = download;
@@ -612,7 +612,7 @@ void Museek::DownloadManager::addDownloading(Download * download) {
 /**
   * We're no longer downloading from this user
   */
-void Museek::DownloadManager::removeDownloading(const std::string & user) {
+void newsoul::DownloadManager::removeDownloading(const std::string & user) {
     std::map<std::string, NewNet::WeakRefPtr<Download> >::iterator it = m_Downloading.find(user);
     if (it != m_Downloading.end()) {
         NNLOG("newsoul.down.debug", "Not downloading from %s", user.c_str());
@@ -624,7 +624,7 @@ void Museek::DownloadManager::removeDownloading(const std::string & user) {
 /**
   * We're initiating a download from this user
   */
-void Museek::DownloadManager::addInitiating(Download * download) {
+void newsoul::DownloadManager::addInitiating(Download * download) {
     if (isInitiatingFrom(download->user()) != download) {
         NNLOG("newsoul.down.debug", "We're initiating the download from %s", download->user().c_str());
         m_Initiating[download->user()] = download;
@@ -634,7 +634,7 @@ void Museek::DownloadManager::addInitiating(Download * download) {
 /**
   * We're no longer initiating a download from this user
   */
-void Museek::DownloadManager::removeInitiating(const std::string & user) {
+void newsoul::DownloadManager::removeInitiating(const std::string & user) {
     std::map<std::string, NewNet::WeakRefPtr<Download> >::iterator it = m_Initiating.find(user);
     if (it != m_Initiating.end()) {
         NNLOG("newsoul.down.debug", "Not initiating to %s", user.c_str());
@@ -645,7 +645,7 @@ void Museek::DownloadManager::removeInitiating(const std::string & user) {
 /**
   * Are we already downloading from this user?
   */
-Museek::Download * Museek::DownloadManager::isDownloadingFrom(const std::string & user) {
+newsoul::Download * newsoul::DownloadManager::isDownloadingFrom(const std::string & user) {
     if (m_Downloading.find(user) != m_Downloading.end())
         return m_Downloading[user];
 
@@ -655,7 +655,7 @@ Museek::Download * Museek::DownloadManager::isDownloadingFrom(const std::string 
 /**
   * Are we already initiating an download from this user?
   */
-Museek::Download * Museek::DownloadManager::isInitiatingFrom(const std::string & user) {
+newsoul::Download * newsoul::DownloadManager::isInitiatingFrom(const std::string & user) {
     if (m_Initiating.find(user) != m_Initiating.end())
         return m_Initiating[user];
 
@@ -665,7 +665,7 @@ Museek::Download * Museek::DownloadManager::isInitiatingFrom(const std::string &
 /**
   * Look if there are some downloads to start
   */
-void Museek::DownloadManager::checkDownloads() {
+void newsoul::DownloadManager::checkDownloads() {
     if (m_AllowUpdate) {
         NNLOG("newsoul.down.debug", "Checking if there are some downloads to start");
 
@@ -675,7 +675,7 @@ void Museek::DownloadManager::checkDownloads() {
             download = *it;
             if ((download->state() == TS_QueuedRemotely && !download->enqueued()) || download->state() == TS_Offline) {
                 // We will have something to do with this user: ask a peersocket
-                museekd()->peers()->peerSocket(download->user());
+                newsoul()->peers()->peerSocket(download->user());
             }
         }
 
@@ -686,9 +686,9 @@ void Museek::DownloadManager::checkDownloads() {
 /**
   * Update the rate limiter for every downloads
   */
-void Museek::DownloadManager::updateRates() {
+void newsoul::DownloadManager::updateRates() {
     std::map<std::string, NewNet::WeakRefPtr<Download> >::iterator it;
-    uint globalRate = museekd()->config()->getUint("transfers", "download_rate", 0);
+    uint globalRate = newsoul()->config()->getUint("transfers", "download_rate", 0);
     if (globalRate > 0) {
         // There's a limit, update the rate limiter
         m_Limiter->setLimit(globalRate*1000);
@@ -703,7 +703,7 @@ void Museek::DownloadManager::updateRates() {
   * Send a request to the peer to put the given download on queue
   */
 void
-Museek::DownloadManager::enqueueDownload(Download * download)
+newsoul::DownloadManager::enqueueDownload(Download * download)
 {
     NNLOG("newsoul.down.debug", "Enqueuing %s", download->remotePath().c_str());
     download->setEnqueued(true);
@@ -715,7 +715,7 @@ Museek::DownloadManager::enqueueDownload(Download * download)
   * Send a request to the peer to put the given download on queue
   */
 void
-Museek::DownloadManager::askPendingEnqueuing(PeerSocket * socket)
+newsoul::DownloadManager::askPendingEnqueuing(PeerSocket * socket)
 {
     if (socket) {
         std::map<std::string, std::vector<std::string> >::iterator it;
@@ -727,7 +727,7 @@ Museek::DownloadManager::askPendingEnqueuing(PeerSocket * socket)
             if (it->first == socket->user()) {
                 NNLOG("newsoul.down.debug", "Sending pending enqueuing request to %s", it->first.c_str());
                 for (eit = (*it).second.begin(); eit != (*it).second.end(); eit++) {
-                    PQueueDownload msg(museekd()->codeset()->toPeer(it->first, *eit));
+                    PQueueDownload msg(newsoul()->codeset()->toPeer(it->first, *eit));
                     socket->sendMessage(msg.make_network_packet());
                 }
                 m_EnqueuingPending.erase(it->first);
@@ -742,22 +742,22 @@ Museek::DownloadManager::askPendingEnqueuing(PeerSocket * socket)
   * The localDir should be encoded with FS encoding. Separator should be the FS one.
   */
 void
-Museek::DownloadManager::add(const std::string & user, const std::string & path, const std::string & localPath, const uint & ticket)
+newsoul::DownloadManager::add(const std::string & user, const std::string & path, const std::string & localPath, const uint & ticket)
 {
     // Check if this download already exits.
     Download * download = findDownload(user, path);
     if(! download) {
         // Create new download object.
-        download = new Download(museekd(), user, path, localPath);
+        download = new Download(newsoul(), user, path, localPath);
         if (ticket <= 0)
-            download->setTicket(museekd()->token());
+            download->setTicket(newsoul()->token());
         else
             download->setTicket(ticket);
         m_Downloads.push_back(download);
         NNLOG("newsoul.down.debug", "Created new download entry, user=%s, path=%s, ticket=%u.", user.c_str(), path.c_str(), download->ticket());
         downloadAddedEvent(download);
     }
-    else if (download->state() == TS_Offline || !museekd()->server()->loggedIn()) {
+    else if (download->state() == TS_Offline || !newsoul()->server()->loggedIn()) {
         // Retrying an offline user... no sense
         return;
     }
@@ -790,8 +790,8 @@ Museek::DownloadManager::add(const std::string & user, const std::string & path,
   * Returns the Download object for the given user and the given path
   * The path should be encoded with utf8 encoding. Separator should be the network one (backslash).
   */
-Museek::Download *
-Museek::DownloadManager::findDownload(const std::string & user, const std::string & path)
+newsoul::Download *
+newsoul::DownloadManager::findDownload(const std::string & user, const std::string & path)
 {
     // Iterate over m_Downloads until we find a match.
     std::vector<NewNet::RefPtr<Download> >::iterator it, end = m_Downloads.end();
@@ -807,8 +807,8 @@ Museek::DownloadManager::findDownload(const std::string & user, const std::strin
 /**
   * Returns the Download object for the given user and the given ticket
   */
-Museek::Download *
-Museek::DownloadManager::findDownload(const std::string & user, uint ticket)
+newsoul::Download *
+newsoul::DownloadManager::findDownload(const std::string & user, uint ticket)
 {
     // Iterate over m_Downloads until we find a match.
     std::vector<NewNet::RefPtr<Download> >::iterator it, end = m_Downloads.end();
@@ -826,7 +826,7 @@ Museek::DownloadManager::findDownload(const std::string & user, uint ticket)
   * The path should be encoded with utf8 encoding. Separator should be the network one (backslash).
   */
 void
-Museek::DownloadManager::abort(const std::string & user, const std::string & path)
+newsoul::DownloadManager::abort(const std::string & user, const std::string & path)
 {
     Download * download = findDownload(user, path);
     if(! download)
@@ -843,7 +843,7 @@ Museek::DownloadManager::abort(const std::string & user, const std::string & pat
   * The path should be encoded with utf8 encoding. Separator should be the network one (backslash).
   */
 void
-Museek::DownloadManager::remove(const std::string & user, const std::string & path)
+newsoul::DownloadManager::remove(const std::string & user, const std::string & path)
 {
     Download * download = findDownload(user, path);
     if(! download)
@@ -863,14 +863,14 @@ Museek::DownloadManager::remove(const std::string & user, const std::string & pa
   * The path should be encoded with utf8 encoding. Separator should be the network one (backslash).
   */
 void
-Museek::DownloadManager::update(const std::string & user, const std::string & path)
+newsoul::DownloadManager::update(const std::string & user, const std::string & path)
 {
     Download * download = findDownload(user, path);
     if(! download)
         return;
 
     m_PlacesPending[user].push_back(path);
-    museekd()->peers()->peerSocket(user);
+    newsoul()->peers()->peerSocket(user);
 
     downloadUpdatedEvent(download);
 }
@@ -879,7 +879,7 @@ Museek::DownloadManager::update(const std::string & user, const std::string & pa
   * Called when the connection to the server changes (connected/disconnected)
   */
 void
-Museek::DownloadManager::onServerLoggedInStateChanged(bool loggedIn)
+newsoul::DownloadManager::onServerLoggedInStateChanged(bool loggedIn)
 {
     if(loggedIn) {
         // Look if there are some downloads to restart
@@ -902,7 +902,7 @@ Museek::DownloadManager::onServerLoggedInStateChanged(bool loggedIn)
   * Should not be necessary anymore (since 157)
   */
 void
-Museek::DownloadManager::onPeerTransferReplyReceived(const PTransferReply * message)
+newsoul::DownloadManager::onPeerTransferReplyReceived(const PTransferReply * message)
 {
     // Find the download this concerns.
     const std::string & user = message->peerSocket()->user();
@@ -922,9 +922,9 @@ Museek::DownloadManager::onPeerTransferReplyReceived(const PTransferReply * mess
         // Transfer can start immediately, no queue at remote end.
         NNLOG("newsoul.down.debug", "Got transfer reply: user=%s,path=%s,ticket=%u,allowed=yes,filesize=%llu. Initiating download.", user.c_str(), download->remotePath().c_str(), download->ticket(), message->filesize);
         download->setSize(message->filesize);
-        DownloadSocket * downloadSocket = new DownloadSocket(museekd(), download);
+        DownloadSocket * downloadSocket = new DownloadSocket(newsoul(), download);
         download->setSocket(downloadSocket);
-        museekd()->reactor()->add(downloadSocket);
+        newsoul()->reactor()->add(downloadSocket);
         downloadSocket->pickUp();
     }
     else {
@@ -937,7 +937,7 @@ Museek::DownloadManager::onPeerTransferReplyReceived(const PTransferReply * mess
 /**
   * There's a peer socket available: see if we have something to send
   */
-void Museek::DownloadManager::onPeerSocketReady(PeerSocket * socket) {
+void newsoul::DownloadManager::onPeerSocketReady(PeerSocket * socket) {
     std::string username = socket->user();
 
     // Check if we have any downloads with status user offline for this user.
@@ -959,7 +959,7 @@ void Museek::DownloadManager::onPeerSocketReady(PeerSocket * socket) {
                 NNLOG("newsoul.down.debug", "Starting download %s", download->remotePath().c_str());
                 // Starting from 157, there's no need to send a PTransferRequest. Enqueuing the file is sufficient
                 download->setState(TS_Initiating);
-                download->setInitTimeout(museekd()->reactor()->addTimeout(10000, download, &Download::initTimedOut));
+                download->setInitTimeout(newsoul()->reactor()->addTimeout(10000, download, &Download::initTimedOut));
                 enqueueDownload(download);
             }
             else {
@@ -980,7 +980,7 @@ void Museek::DownloadManager::onPeerSocketReady(PeerSocket * socket) {
   *  Called when the connection cannot be made with the peer.
   */
 void
-Museek::DownloadManager::onPeerSocketUnavailable(std::string user)
+newsoul::DownloadManager::onPeerSocketUnavailable(std::string user)
 {
     Download * current = isDownloadingFrom(user);
 	if (current) {
@@ -993,7 +993,7 @@ Museek::DownloadManager::onPeerSocketUnavailable(std::string user)
 /**
   * One of our peer got offline: clean all is stuff
   */
-void Museek::DownloadManager::onPeerOffline(std::string user) {
+void newsoul::DownloadManager::onPeerOffline(std::string user) {
     // Set downloads to offline
     std::vector<NewNet::RefPtr<Download> >::iterator it, end = m_Downloads.end();
     for(it = m_Downloads.begin(); it != end; ++it) {
@@ -1039,15 +1039,15 @@ void Museek::DownloadManager::onPeerOffline(std::string user) {
 /**
   *  Return true if there is some free slots, false otherwise.
   */
-bool Museek::DownloadManager::hasFreeSlots() {
-    return (m_Downloading.size() < museekd()->downSlots()) || ( museekd()->downSlots() == 0);
+bool newsoul::DownloadManager::hasFreeSlots() {
+    return (m_Downloading.size() < newsoul()->downSlots()) || ( newsoul()->downSlots() == 0);
 }
 
 /**
   * Called when some key of the config has been changed
   */
 void
-Museek::DownloadManager::onConfigKeySet(const Museek::ConfigManager::ChangeNotify * data)
+newsoul::DownloadManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
 {
     if(data->domain == "transfers" && data->key == "download_slots")
         checkDownloads();
@@ -1059,7 +1059,7 @@ Museek::DownloadManager::onConfigKeySet(const Museek::ConfigManager::ChangeNotif
   * Called when some key of the config has been deleted
   */
 void
-Museek::DownloadManager::onConfigKeyRemoved(const Museek::ConfigManager::RemoveNotify * data)
+newsoul::DownloadManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
 {
     if(data->domain == "transfers" && data->key == "download_slots")
         checkDownloads();
@@ -1070,10 +1070,10 @@ Museek::DownloadManager::onConfigKeyRemoved(const Museek::ConfigManager::RemoveN
 /**
   * Loads the downloads stored in the config file
   */
-void Museek::DownloadManager::loadDownloads() {
+void newsoul::DownloadManager::loadDownloads() {
     m_AllowUpdate = false; // We don't want downloads to be saved until we have finished to load them
     // Open config file
-    std::string path = museekd()->config()->get("transfers", "downloads");
+    std::string path = newsoul()->config()->get("transfers", "downloads");
     std::ifstream file(path.c_str(), std::fstream::in | std::fstream::binary);
 
 	if(file.fail() || !file.is_open()) {
@@ -1134,11 +1134,11 @@ void Museek::DownloadManager::loadDownloads() {
 /**
   * Stores the download in the config file
   */
-void Museek::DownloadManager::saveDownloads() {
+void newsoul::DownloadManager::saveDownloads() {
     if (m_AllowSave) {
         m_AllowSave = false;
         // Open config file
-        std::string path = museekd()->config()->get("transfers", "downloads");
+        std::string path = newsoul()->config()->get("transfers", "downloads");
         std::string pathTemp(path + ".tmp");
         std::remove(pathTemp.c_str()); // Remove the temp file if it already exists
 
@@ -1183,7 +1183,7 @@ void Museek::DownloadManager::saveDownloads() {
             }
 
             // The incomplete path is useless if we haven't started the download
-            std::string tmpPath = museekd()->codeset()->fromFsToUtf8((*it)->incompletePath(), false);
+            std::string tmpPath = newsoul()->codeset()->fromFsToUtf8((*it)->incompletePath(), false);
             std::ifstream incompleteTest( tmpPath.c_str() );
             if (incompleteTest.fail())
                 tmpPath = std::string();
@@ -1193,7 +1193,7 @@ void Museek::DownloadManager::saveDownloads() {
                write_str(&file, (*it)->user()) == -1 ||
                !write_off(&file, (*it)->size()) ||
                write_str(&file, (*it)->remotePath()) == -1 ||
-               write_str(&file, museekd()->codeset()->fromFsToUtf8((*it)->destinationPath(), false)) == -1 ||
+               write_str(&file, newsoul()->codeset()->fromFsToUtf8((*it)->destinationPath(), false)) == -1 ||
                write_str(&file, tmpPath) == -1) {
                 NNLOG("newsoul.config.warn", "Cannot save downloads, trying again later.");
                 file.close();

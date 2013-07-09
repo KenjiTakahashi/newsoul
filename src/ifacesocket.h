@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,13 +18,13 @@
 
  */
 
-#ifndef MUSEEK_IFACESOCKET_H
-#define MUSEEK_IFACESOCKET_H
+#ifndef NEWSOUL_IFACESOCKET_H
+#define NEWSOUL_IFACESOCKET_H
 
 #include "ifacemessages.h"
 #include "NewNet/nnclientsocket.h"
 
-namespace Museek
+namespace newsoul
 {
   class IfaceSocket : public NewNet::ClientSocket, public MessageProcessor
   {
@@ -89,4 +89,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_IFACESOCKET_H
+#endif // NEWSOUL_IFACESOCKET_H

@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_DISTRIBUTEDSOCKET_H
-#define MUSEEK_DISTRIBUTEDSOCKET_H
+#ifndef NEWSOUL_DISTRIBUTEDSOCKET_H
+#define NEWSOUL_DISTRIBUTEDSOCKET_H
 
 #include "codesetmanager.h"
 #include "distributedmessages.h"
@@ -29,13 +29,13 @@
 #include "usersocket.h"
 #include "NewNet/nnreactor.h"
 
-namespace Museek
+namespace newsoul
 {
   class DistributedSocket : public UserSocket, public MessageProcessor
   {
   public:
     DistributedSocket(HandshakeSocket * that);
-    DistributedSocket(Museekd * museekd);
+    DistributedSocket(Newsoul * newsoul);
     ~DistributedSocket();
 
     void sendPosition();
@@ -71,4 +71,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_DISTRIBUTEDSOCKET_H
+#endif // NEWSOUL_DISTRIBUTEDSOCKET_H

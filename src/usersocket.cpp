@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -21,16 +21,16 @@
 #include "usersocket.h"
 #include "servermanager.h"
 
-Museek::UserSocket::UserSocket(Museek::Museekd * museekd, const std::string & type) : NewNet::TcpClientSocket(), m_Museekd(museekd), m_Type(type)
+newsoul::UserSocket::UserSocket(newsoul::Newsoul * newsoul, const std::string & type) : NewNet::TcpClientSocket(), m_Newsoul(newsoul), m_Type(type)
 {
   disconnectedEvent.connect(this, &UserSocket::onDisconnected);
-  m_Museekd->server()->cannotConnectNotifyReceivedEvent.connect(this, &UserSocket::onCannotConnectNotify);
+  m_Newsoul->server()->cannotConnectNotifyReceivedEvent.connect(this, &UserSocket::onCannotConnectNotify);
 }
 
-Museek::UserSocket::UserSocket(Museek::HandshakeSocket * that, const std::string & type) : NewNet::TcpClientSocket(), m_Museekd(that->museekd()), m_Type(type)
+newsoul::UserSocket::UserSocket(newsoul::HandshakeSocket * that, const std::string & type) : NewNet::TcpClientSocket(), m_Newsoul(that->newsoul()), m_Type(type)
 {
   disconnectedEvent.connect(this, &UserSocket::onDisconnected);
-  m_Museekd->server()->cannotConnectNotifyReceivedEvent.connect(this, &UserSocket::onCannotConnectNotify);
+  m_Newsoul->server()->cannotConnectNotifyReceivedEvent.connect(this, &UserSocket::onCannotConnectNotify);
 
   m_Token = that->token();
   m_User = that->user();
@@ -40,65 +40,65 @@ Museek::UserSocket::UserSocket(Museek::HandshakeSocket * that, const std::string
   receiveBuffer() = that->receiveBuffer();
 }
 
-Museek::UserSocket::~UserSocket()
+newsoul::UserSocket::~UserSocket()
 {
     if(m_PassiveConnectTimeout.isValid())
-      m_Museekd->reactor()->removeTimeout(m_PassiveConnectTimeout);
+      m_Newsoul->reactor()->removeTimeout(m_PassiveConnectTimeout);
 }
 
 void
-Museek::UserSocket::onDisconnected(NewNet::ClientSocket *)
+newsoul::UserSocket::onDisconnected(NewNet::ClientSocket *)
 {
   // Just in case this socket is still registered
-  m_Museekd->peers()->removePassiveConnectionWaiting(m_Token);
+  m_Newsoul->peers()->removePassiveConnectionWaiting(m_Token);
 
   if(reactor())
     reactor()->remove(this);
 }
 
 void
-Museek::UserSocket::initiate(const std::string & user)
+newsoul::UserSocket::initiate(const std::string & user)
 {
   m_User = user;
-  m_Token = m_Museekd->token();
+  m_Token = m_Newsoul->token();
 
-  if(m_Museekd->config()->get("clients", "connectmode", "active") == "passive")
+  if(m_Newsoul->config()->get("clients", "connectmode", "active") == "passive")
     initiatePassive();
   else
     initiateActive();
 }
 
 void
-Museek::UserSocket::initiateActive()
+newsoul::UserSocket::initiateActive()
 {
   NNLOG("newsoul.user.debug", "Initiating active user connection to %s (type %s).", m_User.c_str(), m_Type.c_str());
 
-  HInitiate handshake(m_Museekd->server()->username(), m_Type, m_Token);
+  HInitiate handshake(m_Newsoul->server()->username(), m_Type, m_Token);
   sendMessage(handshake.make_network_packet());
 
-  m_Museekd->server()->peerAddressReceivedEvent.connect(this, &UserSocket::onServerPeerAddressReceived);
+  m_Newsoul->server()->peerAddressReceivedEvent.connect(this, &UserSocket::onServerPeerAddressReceived);
   SGetPeerAddress msg(m_User);
-  m_Museekd->server()->sendMessage(msg.make_network_packet());
+  m_Newsoul->server()->sendMessage(msg.make_network_packet());
 }
 
 void
-Museek::UserSocket::initiatePassive()
+newsoul::UserSocket::initiatePassive()
 {
   NNLOG("newsoul.user.debug", "Initiating passive user connection to %s (type %s).", m_User.c_str(), m_Type.c_str());
 
-  m_PassiveConnectTimeout = m_Museekd->reactor()->addTimeout(60000, this, &UserSocket::onFirewallPierceTimedOut);
-  m_Museekd->peers()->waitingPassiveConnection(this);
+  m_PassiveConnectTimeout = m_Newsoul->reactor()->addTimeout(60000, this, &UserSocket::onFirewallPierceTimedOut);
+  m_Newsoul->peers()->waitingPassiveConnection(this);
 
   SConnectToPeer msg(m_Token, m_User, m_Type);
-  m_Museekd->server()->sendMessage(msg.make_network_packet());
+  m_Newsoul->server()->sendMessage(msg.make_network_packet());
 }
 
 void
-Museek::UserSocket::firewallPierced(Museek::HandshakeSocket * socket)
+newsoul::UserSocket::firewallPierced(newsoul::HandshakeSocket * socket)
 {
     NNLOG("newsoul.user.debug", "%s's firewall successfully pierced.", m_User.c_str());
     if(m_PassiveConnectTimeout.isValid())
-      m_Museekd->reactor()->removeTimeout(m_PassiveConnectTimeout);
+      m_Newsoul->reactor()->removeTimeout(m_PassiveConnectTimeout);
 
     setSocketState(SocketConnected);
     setDescriptor(socket->descriptor());
@@ -110,9 +110,9 @@ Museek::UserSocket::firewallPierced(Museek::HandshakeSocket * socket)
 }
 
 void
-Museek::UserSocket::onFirewallPierceTimedOut(long)
+newsoul::UserSocket::onFirewallPierceTimedOut(long)
 {
-  m_Museekd->peers()->removePassiveConnectionWaiting(m_Token);
+  m_Newsoul->peers()->removePassiveConnectionWaiting(m_Token);
 
   if(socketState() == SocketUninitialized)
   {
@@ -122,9 +122,9 @@ Museek::UserSocket::onFirewallPierceTimedOut(long)
 }
 
 void
-Museek::UserSocket::onCannotConnectNotify(const SCannotConnect * msg)
+newsoul::UserSocket::onCannotConnectNotify(const SCannotConnect * msg)
 {
-    m_Museekd->peers()->removePassiveConnectionWaiting(m_Token);
+    m_Newsoul->peers()->removePassiveConnectionWaiting(m_Token);
 
     if (msg->token == token()) {
         NNLOG("newsoul.user.debug", "Cannot connect to the peer.");
@@ -133,7 +133,7 @@ Museek::UserSocket::onCannotConnectNotify(const SCannotConnect * msg)
 }
 
 void
-Museek::UserSocket::onServerPeerAddressReceived(const SGetPeerAddress * message)
+newsoul::UserSocket::onServerPeerAddressReceived(const SGetPeerAddress * message)
 {
   if((message->user != m_User) || (socketState() != SocketUninitialized))
     return;
@@ -150,7 +150,7 @@ Museek::UserSocket::onServerPeerAddressReceived(const SGetPeerAddress * message)
   * This is called when a peer asks us to connect to him.
   */
 void
-Museek::UserSocket::reverseConnect(const std::string & user, uint token, const std::string & ip, uint port)
+newsoul::UserSocket::reverseConnect(const std::string & user, uint token, const std::string & ip, uint port)
 {
   NNLOG("newsoul.user.debug", "Trying to reverse connect to %s at %s:%u, token=%u", user.c_str(), ip.c_str(), port, token);
 
@@ -166,12 +166,12 @@ Museek::UserSocket::reverseConnect(const std::string & user, uint token, const s
 }
 
 void
-Museek::UserSocket::onCannotReverseConnect(NewNet::ClientSocket *)
+newsoul::UserSocket::onCannotReverseConnect(NewNet::ClientSocket *)
 {
   NNLOG("newsoul.user.debug", "Could not fulfill %s's connection request.", m_User.c_str());
-  if (m_Museekd->server()->loggedIn()) {
+  if (m_Newsoul->server()->loggedIn()) {
     SCannotConnect msg(m_User, m_Token);
-    m_Museekd->server()->sendMessage(msg.make_network_packet());
+    m_Newsoul->server()->sendMessage(msg.make_network_packet());
   }
   // Try to disconnect even if it's probably not necessary
   // then remove from reactor as this will probably not be done by disconnect()
@@ -179,7 +179,7 @@ Museek::UserSocket::onCannotReverseConnect(NewNet::ClientSocket *)
 }
 
 void
-Museek::UserSocket::sendMessage(const NewNet::Buffer & buffer)
+newsoul::UserSocket::sendMessage(const NewNet::Buffer & buffer)
 {
   unsigned char buf[4];
   buf[0] = buffer.count() & 0xff;

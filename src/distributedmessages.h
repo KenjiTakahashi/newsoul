@@ -1,4 +1,4 @@
-/* Museek - Museek's 'core' library
+/* newsoul - newsoul's 'core' library
  *
  * Copyright (C) 2003-2007 Hyriand <hyriand@thegraveyard.org>
  * Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
@@ -18,12 +18,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MUSEEK_DISTRIBUTEDMESSAGES_H
-#define MUSEEK_DISTRIBUTEDMESSAGES_H
+#ifndef NEWSOUL_DISTRIBUTEDMESSAGES_H
+#define NEWSOUL_DISTRIBUTEDMESSAGES_H
 
 #include "networkmessage.h"
 
-namespace Museek
+namespace newsoul
 {
 	class DistributedSocket;
 }
@@ -31,18 +31,18 @@ namespace Museek
 class DistributedMessage : public NetworkMessage
 {
 public:
-	void setDistributedSocket(Museek::DistributedSocket * distributedSocket)
+	void setDistributedSocket(newsoul::DistributedSocket * distributedSocket)
 	{
 		m_DistributedSocket = distributedSocket;
 	}
-	Museek::DistributedSocket * distributedSocket() const
+	newsoul::DistributedSocket * distributedSocket() const
 	{
 		return m_DistributedSocket;
 	}
 protected:
     void default_garbage_collector() { }
 private:
-	Museek::DistributedSocket * m_DistributedSocket;
+	newsoul::DistributedSocket * m_DistributedSocket;
 };
 
 /* Voodoo magic preprocessing: shortcut for defining a distributed message. */
@@ -140,4 +140,4 @@ DISTRIBUTEDMESSAGE(DChildDepth, 7)
 	uint depth;
 END
 
-#endif // MUSEEK_DISTRIBUTEDMESSAGES_H
+#endif // NEWSOUL_DISTRIBUTEDMESSAGES_H

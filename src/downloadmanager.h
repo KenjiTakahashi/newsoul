@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_DOWNLOADMANAGER_H
-#define MUSEEK_DOWNLOADMANAGER_H
+#ifndef NEWSOUL_DOWNLOADMANAGER_H
+#define NEWSOUL_DOWNLOADMANAGER_H
 
 #include <sstream>
 #include "codesetmanager.h"
@@ -36,7 +36,7 @@
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnevent.h"
 
-namespace Museek
+namespace newsoul
 {
   class DownloadSocket;
 
@@ -45,12 +45,12 @@ namespace Museek
   class Download : public NewNet::Object
   {
   public:
-    Download(Museekd * museekd, const std::string & user, const std::string & remotePath, const std::string & localDir = std::string());
+    Download(Newsoul * newsoul, const std::string & user, const std::string & remotePath, const std::string & localDir = std::string());
     ~Download();
 
     void initiate(PeerSocket * socket);
 
-    Museekd * museekd() const { return m_Museekd; }
+    Newsoul * newsoul() const { return m_Newsoul; }
 
     DownloadSocket * socket() const { return m_Socket; }
     void setSocket(DownloadSocket * socket);
@@ -92,7 +92,7 @@ namespace Museek
     void initTimedOut(long);
 
   private:
-    NewNet::WeakRefPtr<Museekd>         m_Museekd; // Ref to the museekd
+    NewNet::WeakRefPtr<Newsoul>         m_Newsoul; // Ref to the newsoul
 
     NewNet::WeakRefPtr<DownloadSocket>  m_Socket; // Ref to the socket associated
 
@@ -126,11 +126,11 @@ namespace Museek
   class DownloadManager : public NewNet::Object
   {
   public:
-    DownloadManager(Museekd * museekd);
+    DownloadManager(Newsoul * newsoul);
     ~DownloadManager();
 
-    /* Return pointer to museekd instance. */
-    Museekd * museekd() const { return m_Museekd; }
+    /* Return pointer to newsoul instance. */
+    Newsoul * newsoul() const { return m_Newsoul; }
 
     /* List all downloads. */
     const std::vector<NewNet::RefPtr<Download> > & downloads() const { return m_Downloads; }
@@ -218,7 +218,7 @@ namespace Museek
                                                                                 // to be saved
     bool                                                    m_PendingDownloadsSave; // Should we save downloads soon?
     NewNet::RefPtr<NewNet::RateLimiter>                     m_Limiter;          // Rate limiter shared between downloads
-    NewNet::WeakRefPtr<Museekd>                             m_Museekd;          // Ref to the museekd
+    NewNet::WeakRefPtr<Newsoul>                             m_Newsoul;          // Ref to the newsoul
     std::vector<NewNet::RefPtr<Download> >                  m_Downloads;        // List of all the downloads
     std::map<std::string, NewNet::WeakRefPtr<Download> >    m_Initiating;       // List of all the downloads currently being initiated
     std::map<std::string, NewNet::WeakRefPtr<Download> >    m_Downloading;      // List of user we're currently uploading
@@ -231,4 +231,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_DOWNLOADMANAGER_H
+#endif // NEWSOUL_DOWNLOADMANAGER_H

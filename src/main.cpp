@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -19,18 +19,11 @@
  */
 
 #include "newsoul.h"
-#include "servermanager.h"
 #include "ifacemanager.h"
-#include "downloadmanager.h"
-#include "uploadmanager.h"
-#include "util.h"
-#include "NewNet/nnreactor.h"
-#include "NewNet/nnlog.h"
-#include <sys/types.h>
 #include <signal.h>
 
 /* Global reference to the newsoul instance. */
-static NewNet::RefPtr<Museek::Museekd> museekd;
+static NewNet::RefPtr<newsoul::Newsoul> app;
 
 /* Returns 0 if newsoul is already running, 1 otherwise. */
 int get_lock(void)
@@ -56,21 +49,21 @@ int get_lock(void)
 }
 
 /* Our signal handler, stop the reactor if we receive a HUP or INT signal. */
-static void museekd_signal_handler(int signal)
+static void newsoul_signal_handler(int signal)
 {
     if (signal == SIGINT) {
         NNLOG("newsoul.debug", "Trapped signal %i. Stopping the reactor.", signal);
-        museekd->reactor()->stop();
+        app->reactor()->stop();
     }
 #ifndef WIN32
     else if (signal == SIGHUP) {
         NNLOG("newsoul.debug", "Trapped signal %i. Reloading shares.", signal);
-        museekd->LoadShares();
+        app->LoadShares();
     }
     else if (signal == SIGALRM) {
         NNLOG("newsoul.debug", "Trapped signal %i. Trying to reconnect to server.", signal);
-        if (!museekd->server()->loggedIn())
-            museekd->server()->connect();
+        if (!app->server()->loggedIn())
+            app->server()->connect();
     }
 #endif // WIN32
 
@@ -78,10 +71,10 @@ static void museekd_signal_handler(int signal)
   /* Reconnect signal handlers for HUP, ALRM and INT signals.
      Some Unix disconnect signals after each call */
 #ifndef WIN32
-  ::signal(SIGHUP, &museekd_signal_handler);
-  ::signal(SIGALRM, &museekd_signal_handler);
+  ::signal(SIGHUP, &newsoul_signal_handler);
+  ::signal(SIGALRM, &newsoul_signal_handler);
 #endif // WIN32
-  ::signal(SIGINT, &museekd_signal_handler);
+  ::signal(SIGINT, &newsoul_signal_handler);
 }
 
 /* Timeout callback to connect to the server. Not really required, could
@@ -92,18 +85,18 @@ class AutoConnectCallback : public NewNet::Reactor::Timeout::Callback
 public:
   virtual void operator()(long)
   {
-    museekd->server()->connect();
+    app->server()->connect();
   }
 };
 
-class KeySetCallback : public NewNet::Event<const Museek::ConfigManager::ChangeNotify *>::Callback
+class KeySetCallback : public NewNet::Event<const newsoul::ConfigManager::ChangeNotify *>::Callback
 {
 public:
-  virtual void operator()(const Museek::ConfigManager::ChangeNotify * notice)
+  virtual void operator()(const newsoul::ConfigManager::ChangeNotify * notice)
   {
     if(notice->domain == "newsoul.debug")
     {
-      if(museekd->config()->getBool(notice->domain, notice->key))
+      if(app->config()->getBool(notice->domain, notice->key))
         NNLOG.enable(notice->key);
       else
         NNLOG.disable(notice->key);
@@ -111,10 +104,10 @@ public:
   }
 };
 
-class KeyRemovedCallback : public NewNet::Event<const Museek::ConfigManager::RemoveNotify *>::Callback
+class KeyRemovedCallback : public NewNet::Event<const newsoul::ConfigManager::RemoveNotify *>::Callback
 {
 public:
-  virtual void operator()(const Museek::ConfigManager::RemoveNotify * notice)
+  virtual void operator()(const newsoul::ConfigManager::RemoveNotify * notice)
   {
     if(notice->domain == "newsoul.debug")
       NNLOG.disable(notice->key);
@@ -139,8 +132,8 @@ int main(int argc, char ** argv)
       configPath = std::string(std::string(home) + "/.newsoul/config.xml");
   }
 #else
-  /* Load the configuration from %APPDIR%\Museekd\config.xml. */
-  std::string configPath(getConfigPath("Museekd") + "\\config.xml");
+  /* Load the configuration from %APPDIR%\Newsoul\config.xml. */
+  std::string configPath(getConfigPath("Newsoul") + "\\config.xml");
 #endif // WIN32
 
     bool fullDebug = false;
@@ -184,40 +177,40 @@ int main(int argc, char ** argv)
     NNLOG("newsoul.warn", "Warning: No large file support. This means you can't download files larger than 4GB.");
   }
 
-  /* Create our Museek Daemon instance. */
-  museekd = new Museek::Museekd();
+  /* Create our newsoul Daemon instance. */
+  app = new newsoul::Newsoul();
 
   /* Connect our config watchers. */
-  museekd->config()->keySetEvent.connect(new KeySetCallback);
-  museekd->config()->keyRemovedEvent.connect(new KeyRemovedCallback);
+  app->config()->keySetEvent.connect(new KeySetCallback);
+  app->config()->keyRemovedEvent.connect(new KeyRemovedCallback);
 
-  if(! museekd->config()->load(configPath))
+  if(!app->config()->load(configPath))
   {
     NNLOG("newsoul.config.warn", "Failed to load configuration, bailing out.");
     return -1;
   }
 
   /* Disable the debug override. */
-  if(!museekd->config()->getBool("newsoul.debug", "ALL") && !fullDebug)
+  if(!app->config()->getBool("newsoul.debug", "ALL") && !fullDebug)
     NNLOG.disable("ALL");
 
   /* Load the shares database. */
-  museekd->LoadShares();
-  museekd->LoadDownloads();
+  app->LoadShares();
+  app->LoadDownloads();
 
   /* Connect signal handlers for HUP, ALRM and INT signals. */
 #ifndef WIN32
-  signal(SIGHUP, &museekd_signal_handler);
-  signal(SIGALRM, &museekd_signal_handler);
+  signal(SIGHUP, &newsoul_signal_handler);
+  signal(SIGALRM, &newsoul_signal_handler);
 #endif // WIN32
-  signal(SIGINT, &museekd_signal_handler);
+  signal(SIGINT, &newsoul_signal_handler);
 
   /* Add a timeout callback: Wait 5 seconds, then connect to the server. */
-  museekd->reactor()->addTimeout(5000, new AutoConnectCallback);
+  app->reactor()->addTimeout(5000, new AutoConnectCallback);
 
   /* Start the reactor. This drives the daemon. */
-  museekd->reactor()->run();
-  museekd->downloads()->saveDownloads();
+  app->reactor()->run();
+  app->downloads()->saveDownloads();
 
   return 0;
 }

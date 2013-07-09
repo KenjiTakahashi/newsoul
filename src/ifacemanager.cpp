@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
     Karol 'Kenji Takahashi' Woźniak © 2013
@@ -25,7 +25,7 @@
 #define SEND_ALL(MESSAGE) \
   do { \
     NewNet::Buffer buffer(MESSAGE.make_network_packet()); \
-    std::vector<NewNet::RefPtr<Museek::IfaceSocket> >::iterator it, end = m_Ifaces.end(); \
+    std::vector<NewNet::RefPtr<newsoul::IfaceSocket> >::iterator it, end = m_Ifaces.end(); \
     for(it = m_Ifaces.begin(); it != end; ++it) \
       if((*it)->authenticated()) \
         (*it)->sendMessage(buffer); \
@@ -33,14 +33,14 @@
 #define SEND_MASK(MASK, MESSAGE) \
   do { \
     NewNet::Buffer buffer(MESSAGE.make_network_packet()); \
-    std::vector<NewNet::RefPtr<Museek::IfaceSocket> >::iterator it, end = m_Ifaces.end(); \
+    std::vector<NewNet::RefPtr<newsoul::IfaceSocket> >::iterator it, end = m_Ifaces.end(); \
     for(it = m_Ifaces.begin(); it != end; ++it) \
       if((*it)->authenticated() && ((*it)->mask() & MASK)) \
         (*it)->sendMessage(buffer); \
   } while(0)
 #define SEND_C_MASK(MASK, MESSAGE) \
   do { \
-    std::vector<NewNet::RefPtr<Museek::IfaceSocket> >::iterator it, end = m_Ifaces.end(); \
+    std::vector<NewNet::RefPtr<newsoul::IfaceSocket> >::iterator it, end = m_Ifaces.end(); \
     for(it = m_Ifaces.begin(); it != end; ++it) \
       if((*it)->authenticated() && ((*it)->mask() & MASK)) \
         (*it)->sendMessage(MESSAGE.make_network_packet()); \
@@ -55,65 +55,65 @@ static std::string challenge()
   return r;
 }
 
-Museek::IfaceManager::IfaceManager(Museekd * museekd) : m_Museekd(museekd)
+newsoul::IfaceManager::IfaceManager(Newsoul * newsoul) : m_Newsoul(newsoul)
 {
   m_AwayState = 0;
   m_ReceivedTimeDiff = false;
 
   NNLOG.logEvent.connect(this, &IfaceManager::onLog);
 
-  museekd->config()->keySetEvent.connect(this, &IfaceManager::onConfigKeySet);
-  museekd->config()->keyRemovedEvent.connect(this, &IfaceManager::onConfigKeyRemoved);
+  newsoul->config()->keySetEvent.connect(this, &IfaceManager::onConfigKeySet);
+  newsoul->config()->keyRemovedEvent.connect(this, &IfaceManager::onConfigKeyRemoved);
 
-  museekd->server()->loggedInStateChangedEvent.connect(this, &IfaceManager::onServerLoggedInStateChanged);
-  museekd->server()->receivedServerTimeDiff.connect(this, &IfaceManager::onServerTimeDiffReceived);
-  museekd->server()->loggedInEvent.connect(this, &IfaceManager::onServerLoggedIn);
-  museekd->server()->kickedEvent.connect(this, &IfaceManager::onServerKicked);
-  museekd->server()->peerAddressReceivedEvent.connect(this, &IfaceManager::onServerPeerAddressReceived);
-  museekd->server()->addUserReceivedEvent.connect(this, &IfaceManager::onServerAddUserReceived);
-  museekd->server()->userStatusReceivedEvent.connect(this, &IfaceManager::onServerUserStatusReceived);
-  museekd->server()->privateMessageReceivedEvent.connect(this, &IfaceManager::onServerPrivateMessageReceived);
-  museekd->server()->roomMessageReceivedEvent.connect(this, &IfaceManager::onServerRoomMessageReceived);
-  museekd->server()->roomJoinedEvent.connect(this, &IfaceManager::onServerRoomJoined);
-  museekd->server()->roomLeftEvent.connect(this, &IfaceManager::onServerRoomLeft);
-  museekd->server()->userJoinedRoomEvent.connect(this, &IfaceManager::onServerUserJoinedRoom);
-  museekd->server()->userLeftRoomEvent.connect(this, &IfaceManager::onServerUserLeftRoom);
-  museekd->server()->roomListReceivedEvent.connect(this, &IfaceManager::onServerRoomListReceived);
-  museekd->server()->privilegesReceivedEvent.connect(this, &IfaceManager::onServerPrivilegesReceived);
-  museekd->server()->roomTickersReceivedEvent.connect(this, &IfaceManager::onServerRoomTickersReceived);
-  museekd->server()->roomTickerAddedEvent.connect(this, &IfaceManager::onServerRoomTickerAdded);
-  museekd->server()->roomTickerRemovedEvent.connect(this, &IfaceManager::onServerRoomTickerRemoved);
-  museekd->server()->recommendationsReceivedEvent.connect(this, &IfaceManager::onServerRecommendationsReceived);
-  museekd->server()->globalRecommendationsReceivedEvent.connect(this, &IfaceManager::onServerGlobalRecommendationsReceived);
-  museekd->server()->similarUsersReceivedEvent.connect(this, &IfaceManager::onServerSimilarUsersReceived);
-  museekd->server()->itemRecommendationsReceivedEvent.connect(this, &IfaceManager::onServerItemRecommendationsReceived);
-  museekd->server()->itemSimilarUsersReceivedEvent.connect(this, &IfaceManager::onServerItemSimilarUsersReceived);
-  museekd->server()->userInterestsReceivedEvent.connect(this, &IfaceManager::onServerUserInterestsReceived);
-  museekd->server()->newPasswordReceivedEvent.connect(this, &IfaceManager::onServerNewPasswordSet);
-  museekd->server()->publicChatReceivedEvent.connect(this, &IfaceManager::onServerPublicChatReceived);
+  newsoul->server()->loggedInStateChangedEvent.connect(this, &IfaceManager::onServerLoggedInStateChanged);
+  newsoul->server()->receivedServerTimeDiff.connect(this, &IfaceManager::onServerTimeDiffReceived);
+  newsoul->server()->loggedInEvent.connect(this, &IfaceManager::onServerLoggedIn);
+  newsoul->server()->kickedEvent.connect(this, &IfaceManager::onServerKicked);
+  newsoul->server()->peerAddressReceivedEvent.connect(this, &IfaceManager::onServerPeerAddressReceived);
+  newsoul->server()->addUserReceivedEvent.connect(this, &IfaceManager::onServerAddUserReceived);
+  newsoul->server()->userStatusReceivedEvent.connect(this, &IfaceManager::onServerUserStatusReceived);
+  newsoul->server()->privateMessageReceivedEvent.connect(this, &IfaceManager::onServerPrivateMessageReceived);
+  newsoul->server()->roomMessageReceivedEvent.connect(this, &IfaceManager::onServerRoomMessageReceived);
+  newsoul->server()->roomJoinedEvent.connect(this, &IfaceManager::onServerRoomJoined);
+  newsoul->server()->roomLeftEvent.connect(this, &IfaceManager::onServerRoomLeft);
+  newsoul->server()->userJoinedRoomEvent.connect(this, &IfaceManager::onServerUserJoinedRoom);
+  newsoul->server()->userLeftRoomEvent.connect(this, &IfaceManager::onServerUserLeftRoom);
+  newsoul->server()->roomListReceivedEvent.connect(this, &IfaceManager::onServerRoomListReceived);
+  newsoul->server()->privilegesReceivedEvent.connect(this, &IfaceManager::onServerPrivilegesReceived);
+  newsoul->server()->roomTickersReceivedEvent.connect(this, &IfaceManager::onServerRoomTickersReceived);
+  newsoul->server()->roomTickerAddedEvent.connect(this, &IfaceManager::onServerRoomTickerAdded);
+  newsoul->server()->roomTickerRemovedEvent.connect(this, &IfaceManager::onServerRoomTickerRemoved);
+  newsoul->server()->recommendationsReceivedEvent.connect(this, &IfaceManager::onServerRecommendationsReceived);
+  newsoul->server()->globalRecommendationsReceivedEvent.connect(this, &IfaceManager::onServerGlobalRecommendationsReceived);
+  newsoul->server()->similarUsersReceivedEvent.connect(this, &IfaceManager::onServerSimilarUsersReceived);
+  newsoul->server()->itemRecommendationsReceivedEvent.connect(this, &IfaceManager::onServerItemRecommendationsReceived);
+  newsoul->server()->itemSimilarUsersReceivedEvent.connect(this, &IfaceManager::onServerItemSimilarUsersReceived);
+  newsoul->server()->userInterestsReceivedEvent.connect(this, &IfaceManager::onServerUserInterestsReceived);
+  newsoul->server()->newPasswordReceivedEvent.connect(this, &IfaceManager::onServerNewPasswordSet);
+  newsoul->server()->publicChatReceivedEvent.connect(this, &IfaceManager::onServerPublicChatReceived);
 
-  museekd->server()->privRoomToggleReceivedEvent.connect(this, &IfaceManager::onServerPrivRoomToggled);
-  museekd->server()->privRoomAlterableMembersReceivedEvent.connect(this, &IfaceManager::onServerPrivRoomAlterableMembers);
-  museekd->server()->privRoomAlterableOperatorsReceivedEvent.connect(this, &IfaceManager::onServerPrivRoomAlterableOperators);
-  museekd->server()->privRoomAddedUserEvent.connect(this, &IfaceManager::onServerPrivRoomAddedUser);
-  museekd->server()->privRoomRemovedUserEvent.connect(this, &IfaceManager::onServerPrivRoomRemovedUser);
-  museekd->server()->privRoomAddedOperatorEvent.connect(this, &IfaceManager::onServerPrivRoomAddedOperator);
-  museekd->server()->privRoomRemovedOperatorEvent.connect(this, &IfaceManager::onServerPrivRoomRemovedOperator);
+  newsoul->server()->privRoomToggleReceivedEvent.connect(this, &IfaceManager::onServerPrivRoomToggled);
+  newsoul->server()->privRoomAlterableMembersReceivedEvent.connect(this, &IfaceManager::onServerPrivRoomAlterableMembers);
+  newsoul->server()->privRoomAlterableOperatorsReceivedEvent.connect(this, &IfaceManager::onServerPrivRoomAlterableOperators);
+  newsoul->server()->privRoomAddedUserEvent.connect(this, &IfaceManager::onServerPrivRoomAddedUser);
+  newsoul->server()->privRoomRemovedUserEvent.connect(this, &IfaceManager::onServerPrivRoomRemovedUser);
+  newsoul->server()->privRoomAddedOperatorEvent.connect(this, &IfaceManager::onServerPrivRoomAddedOperator);
+  newsoul->server()->privRoomRemovedOperatorEvent.connect(this, &IfaceManager::onServerPrivRoomRemovedOperator);
 
-  museekd->downloads()->downloadAddedEvent.connect(this, &IfaceManager::onDownloadUpdated);
-  museekd->downloads()->downloadUpdatedEvent.connect(this, &IfaceManager::onDownloadUpdated);
-  museekd->downloads()->downloadRemovedEvent.connect(this, &IfaceManager::onDownloadRemoved);
+  newsoul->downloads()->downloadAddedEvent.connect(this, &IfaceManager::onDownloadUpdated);
+  newsoul->downloads()->downloadUpdatedEvent.connect(this, &IfaceManager::onDownloadUpdated);
+  newsoul->downloads()->downloadRemovedEvent.connect(this, &IfaceManager::onDownloadRemoved);
 
-  museekd->uploads()->uploadAddedEvent.connect(this, &IfaceManager::onUploadUpdated);
-  museekd->uploads()->uploadUpdatedEvent.connect(this, &IfaceManager::onUploadUpdated);
-  museekd->uploads()->uploadRemovedEvent.connect(this, &IfaceManager::onUploadRemoved);
+  newsoul->uploads()->uploadAddedEvent.connect(this, &IfaceManager::onUploadUpdated);
+  newsoul->uploads()->uploadUpdatedEvent.connect(this, &IfaceManager::onUploadUpdated);
+  newsoul->uploads()->uploadRemovedEvent.connect(this, &IfaceManager::onUploadRemoved);
 
-  museekd->peers()->peerSocketUnavailableEvent.connect(this, &IfaceManager::onPeerSocketUnavailable);
-  museekd->peers()->peerSocketReadyEvent.connect(this, &IfaceManager::onPeerSocketReady);
+  newsoul->peers()->peerSocketUnavailableEvent.connect(this, &IfaceManager::onPeerSocketUnavailable);
+  newsoul->peers()->peerSocketReadyEvent.connect(this, &IfaceManager::onPeerSocketReady);
 }
 
 bool
-Museek::IfaceManager::addListener(const std::string & path)
+newsoul::IfaceManager::addListener(const std::string & path)
 {
   if(path.empty())
     return false;
@@ -132,7 +132,7 @@ Museek::IfaceManager::addListener(const std::string & path)
     }
     m_Factories[path] = factory;
     m_ServerSockets[path] = factory->serverSocket();
-    museekd()->reactor()->add(factory->serverSocket());
+    newsoul()->reactor()->add(factory->serverSocket());
   }
   else
 #endif // WIN32
@@ -156,7 +156,7 @@ Museek::IfaceManager::addListener(const std::string & path)
     }
     m_Factories[path] = factory;
     m_ServerSockets[path] = factory->serverSocket();
-    museekd()->reactor()->add(factory->serverSocket());
+    newsoul()->reactor()->add(factory->serverSocket());
   }
 
   NNLOG("newsoul.iface.debug", "Listening on '%s'.", path.c_str());
@@ -164,14 +164,14 @@ Museek::IfaceManager::addListener(const std::string & path)
 }
 
 void
-Museek::IfaceManager::removeListener(const std::string & path)
+newsoul::IfaceManager::removeListener(const std::string & path)
 {
   std::map<std::string, NewNet::RefPtr<NewNet::ServerSocket> >::iterator it;
   it = m_ServerSockets.find(path);
   if(it == m_ServerSockets.end())
     return;
   (*it).second->disconnect();
-  museekd()->reactor()->remove((*it).second);
+  newsoul()->reactor()->remove((*it).second);
   m_ServerSockets.erase(it);
   std::map<std::string, NewNet::RefPtr<NewNet::Object> >::iterator fit = m_Factories.find(path);
   if (fit != m_Factories.end())
@@ -179,13 +179,13 @@ Museek::IfaceManager::removeListener(const std::string & path)
 }
 
 void
-Museek::IfaceManager::onLog(const NewNet::Log::LogNotify * log)
+newsoul::IfaceManager::onLog(const NewNet::Log::LogNotify * log)
 {
   SEND_MASK(EM_DEBUG, IDebugMessage(log->domain, log->message));
 }
 
 void
-Museek::IfaceManager::onConfigKeySet(const ConfigManager::ChangeNotify * data)
+newsoul::IfaceManager::onConfigKeySet(const ConfigManager::ChangeNotify * data)
 {
   if(data->domain == "interfaces.bind")
   {
@@ -197,7 +197,7 @@ Museek::IfaceManager::onConfigKeySet(const ConfigManager::ChangeNotify * data)
 }
 
 void
-Museek::IfaceManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data)
+newsoul::IfaceManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data)
 {
   if(data->domain == "interfaces.bind")
   {
@@ -209,7 +209,7 @@ Museek::IfaceManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * dat
 }
 
 void
-Museek::IfaceManager::flushPrivateMessages()
+newsoul::IfaceManager::flushPrivateMessages()
 {
   if(m_PrivateMessages.empty() || m_Ifaces.empty() || !m_ReceivedTimeDiff)
     return;
@@ -232,17 +232,17 @@ Museek::IfaceManager::flushPrivateMessages()
     return;
 
   for(it = m_PrivateMessages.begin(); it != end; ++it)
-    SEND_MESSAGE(museekd()->server(), SAckPrivateMessage((*it).ticket));
+    SEND_MESSAGE(newsoul()->server(), SAckPrivateMessage((*it).ticket));
 
   m_PrivateMessages.clear();
 }
 
 void
-Museek::IfaceManager::onServerTimeDiffReceived(long diff) {
+newsoul::IfaceManager::onServerTimeDiffReceived(long diff) {
     if (!m_ReceivedTimeDiff) { // First time received
         std::vector<PrivateMessage>::iterator it, end = m_PrivateMessages.end();
         for(it = m_PrivateMessages.begin(); it != end; ++it) {
-            it->timestamp = it->timestamp - museekd()->server()->getServerTimeDiff();
+            it->timestamp = it->timestamp - newsoul()->server()->getServerTimeDiff();
         }
     }
 
@@ -251,12 +251,12 @@ Museek::IfaceManager::onServerTimeDiffReceived(long diff) {
 }
 
 void
-Museek::IfaceManager::sendNewSearchToAll(const std::string & query, uint token) {
+newsoul::IfaceManager::sendNewSearchToAll(const std::string & query, uint token) {
     SEND_ALL(ISearch(query, token));
 }
 
 void
-Museek::IfaceManager::onIfaceAccepted(IfaceSocket * socket)
+newsoul::IfaceManager::onIfaceAccepted(IfaceSocket * socket)
 {
   NNLOG("newsoul.iface.debug", "Accepted new interface socket.");
   m_Ifaces.push_back(socket);
@@ -331,7 +331,7 @@ Museek::IfaceManager::onIfaceAccepted(IfaceSocket * socket)
 }
 
 void
-Museek::IfaceManager::onIfaceDisconnected(NewNet::ClientSocket * socket)
+newsoul::IfaceManager::onIfaceDisconnected(NewNet::ClientSocket * socket)
 {
     std::vector<NewNet::RefPtr<IfaceSocket> >::iterator it;
     it = std::find(m_Ifaces.begin(), m_Ifaces.end(), static_cast<IfaceSocket *>(socket));
@@ -342,15 +342,15 @@ Museek::IfaceManager::onIfaceDisconnected(NewNet::ClientSocket * socket)
 }
 
 void
-Museek::IfaceManager::onIfacePing(const IPing * message)
+newsoul::IfaceManager::onIfacePing(const IPing * message)
 {
   SEND_MESSAGE(message->ifaceSocket(), IPing(message->id));
 }
 
 void
-Museek::IfaceManager::onIfaceLogin(const ILogin * message)
+newsoul::IfaceManager::onIfaceLogin(const ILogin * message)
 {
-  std::string password = museekd()->config()->get("interfaces", "password");
+  std::string password = newsoul()->config()->get("interfaces", "password");
   if(password.empty())
   {
     NNLOG("newsoul.iface.warn", "Rejecting login attempt because of empty password.");
@@ -403,14 +403,14 @@ Museek::IfaceManager::onIfaceLogin(const ILogin * message)
     socket->setMask(message->mask);
     socket->setCipherKey(password);
     SEND_MESSAGE(socket, ILogin(true, std::string(), std::string()));
-    SEND_MESSAGE(socket, IServerState(museekd()->server()->loggedIn(), museekd()->server()->username()));
+    SEND_MESSAGE(socket, IServerState(newsoul()->server()->loggedIn(), newsoul()->server()->username()));
     if(socket->mask() & EM_CHAT) {
       SEND_MESSAGE(socket, IRoomStateCompat(m_RoomList, m_RoomData, m_TickerData)); // For compatibility with old clients (deprecated since 0.3)
       SEND_MESSAGE(socket, IRoomList(m_RoomList));
       SEND_MESSAGE(socket, IPrivRoomList(m_PrivRoomList));
       SEND_MESSAGE(socket, IRoomMembers(m_RoomData, m_PrivRoomOperators, m_PrivRoomOwners));
       SEND_MESSAGE(socket, IRoomsTickers(m_TickerData));
-      SEND_MESSAGE(socket, IPrivRoomToggle(museekd()->isEnabledPrivRoom()));
+      SEND_MESSAGE(socket, IPrivRoomToggle(newsoul()->isEnabledPrivRoom()));
 
       std::map<std::string, std::vector<std::string> >::iterator altMembIt = m_PrivRoomAlterableMembers.begin();
       std::map<std::string, std::vector<std::string> >::iterator altOpIt = m_PrivRoomAlterableOperators.begin();
@@ -422,26 +422,26 @@ Museek::IfaceManager::onIfaceLogin(const ILogin * message)
       }
     }
     if(socket->mask() & EM_TRANSFERS) {
-      SEND_MESSAGE(socket, ITransferState(&museekd()->downloads()->downloads()));
-      SEND_MESSAGE(socket, ITransferState(&museekd()->uploads()->uploads()));
+      SEND_MESSAGE(socket, ITransferState(&newsoul()->downloads()->downloads()));
+      SEND_MESSAGE(socket, ITransferState(&newsoul()->uploads()->uploads()));
     }
     if(socket->mask() & EM_PRIVATE)
       flushPrivateMessages();
     if(socket->mask() & EM_CONFIG)
-      SEND_MESSAGE(socket, IConfigState(socket->cipherContext(), museekd()->config()->data()));
-    if(museekd()->server()->loggedIn())
+      SEND_MESSAGE(socket, IConfigState(socket->cipherContext(), newsoul()->config()->data()));
+    if(newsoul()->server()->loggedIn())
       SEND_MESSAGE(message->ifaceSocket(), ISetStatus(m_AwayState));
 
     if (socket->mask() & EM_USERINFO) {
         // send peers stats
         // copy the maps to avoid invalid iterator when they are modified elsewhere
-        std::map<std::string, UserData> userStats(*(museekd()->peers()->userStats()));
+        std::map<std::string, UserData> userStats(*(newsoul()->peers()->userStats()));
         std::map<std::string, UserData>::const_iterator it = userStats.begin();
         for(; it != userStats.end(); it++) {
             SEND_MESSAGE(socket, IPeerStats(it->first, it->second));
         }
 
-        std::map<std::string, uint32> userStatus(*(museekd()->peers()->userStatus()));
+        std::map<std::string, uint32> userStatus(*(newsoul()->peers()->userStatus()));
         std::map<std::string, uint32>::const_iterator sit = userStatus.begin();
         for(; sit != userStatus.end(); sit++) {
             SEND_MESSAGE(socket, IPeerStatus(sit->first, sit->second));
@@ -451,45 +451,45 @@ Museek::IfaceManager::onIfaceLogin(const ILogin * message)
 }
 
 void
-Museek::IfaceManager::onIfaceCheckPrivileges(const ICheckPrivileges * message)
+newsoul::IfaceManager::onIfaceCheckPrivileges(const ICheckPrivileges * message)
 {
-  SEND_MESSAGE(museekd()->server(), SCheckPrivileges());
+  SEND_MESSAGE(newsoul()->server(), SCheckPrivileges());
 }
 
 void
-Museek::IfaceManager::onIfaceSetStatus(const ISetStatus * message)
+newsoul::IfaceManager::onIfaceSetStatus(const ISetStatus * message)
 {
-  SEND_MESSAGE(museekd()->server(), SSetStatus(message->status ? 1 : 2));
+  SEND_MESSAGE(newsoul()->server(), SSetStatus(message->status ? 1 : 2));
   // Send it without waiting for a response from the server.
   // Before 157, server used to send us SGetStatus after changing our status.
   // Starting from 157, it doesn't anymore when switching back to online.
   m_AwayState = message->status;
   SEND_ALL(ISetStatus(m_AwayState));
-  museekd()->peers()->setUserStatus(museekd()->server()->username(), message->status ? 1 : 2);
-  SEND_ALL(IPeerStatus(museekd()->server()->username(), message->status ? 1 : 2));
+  newsoul()->peers()->setUserStatus(newsoul()->server()->username(), message->status ? 1 : 2);
+  SEND_ALL(IPeerStatus(newsoul()->server()->username(), message->status ? 1 : 2));
 }
 
 void
-Museek::IfaceManager::onIfaceNewPassword(const INewPassword * message)
+newsoul::IfaceManager::onIfaceNewPassword(const INewPassword * message)
 {
-  SEND_MESSAGE(museekd()->server(), SNewPassword(message->newPass));
+  SEND_MESSAGE(newsoul()->server(), SNewPassword(message->newPass));
 }
 
 void
-Museek::IfaceManager::onIfaceSetConfig(const IConfigSet * message)
+newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet * message)
 {
-  museekd()->config()->set(message->domain, message->key, message->value);
+  newsoul()->config()->set(message->domain, message->key, message->value);
 }
 
 void
-Museek::IfaceManager::onIfaceRemoveConfig(const IConfigRemove * message)
+newsoul::IfaceManager::onIfaceRemoveConfig(const IConfigRemove * message)
 {
-  museekd()->config()->removeKey(message->domain, message->key);
+  newsoul()->config()->removeKey(message->domain, message->key);
 }
 
 void
-Museek::IfaceManager::onIfaceSetUserImage(const IConfigSetUserImage * message) {
-    std::string path = museekd()->config()->get("userinfo", "image");
+newsoul::IfaceManager::onIfaceSetUserImage(const IConfigSetUserImage * message) {
+    std::string path = newsoul()->config()->get("userinfo", "image");
 
     std::ofstream ofs(path.c_str(), std::ofstream::binary | std::ofstream::trunc);
     if (!ofs.good())
@@ -503,88 +503,88 @@ Museek::IfaceManager::onIfaceSetUserImage(const IConfigSetUserImage * message) {
 }
 
 void
-Museek::IfaceManager::onIfaceGetPeerExists(const IPeerExists * message)
+newsoul::IfaceManager::onIfaceGetPeerExists(const IPeerExists * message)
 {
-    std::map<std::string, uint32> userStatus(*(museekd()->peers()->userStatus()));
+    std::map<std::string, uint32> userStatus(*(newsoul()->peers()->userStatus()));
     std::map<std::string, uint32>::iterator it = userStatus.find(message->user);
     if (it == userStatus.end())
-        museekd()->peers()->requestUserData(message->user); // Maybe the user doesn't exist, maybe we haven't seen him yet. Ask the server
+        newsoul()->peers()->requestUserData(message->user); // Maybe the user doesn't exist, maybe we haven't seen him yet. Ask the server
     else
         SEND_ALL(IPeerExists(message->user, true)); // We're sure he exists
 }
 
 void
-Museek::IfaceManager::onIfaceGetPeerStatus(const IPeerStatus * message)
+newsoul::IfaceManager::onIfaceGetPeerStatus(const IPeerStatus * message)
 {
-    std::map<std::string, uint32> userStatus(*(museekd()->peers()->userStatus()));
+    std::map<std::string, uint32> userStatus(*(newsoul()->peers()->userStatus()));
     std::map<std::string, uint32>::iterator it = userStatus.find(message->user);
     if (it == userStatus.end())
-        museekd()->peers()->requestUserData(message->user);
+        newsoul()->peers()->requestUserData(message->user);
     else
         SEND_ALL(IPeerStatus(message->user, it->second));
 }
 
 void
-Museek::IfaceManager::onIfaceGetPeerStats(const IPeerStats * message)
+newsoul::IfaceManager::onIfaceGetPeerStats(const IPeerStats * message)
 {
-    std::map<std::string, UserData> userStats(*(museekd()->peers()->userStats()));
+    std::map<std::string, UserData> userStats(*(newsoul()->peers()->userStats()));
     std::map<std::string, UserData>::iterator it = userStats.find(message->user);
     if (it == userStats.end())
-        museekd()->peers()->requestUserData(message->user);
+        newsoul()->peers()->requestUserData(message->user);
     else
         SEND_ALL(IPeerStats(message->user, it->second));
 }
 
 void
-Museek::IfaceManager::onIfaceGetUserInfo(const IUserInfo * message)
+newsoul::IfaceManager::onIfaceGetUserInfo(const IUserInfo * message)
 {
   m_PendingInfo[message->user].push_back(message->ifaceSocket());
   if (std::find(m_PendingInfoWaiting.begin(), m_PendingInfoWaiting.end(), message->user) == m_PendingInfoWaiting.end())
     m_PendingInfoWaiting.push_back(message->user);
 
-  museekd()->peers()->peerSocket(message->user);
+  newsoul()->peers()->peerSocket(message->user);
 }
 
 void
-Museek::IfaceManager::onIfaceGetUserInterests(const IUserInterests * message)
+newsoul::IfaceManager::onIfaceGetUserInterests(const IUserInterests * message)
 {
   // Check the user's Interests
-  m_Museekd->server()->sendMessage(SUserInterests(message->user).make_network_packet());
+  m_Newsoul->server()->sendMessage(SUserInterests(message->user).make_network_packet());
 }
 
 void
-Museek::IfaceManager::onIfaceGetUserShares(const IUserShares * message)
+newsoul::IfaceManager::onIfaceGetUserShares(const IUserShares * message)
 {
   m_PendingShares[message->user].push_back(message->ifaceSocket());
   if (std::find(m_PendingSharesWaiting.begin(), m_PendingSharesWaiting.end(), message->user) == m_PendingSharesWaiting.end())
     m_PendingSharesWaiting.push_back(message->user);
 
-  museekd()->peers()->peerSocket(message->user);
+  newsoul()->peers()->peerSocket(message->user);
 }
 
 void
-Museek::IfaceManager::onIfaceGetPeerAddress(const IPeerAddress * message)
+newsoul::IfaceManager::onIfaceGetPeerAddress(const IPeerAddress * message)
 {
-  SEND_MESSAGE(museekd()->server(), SGetPeerAddress(message->user));
+  SEND_MESSAGE(newsoul()->server(), SGetPeerAddress(message->user));
 }
 
 void
-Museek::IfaceManager::onIfaceGivePrivileges(const IGivePrivileges * message)
+newsoul::IfaceManager::onIfaceGivePrivileges(const IGivePrivileges * message)
 {
-  SEND_MESSAGE(museekd()->server(), SGivePrivileges(message->user, message->days));
+  SEND_MESSAGE(newsoul()->server(), SGivePrivileges(message->user, message->days));
 }
 
 void
-Museek::IfaceManager::onIfaceSendPrivateMessage(const IPrivateMessage * message)
+newsoul::IfaceManager::onIfaceSendPrivateMessage(const IPrivateMessage * message)
 {
-  std::string line = museekd()->codeset()->toPeer(message->user, message->msg);
+  std::string line = newsoul()->codeset()->toPeer(message->user, message->msg);
 
   // send one message per line
   std::vector<std::string> lines = string::split(line, "\n");
 
   std::vector<std::string>::const_iterator it;
   for (it = lines.begin(); it != lines.end(); ++it) {
-    SEND_MESSAGE(museekd()->server(), SPrivateMessage(message->user, *it));
+    SEND_MESSAGE(newsoul()->server(), SPrivateMessage(message->user, *it));
   }
 
   // send one message per line
@@ -595,7 +595,7 @@ Museek::IfaceManager::onIfaceSendPrivateMessage(const IPrivateMessage * message)
     IPrivateMessage msg(1, time(NULL), message->user, *iit);
 
     const NewNet::Buffer & buffer = msg.make_network_packet();
-    std::vector<NewNet::RefPtr<Museek::IfaceSocket> >::iterator fit;
+    std::vector<NewNet::RefPtr<newsoul::IfaceSocket> >::iterator fit;
     for(fit = m_Ifaces.begin(); fit != m_Ifaces.end(); ++fit) {
     if((*fit)->authenticated() && ((*fit)->mask() & EM_PRIVATE) && ((*fit) != message->ifaceSocket()))
       (*fit)->sendMessage(buffer);
@@ -604,49 +604,49 @@ Museek::IfaceManager::onIfaceSendPrivateMessage(const IPrivateMessage * message)
 }
 
 void
-Museek::IfaceManager::onIfaceGetRoomList(const IRoomList * message)
+newsoul::IfaceManager::onIfaceGetRoomList(const IRoomList * message)
 {
-  SEND_MESSAGE(museekd()->server(), SRoomList());
+  SEND_MESSAGE(newsoul()->server(), SRoomList());
 }
 
 void
-Museek::IfaceManager::onIfaceJoinRoom(const IJoinRoom * message)
+newsoul::IfaceManager::onIfaceJoinRoom(const IJoinRoom * message)
 {
-  SEND_MESSAGE(museekd()->server(), SJoinRoom(message->room, message->priv));
+  SEND_MESSAGE(newsoul()->server(), SJoinRoom(message->room, message->priv));
 }
 
 void
-Museek::IfaceManager::onIfaceLeaveRoom(const ILeaveRoom * message)
+newsoul::IfaceManager::onIfaceLeaveRoom(const ILeaveRoom * message)
 {
-  SEND_MESSAGE(museekd()->server(), SLeaveRoom(message->room));
+  SEND_MESSAGE(newsoul()->server(), SLeaveRoom(message->room));
 }
 
 void
-Museek::IfaceManager::onIfaceSayRoom(const ISayRoom * message)
+newsoul::IfaceManager::onIfaceSayRoom(const ISayRoom * message)
 {
-  std::string line = museekd()->codeset()->toRoom(message->room, message->line);
+  std::string line = newsoul()->codeset()->toRoom(message->room, message->line);
 
   // send one message per line
   std::vector<std::string> lines = string::split(line, "\n");
 
   std::vector<std::string>::const_iterator it;
   for (it = lines.begin(); it != lines.end(); ++it) {
-    SEND_MESSAGE(museekd()->server(), SSayRoom(message->room, *it));
+    SEND_MESSAGE(newsoul()->server(), SSayRoom(message->room, *it));
   }
 }
 
 void
-Museek::IfaceManager::onIfaceSetRoomTicker(const IRoomTickerSet * message)
+newsoul::IfaceManager::onIfaceSetRoomTicker(const IRoomTickerSet * message)
 {
-  std::string ticker = museekd()->codeset()->toRoom(message->room, message->message);
+  std::string ticker = newsoul()->codeset()->toRoom(message->room, message->message);
   ticker = string::replace(ticker, '\n', ' ');
-  SEND_MESSAGE(museekd()->server(), SSetRoomTicker(message->room, ticker));
+  SEND_MESSAGE(newsoul()->server(), SSetRoomTicker(message->room, ticker));
 }
 
 void
-Museek::IfaceManager::onIfaceMessageUsers(const IMessageUsers * message)
+newsoul::IfaceManager::onIfaceMessageUsers(const IMessageUsers * message)
 {
-    SEND_MESSAGE(museekd()->server(), SMessageUsers(message->users, message->msg));
+    SEND_MESSAGE(newsoul()->server(), SMessageUsers(message->users, message->msg));
     std::string userList = "";
     std::vector<std::string>::const_iterator it = message->users.begin();
     for (; it != message->users.end(); it++) {
@@ -658,276 +658,276 @@ Museek::IfaceManager::onIfaceMessageUsers(const IMessageUsers * message)
 }
 
 void
-Museek::IfaceManager::onIfaceMessageBuddies(const IMessageBuddies * message)
+newsoul::IfaceManager::onIfaceMessageBuddies(const IMessageBuddies * message)
 {
-    std::vector<std::string> buddies = museekd()->config()->keys("buddies");
-    SEND_MESSAGE(museekd()->server(), SMessageUsers(buddies, message->msg));
+    std::vector<std::string> buddies = newsoul()->config()->keys("buddies");
+    SEND_MESSAGE(newsoul()->server(), SMessageUsers(buddies, message->msg));
     sendStatusMessage(true, std::string("Sent message '") + message->msg + std::string("' to buddies."));
 }
 
 void
-Museek::IfaceManager::onIfaceMessageDownloading(const IMessageDownloading * message)
+newsoul::IfaceManager::onIfaceMessageDownloading(const IMessageDownloading * message)
 {
-    std::vector<std::string> users = museekd()->uploads()->getAllUsersWithUpload();
-    SEND_MESSAGE(museekd()->server(), SMessageUsers(users, message->msg));
+    std::vector<std::string> users = newsoul()->uploads()->getAllUsersWithUpload();
+    SEND_MESSAGE(newsoul()->server(), SMessageUsers(users, message->msg));
     sendStatusMessage(true, std::string("Sent message '") + message->msg + std::string("' to downloading users."));
 }
 
 void
-Museek::IfaceManager::onIfaceAskPublicChat(const IAskPublicChat * message)
+newsoul::IfaceManager::onIfaceAskPublicChat(const IAskPublicChat * message)
 {
-  SEND_MESSAGE(museekd()->server(), SAskPublicChat());
+  SEND_MESSAGE(newsoul()->server(), SAskPublicChat());
   SEND_MASK(EM_CHAT, IAskPublicChat());
 }
 
 void
-Museek::IfaceManager::onIfaceStopPublicChat(const IStopPublicChat * message)
+newsoul::IfaceManager::onIfaceStopPublicChat(const IStopPublicChat * message)
 {
-  SEND_MESSAGE(museekd()->server(), SStopPublicChat());
+  SEND_MESSAGE(newsoul()->server(), SStopPublicChat());
   SEND_MASK(EM_CHAT, IStopPublicChat());
 }
 
 void
-Museek::IfaceManager::onIfacePrivRoomToggle(const IPrivRoomToggle * message)
+newsoul::IfaceManager::onIfacePrivRoomToggle(const IPrivRoomToggle * message)
 {
-    bool oldConfig = museekd()->isEnabledPrivRoom();
+    bool oldConfig = newsoul()->isEnabledPrivRoom();
     if (oldConfig == message->enabled)
         return;
 
-    museekd()->config()->set("priv_rooms", "enable_priv_room", message->enabled);
+    newsoul()->config()->set("priv_rooms", "enable_priv_room", message->enabled);
     SEND_MASK(EM_CHAT, IPrivRoomToggle(message->enabled)); // Needed as the server doesn't always confirm
-    SEND_MESSAGE(museekd()->server(), SPrivRoomToggle(message->enabled));
+    SEND_MESSAGE(newsoul()->server(), SPrivRoomToggle(message->enabled));
 }
 
 void
-Museek::IfaceManager::onIfacePrivRoomAddUser(const IPrivRoomAddUser * message)
+newsoul::IfaceManager::onIfacePrivRoomAddUser(const IPrivRoomAddUser * message)
 {
-  SEND_MESSAGE(museekd()->server(), SPrivRoomAddUser(message->room, message->user));
+  SEND_MESSAGE(newsoul()->server(), SPrivRoomAddUser(message->room, message->user));
 }
 
 void
-Museek::IfaceManager::onIfacePrivRoomRemoveUser(const IPrivRoomRemoveUser * message)
+newsoul::IfaceManager::onIfacePrivRoomRemoveUser(const IPrivRoomRemoveUser * message)
 {
-  SEND_MESSAGE(museekd()->server(), SPrivRoomRemoveUser(message->room, message->user));
+  SEND_MESSAGE(newsoul()->server(), SPrivRoomRemoveUser(message->room, message->user));
 }
 
 void
-Museek::IfaceManager::onIfacePrivRoomAddOperator(const IPrivRoomAddOperator * message)
+newsoul::IfaceManager::onIfacePrivRoomAddOperator(const IPrivRoomAddOperator * message)
 {
-  SEND_MESSAGE(museekd()->server(), SPrivRoomAddOperator(message->room, message->user));
+  SEND_MESSAGE(newsoul()->server(), SPrivRoomAddOperator(message->room, message->user));
 }
 
 void
-Museek::IfaceManager::onIfacePrivRoomRemoveOperator(const IPrivRoomRemoveOperator * message)
+newsoul::IfaceManager::onIfacePrivRoomRemoveOperator(const IPrivRoomRemoveOperator * message)
 {
-  SEND_MESSAGE(museekd()->server(), SPrivRoomRemoveOperator(message->room, message->user));
+  SEND_MESSAGE(newsoul()->server(), SPrivRoomRemoveOperator(message->room, message->user));
 }
 
 void
-Museek::IfaceManager::onIfacePrivRoomDismember(const IPrivRoomDismember * message) {
-    SEND_MESSAGE(museekd()->server(), SPrivRoomDismember(message->room));
+newsoul::IfaceManager::onIfacePrivRoomDismember(const IPrivRoomDismember * message) {
+    SEND_MESSAGE(newsoul()->server(), SPrivRoomDismember(message->room));
 }
 
 void
-Museek::IfaceManager::onIfacePrivRoomDisown(const IPrivRoomDisown * message) {
-    SEND_MESSAGE(museekd()->server(), SPrivRoomDisown(message->room));
+newsoul::IfaceManager::onIfacePrivRoomDisown(const IPrivRoomDisown * message) {
+    SEND_MESSAGE(newsoul()->server(), SPrivRoomDisown(message->room));
 }
 
 void
-Museek::IfaceManager::onIfaceStartSearch(const ISearch * message)
+newsoul::IfaceManager::onIfaceStartSearch(const ISearch * message)
 {
-    uint token = museekd()->token();
+    uint token = newsoul()->token();
 
     if (message->type == 0) // Global search
-        SEND_MESSAGE(museekd()->server(), SFileSearch(token, museekd()->codeset()->toNet(message->query)));
+        SEND_MESSAGE(newsoul()->server(), SFileSearch(token, newsoul()->codeset()->toNet(message->query)));
     else if (message->type == 1) // Buddies search
-        museekd()->searches()->buddySearch(token, message->query);
+        newsoul()->searches()->buddySearch(token, message->query);
     else if (message->type == 2) // Room search
-        museekd()->searches()->roomsSearch(token, message->query);
+        newsoul()->searches()->roomsSearch(token, message->query);
 
     sendNewSearchToAll(message->query, token);
 }
 
 void
-Museek::IfaceManager::onIfaceStartUserSearch(const IUserSearch * message)
+newsoul::IfaceManager::onIfaceStartUserSearch(const IUserSearch * message)
 {
-    uint token = museekd()->token();
+    uint token = newsoul()->token();
 
-    SEND_MESSAGE(museekd()->server(), SUserSearch(message->user, token, museekd()->codeset()->toNet(message->query)));
+    SEND_MESSAGE(newsoul()->server(), SUserSearch(message->user, token, newsoul()->codeset()->toNet(message->query)));
 
     sendNewSearchToAll(message->query, token);
 }
 
 void
-Museek::IfaceManager::onIfaceStartWishListSearch(const IWishListSearch * message) {
-    museekd()->searches()->wishlistAdd(message->query);
+newsoul::IfaceManager::onIfaceStartWishListSearch(const IWishListSearch * message) {
+    newsoul()->searches()->wishlistAdd(message->query);
 }
 
 void
-Museek::IfaceManager::onIfaceGetRecommendations(const IGetRecommendations *)
+newsoul::IfaceManager::onIfaceGetRecommendations(const IGetRecommendations *)
 {
-  SEND_MESSAGE(museekd()->server(), SGetRecommendations());
+  SEND_MESSAGE(newsoul()->server(), SGetRecommendations());
 }
 
 void
-Museek::IfaceManager::onIfaceGetGlobalRecommendations(const IGetGlobalRecommendations *)
+newsoul::IfaceManager::onIfaceGetGlobalRecommendations(const IGetGlobalRecommendations *)
 {
-  SEND_MESSAGE(museekd()->server(), SGetGlobalRecommendations());
+  SEND_MESSAGE(newsoul()->server(), SGetGlobalRecommendations());
 }
 
 void
-Museek::IfaceManager::onIfaceGetSimilarUsers(const IGetSimilarUsers *)
+newsoul::IfaceManager::onIfaceGetSimilarUsers(const IGetSimilarUsers *)
 {
-  SEND_MESSAGE(museekd()->server(), SGetSimilarUsers());
+  SEND_MESSAGE(newsoul()->server(), SGetSimilarUsers());
 }
 
 void
-Museek::IfaceManager::onIfaceGetItemRecommendations(const IGetItemRecommendations * message)
+newsoul::IfaceManager::onIfaceGetItemRecommendations(const IGetItemRecommendations * message)
 {
-  SEND_MESSAGE(museekd()->server(), SGetItemRecommendations(message->item));
+  SEND_MESSAGE(newsoul()->server(), SGetItemRecommendations(message->item));
 }
 
 void
-Museek::IfaceManager::onIfaceGetItemSimilarUsers(const IGetItemSimilarUsers * message)
+newsoul::IfaceManager::onIfaceGetItemSimilarUsers(const IGetItemSimilarUsers * message)
 {
-  SEND_MESSAGE(museekd()->server(), SGetItemSimilarUsers(message->item));
+  SEND_MESSAGE(newsoul()->server(), SGetItemSimilarUsers(message->item));
 }
 
 void
-Museek::IfaceManager::onIfaceAddInterest(const IAddInterest * message)
+newsoul::IfaceManager::onIfaceAddInterest(const IAddInterest * message)
 {
-  museekd()->config()->set("interests.like", message->interest, "");
+  newsoul()->config()->set("interests.like", message->interest, "");
 }
 
 void
-Museek::IfaceManager::onIfaceRemoveInterest(const IRemoveInterest * message)
+newsoul::IfaceManager::onIfaceRemoveInterest(const IRemoveInterest * message)
 {
-  museekd()->config()->removeKey("interests.like", message->interest);
+  newsoul()->config()->removeKey("interests.like", message->interest);
 }
 
 void
-Museek::IfaceManager::onIfaceAddHatedInterest(const IAddHatedInterest * message)
+newsoul::IfaceManager::onIfaceAddHatedInterest(const IAddHatedInterest * message)
 {
-  museekd()->config()->set("interests.hate", message->interest, "");
+  newsoul()->config()->set("interests.hate", message->interest, "");
 }
 
 void
-Museek::IfaceManager::onIfaceRemoveHatedInterest(const IRemoveHatedInterest * message)
+newsoul::IfaceManager::onIfaceRemoveHatedInterest(const IRemoveHatedInterest * message)
 {
-  museekd()->config()->removeKey("interests.hate", message->interest);
+  newsoul()->config()->removeKey("interests.hate", message->interest);
 }
 
 void
-Museek::IfaceManager::onIfaceAddWishItem(const IAddWishItem * message)
+newsoul::IfaceManager::onIfaceAddWishItem(const IAddWishItem * message)
 {
-  museekd()->config()->set("wishlist", message->query, 0);
+  newsoul()->config()->set("wishlist", message->query, 0);
 }
 
 void
-Museek::IfaceManager::onIfaceRemoveWishItem(const IRemoveWishItem * message)
+newsoul::IfaceManager::onIfaceRemoveWishItem(const IRemoveWishItem * message)
 {
-  museekd()->config()->removeKey("wishlist", message->query);
+  newsoul()->config()->removeKey("wishlist", message->query);
 }
 
 void
-Museek::IfaceManager::onIfaceConnectToServer(const IConnectServer * message)
+newsoul::IfaceManager::onIfaceConnectToServer(const IConnectServer * message)
 {
-  museekd()->server()->connect();
+  newsoul()->server()->connect();
 }
 
 void
-Museek::IfaceManager::onIfaceDisconnectFromServer(const IDisconnectServer * message)
+newsoul::IfaceManager::onIfaceDisconnectFromServer(const IDisconnectServer * message)
 {
-  museekd()->server()->disconnect();
+  newsoul()->server()->disconnect();
 }
 
 
 void
-Museek::IfaceManager::onIfaceReloadShares(const IReloadShares * message)
+newsoul::IfaceManager::onIfaceReloadShares(const IReloadShares * message)
 {
-  museekd()->LoadShares();
+  newsoul()->LoadShares();
 }
 
 void
-Museek::IfaceManager::onIfaceDownloadFile(const IDownloadFile * message)
+newsoul::IfaceManager::onIfaceDownloadFile(const IDownloadFile * message)
 {
-    museekd()->downloads()->add(message->user, message->path);
-    Download * newDownload = museekd()->downloads()->findDownload(message->user, message->path);
+    newsoul()->downloads()->add(message->user, message->path);
+    Download * newDownload = newsoul()->downloads()->findDownload(message->user, message->path);
     if (newDownload)
         newDownload->setSize(message->size);
 }
 
 void
-Museek::IfaceManager::onIfaceDownloadFileTo(const IDownloadFileTo * message)
+newsoul::IfaceManager::onIfaceDownloadFileTo(const IDownloadFileTo * message)
 {
-    museekd()->downloads()->add(message->user, message->path, museekd()->codeset()->fromUtf8ToFS(message->localpath));
-    Download * newDownload = museekd()->downloads()->findDownload(message->user, message->path);
+    newsoul()->downloads()->add(message->user, message->path, newsoul()->codeset()->fromUtf8ToFS(message->localpath));
+    Download * newDownload = newsoul()->downloads()->findDownload(message->user, message->path);
     if (newDownload)
         newDownload->setSize(message->size);
 }
 
 void
-Museek::IfaceManager::onIfaceDownloadFolder(const IDownloadFolder * message)
+newsoul::IfaceManager::onIfaceDownloadFolder(const IDownloadFolder * message)
 {
-    museekd()->downloads()->addFolder(message->user, message->folder);
+    newsoul()->downloads()->addFolder(message->user, message->folder);
 }
 
 void
-Museek::IfaceManager::onIfaceDownloadFolderTo(const IDownloadFolderTo * message)
+newsoul::IfaceManager::onIfaceDownloadFolderTo(const IDownloadFolderTo * message)
 {
-    museekd()->downloads()->addFolder(message->user, message->folder, museekd()->codeset()->fromUtf8ToFS(message->localpath));
+    newsoul()->downloads()->addFolder(message->user, message->folder, newsoul()->codeset()->fromUtf8ToFS(message->localpath));
 }
 
 void
-Museek::IfaceManager::onIfaceUpdateTransfer(const ITransferUpdate * message)
+newsoul::IfaceManager::onIfaceUpdateTransfer(const ITransferUpdate * message)
 {
-    museekd()->downloads()->update(message->user, message->path);
-    museekd()->uploads()->update(message->user, museekd()->codeset()->fromUtf8ToFS(message->path));
+    newsoul()->downloads()->update(message->user, message->path);
+    newsoul()->uploads()->update(message->user, newsoul()->codeset()->fromUtf8ToFS(message->path));
 }
 
 void
-Museek::IfaceManager::onIfaceRemoveTransfer(const ITransferRemove * message)
+newsoul::IfaceManager::onIfaceRemoveTransfer(const ITransferRemove * message)
 {
     if(! message->upload)
-        museekd()->downloads()->remove(message->user, message->path);
+        newsoul()->downloads()->remove(message->user, message->path);
     else {
-        museekd()->uploads()->remove(message->user, museekd()->codeset()->fromUtf8ToFS(message->path));
+        newsoul()->uploads()->remove(message->user, newsoul()->codeset()->fromUtf8ToFS(message->path));
     }
 }
 
 void
-Museek::IfaceManager::onIfaceAbortTransfer(const ITransferAbort * message)
+newsoul::IfaceManager::onIfaceAbortTransfer(const ITransferAbort * message)
 {
     if(! message->upload)
-        museekd()->downloads()->abort(message->user, message->path);
+        newsoul()->downloads()->abort(message->user, message->path);
     else
-        museekd()->uploads()->abort(message->user, museekd()->codeset()->fromUtf8ToFS(message->path));
+        newsoul()->uploads()->abort(message->user, newsoul()->codeset()->fromUtf8ToFS(message->path));
 }
 
 void
-Museek::IfaceManager::onIfaceUploadFolder(const IUploadFolder * message) {
+newsoul::IfaceManager::onIfaceUploadFolder(const IUploadFolder * message) {
     std::string user = message->user;
     std::string path = message->path;
-    museekd()->uploads()->addFolder(user, path);
+    newsoul()->uploads()->addFolder(user, path);
 }
 
 void
-Museek::IfaceManager::onIfaceUploadFile(const IUploadFile * message)
+newsoul::IfaceManager::onIfaceUploadFile(const IUploadFile * message)
 {
     std::string user = message->user;
-    std::string path = museekd()->codeset()->fromUtf8ToFS(message->path);
-    std::string pathInDb = museekd()->codeset()->toNet(message->path);
+    std::string path = newsoul()->codeset()->fromUtf8ToFS(message->path);
+    std::string pathInDb = newsoul()->codeset()->toNet(message->path);
     std::string error;
 
-    if (museekd()->uploads()->isUploadable(user, pathInDb, &error))
-        museekd()->uploads()->add(user, path, 0, false, true);
+    if (newsoul()->uploads()->isUploadable(user, pathInDb, &error))
+        newsoul()->uploads()->add(user, path, 0, false, true);
 }
 
 void
-Museek::IfaceManager::onServerLoggedInStateChanged(bool loggedIn)
+newsoul::IfaceManager::onServerLoggedInStateChanged(bool loggedIn)
 {
   m_AwayState = 0;
-  SEND_ALL(IServerState(loggedIn, museekd()->server()->username()));
+  SEND_ALL(IServerState(loggedIn, newsoul()->server()->username()));
   if(loggedIn) {
     SEND_ALL(ISetStatus(m_AwayState));
     sendStatusMessage(true, std::string("Connected to the server"));
@@ -947,7 +947,7 @@ Museek::IfaceManager::onServerLoggedInStateChanged(bool loggedIn)
 }
 
 void
-Museek::IfaceManager::onServerKicked(const SKicked* message) {
+newsoul::IfaceManager::onServerKicked(const SKicked* message) {
     sendStatusMessage(true, std::string("Kicked from soulseek server"));
 
     PrivateMessage msg;
@@ -960,13 +960,13 @@ Museek::IfaceManager::onServerKicked(const SKicked* message) {
 }
 
 void
-Museek::IfaceManager::onServerPeerAddressReceived(const SGetPeerAddress * message)
+newsoul::IfaceManager::onServerPeerAddressReceived(const SGetPeerAddress * message)
 {
   SEND_ALL(IPeerAddress(message->user, message->ip, message->port));
 }
 
 void
-Museek::IfaceManager::onServerAddUserReceived(const SAddUser * message)
+newsoul::IfaceManager::onServerAddUserReceived(const SAddUser * message)
 {
   SEND_ALL(IPeerExists(message->user, message->exists));
 
@@ -986,7 +986,7 @@ Museek::IfaceManager::onServerAddUserReceived(const SAddUser * message)
 }
 
 void
-Museek::IfaceManager::onServerUserStatusReceived(const SGetStatus * message)
+newsoul::IfaceManager::onServerUserStatusReceived(const SGetStatus * message)
 {
   std::map<std::string, RoomData>::iterator it, end = m_RoomData.end();
   for(it = m_RoomData.begin(); it != end; ++it)
@@ -997,7 +997,7 @@ Museek::IfaceManager::onServerUserStatusReceived(const SGetStatus * message)
     (*u_it).second.status = message->status;
   }
   SEND_ALL(IPeerStatus(message->user, message->status));
-  if(message->user == museekd()->server()->username())
+  if(message->user == newsoul()->server()->username())
   {
     m_AwayState = message->status & 1;
     SEND_ALL(ISetStatus(m_AwayState));
@@ -1005,30 +1005,30 @@ Museek::IfaceManager::onServerUserStatusReceived(const SGetStatus * message)
 }
 
 void
-Museek::IfaceManager::onServerPrivateMessageReceived(const SPrivateMessage * message)
+newsoul::IfaceManager::onServerPrivateMessageReceived(const SPrivateMessage * message)
 {
-    if (!museekd()->isIgnored(message->user) && !museekd()->server()->isServerTimeTestMessage(message->user, message->message)) {
+    if (!newsoul()->isIgnored(message->user) && !newsoul()->server()->isServerTimeTestMessage(message->user, message->message)) {
         PrivateMessage msg;
         msg.ticket = message->ticket;
-        msg.timestamp = message->timestamp - museekd()->server()->getServerTimeDiff(); // Server's timestamps are wrong
+        msg.timestamp = message->timestamp - newsoul()->server()->getServerTimeDiff(); // Server's timestamps are wrong
         msg.user = message->user;
-        msg.message = museekd()->codeset()->fromPeer(msg.user, message->message);
+        msg.message = newsoul()->codeset()->fromPeer(msg.user, message->message);
         m_PrivateMessages.push_back(msg);
         flushPrivateMessages();
     }
 }
 
 void
-Museek::IfaceManager::onServerRoomMessageReceived(const SSayRoom * message)
+newsoul::IfaceManager::onServerRoomMessageReceived(const SSayRoom * message)
 {
-    if (!museekd()->isIgnored(message->user)) {
-        std::string line = museekd()->codeset()->fromRoom(message->room, message->line);
+    if (!newsoul()->isIgnored(message->user)) {
+        std::string line = newsoul()->codeset()->fromRoom(message->room, message->line);
         SEND_MASK(EM_CHAT, ISayRoom(message->room, message->user, line));
     }
 }
 
 void
-Museek::IfaceManager::onServerRoomJoined(const SJoinRoom * message)
+newsoul::IfaceManager::onServerRoomJoined(const SJoinRoom * message)
 {
     if(m_RoomData.find(message->room) != m_RoomData.end())
         return;
@@ -1044,7 +1044,7 @@ Museek::IfaceManager::onServerRoomJoined(const SJoinRoom * message)
 }
 
 void
-Museek::IfaceManager::onServerRoomLeft(const SLeaveRoom * message)
+newsoul::IfaceManager::onServerRoomLeft(const SLeaveRoom * message)
 {
     std::map<std::string, RoomData>::iterator it = m_RoomData.find(message->value);
     if(it != m_RoomData.end())
@@ -1066,7 +1066,7 @@ Museek::IfaceManager::onServerRoomLeft(const SLeaveRoom * message)
 }
 
 void
-Museek::IfaceManager::onServerUserJoinedRoom(const SUserJoinedRoom * message)
+newsoul::IfaceManager::onServerUserJoinedRoom(const SUserJoinedRoom * message)
 {
   std::map<std::string, RoomData>::iterator it = m_RoomData.find(message->room);
   if(it == m_RoomData.end())
@@ -1079,7 +1079,7 @@ Museek::IfaceManager::onServerUserJoinedRoom(const SUserJoinedRoom * message)
 }
 
 void
-Museek::IfaceManager::onServerUserLeftRoom(const SUserLeftRoom * message)
+newsoul::IfaceManager::onServerUserLeftRoom(const SUserLeftRoom * message)
 {
   std::map<std::string, RoomData>::iterator it = m_RoomData.find(message->room);
   if(it == m_RoomData.end())
@@ -1092,7 +1092,7 @@ Museek::IfaceManager::onServerUserLeftRoom(const SUserLeftRoom * message)
 }
 
 void
-Museek::IfaceManager::onServerRoomListReceived(const SRoomList * message)
+newsoul::IfaceManager::onServerRoomListReceived(const SRoomList * message)
 {
   m_RoomList = message->roomlist;
   m_PrivRoomList = message->privroomlist;
@@ -1101,54 +1101,54 @@ Museek::IfaceManager::onServerRoomListReceived(const SRoomList * message)
 }
 
 void
-Museek::IfaceManager::onServerPrivilegesReceived(const SCheckPrivileges * message)
+newsoul::IfaceManager::onServerPrivilegesReceived(const SCheckPrivileges * message)
 {
   SEND_ALL(ICheckPrivileges(message->time_left));
 }
 
 void
-Museek::IfaceManager::onServerRoomTickersReceived(const SRoomTickers * message)
+newsoul::IfaceManager::onServerRoomTickersReceived(const SRoomTickers * message)
 {
   if(m_TickerData.find(message->room) == m_TickerData.end())
     return;
-  m_TickerData[message->room] = museekd()->codeset()->fromRoomMap(message->room, message->tickers);
+  m_TickerData[message->room] = newsoul()->codeset()->fromRoomMap(message->room, message->tickers);
   SEND_MASK(EM_CHAT, IRoomTickers(message->room, m_TickerData[message->room]));
 }
 
 void
-Museek::IfaceManager::onServerRoomTickerAdded(const SRoomTickerAdd * message)
+newsoul::IfaceManager::onServerRoomTickerAdded(const SRoomTickerAdd * message)
 {
   if(m_TickerData.find(message->room) == m_TickerData.end())
     return;
-  std::string ticker = museekd()->codeset()->fromRoom(message->room, message->ticker);
+  std::string ticker = newsoul()->codeset()->fromRoom(message->room, message->ticker);
   m_TickerData[message->room][message->user] = ticker;
   SEND_MASK(EM_CHAT, IRoomTickerSet(message->room, message->user, ticker));
 }
 
 void
-Museek::IfaceManager::onServerNewPasswordSet(const SNewPassword * message) {
+newsoul::IfaceManager::onServerNewPasswordSet(const SNewPassword * message) {
     SEND_C_MASK(EM_CONFIG, INewPassword((*it)->cipherContext(), message->newPassword));
 }
 
 void
-Museek::IfaceManager::onServerPublicChatReceived(const SPublicChat * message) {
+newsoul::IfaceManager::onServerPublicChatReceived(const SPublicChat * message) {
     SEND_MASK(EM_CHAT, IPublicChat(message->room, message->user, message->message));
 }
 
 void
-Museek::IfaceManager::onServerPrivRoomToggled(const SPrivRoomToggle * message)
+newsoul::IfaceManager::onServerPrivRoomToggled(const SPrivRoomToggle * message)
 {
     SEND_MASK(EM_CHAT, IPrivRoomToggle(message->enabled));
 
-    bool oldConfig = museekd()->isEnabledPrivRoom();
+    bool oldConfig = newsoul()->isEnabledPrivRoom();
     if (oldConfig == message->enabled)
         return;
 
-    museekd()->config()->set("priv_rooms", "enable_priv_room", message->enabled);
+    newsoul()->config()->set("priv_rooms", "enable_priv_room", message->enabled);
 }
 
 void
-Museek::IfaceManager::onServerPrivRoomAlterableMembers(const SPrivRoomAlterableMembers * message)
+newsoul::IfaceManager::onServerPrivRoomAlterableMembers(const SPrivRoomAlterableMembers * message)
 {
     m_PrivRoomAlterableMembers[message->room] = message->users;
 
@@ -1156,7 +1156,7 @@ Museek::IfaceManager::onServerPrivRoomAlterableMembers(const SPrivRoomAlterableM
 }
 
 void
-Museek::IfaceManager::onServerPrivRoomAddedUser(const SPrivRoomAddUser * message)
+newsoul::IfaceManager::onServerPrivRoomAddedUser(const SPrivRoomAddUser * message)
 {
     m_PrivRoomAlterableMembers[message->room].push_back(message->user);
 
@@ -1164,7 +1164,7 @@ Museek::IfaceManager::onServerPrivRoomAddedUser(const SPrivRoomAddUser * message
 }
 
 void
-Museek::IfaceManager::onServerPrivRoomRemovedUser(const SPrivRoomRemoveUser * message)
+newsoul::IfaceManager::onServerPrivRoomRemovedUser(const SPrivRoomRemoveUser * message)
 {
 
     std::vector<std::string>::iterator it = std::find(m_PrivRoomAlterableMembers[message->room].begin(), m_PrivRoomAlterableMembers[message->room].end(), message->user);
@@ -1176,7 +1176,7 @@ Museek::IfaceManager::onServerPrivRoomRemovedUser(const SPrivRoomRemoveUser * me
 }
 
 void
-Museek::IfaceManager::onServerPrivRoomAddedOperator(const SPrivRoomAddOperator * message)
+newsoul::IfaceManager::onServerPrivRoomAddedOperator(const SPrivRoomAddOperator * message)
 {
     m_PrivRoomAlterableOperators[message->room].push_back(message->op);
 
@@ -1184,7 +1184,7 @@ Museek::IfaceManager::onServerPrivRoomAddedOperator(const SPrivRoomAddOperator *
 }
 
 void
-Museek::IfaceManager::onServerPrivRoomRemovedOperator(const SPrivRoomRemoveOperator * message)
+newsoul::IfaceManager::onServerPrivRoomRemovedOperator(const SPrivRoomRemoveOperator * message)
 {
 
     std::vector<std::string>::iterator it = std::find(m_PrivRoomAlterableOperators[message->room].begin(), m_PrivRoomAlterableOperators[message->room].end(), message->op);
@@ -1196,7 +1196,7 @@ Museek::IfaceManager::onServerPrivRoomRemovedOperator(const SPrivRoomRemoveOpera
 }
 
 void
-Museek::IfaceManager::onServerPrivRoomAlterableOperators(const SPrivRoomAlterableOperators * message)
+newsoul::IfaceManager::onServerPrivRoomAlterableOperators(const SPrivRoomAlterableOperators * message)
 {
     m_PrivRoomAlterableOperators[message->room] = message->ops;
 
@@ -1204,7 +1204,7 @@ Museek::IfaceManager::onServerPrivRoomAlterableOperators(const SPrivRoomAlterabl
 }
 
 void
-Museek::IfaceManager::onServerRoomTickerRemoved(const SRoomTickerRemove * message)
+newsoul::IfaceManager::onServerRoomTickerRemoved(const SRoomTickerRemove * message)
 {
   std::map<std::string, Tickers>::iterator it = m_TickerData.find(message->room);
   if(it == m_TickerData.end())
@@ -1217,49 +1217,49 @@ Museek::IfaceManager::onServerRoomTickerRemoved(const SRoomTickerRemove * messag
 }
 
 void
-Museek::IfaceManager::onServerRecommendationsReceived(const SGetRecommendations * message)
+newsoul::IfaceManager::onServerRecommendationsReceived(const SGetRecommendations * message)
 {
   SEND_MASK(EM_INTERESTS, IGetRecommendations(message->recommendations));
 }
 
 void
-Museek::IfaceManager::onServerGlobalRecommendationsReceived(const SGetGlobalRecommendations * message)
+newsoul::IfaceManager::onServerGlobalRecommendationsReceived(const SGetGlobalRecommendations * message)
 {
   SEND_MASK(EM_INTERESTS, IGetGlobalRecommendations(message->recommendations));
 }
 
 void
-Museek::IfaceManager::onServerSimilarUsersReceived(const SGetSimilarUsers * message)
+newsoul::IfaceManager::onServerSimilarUsersReceived(const SGetSimilarUsers * message)
 {
     SEND_MASK(EM_INTERESTS, IGetSimilarUsers(message->users));
     SimilarUsers::const_iterator it = message->users.begin();
     for(; it != message->users.end(); ++it) {
-        SEND_MESSAGE(museekd()->server(), SAddUser(it->first));
+        SEND_MESSAGE(newsoul()->server(), SAddUser(it->first));
     }
 }
 
 void
-Museek::IfaceManager::onServerItemRecommendationsReceived(const SGetItemRecommendations * message)
+newsoul::IfaceManager::onServerItemRecommendationsReceived(const SGetItemRecommendations * message)
 {
   SEND_MASK(EM_INTERESTS, IGetItemRecommendations(message->item, message->recommendations));
 }
 
 void
-Museek::IfaceManager::onServerItemSimilarUsersReceived(const SGetItemSimilarUsers * message)
+newsoul::IfaceManager::onServerItemSimilarUsersReceived(const SGetItemSimilarUsers * message)
 {
   SEND_MASK(EM_INTERESTS, IGetItemSimilarUsers(message->item, message->users));
 }
 
 
 void
-Museek::IfaceManager::onServerUserInterestsReceived(const SUserInterests * message)
+newsoul::IfaceManager::onServerUserInterestsReceived(const SUserInterests * message)
 {
   NNLOG("newsoul.iface.debug", "%s has %d likes and %d hates", message->user.c_str(), message->likes.size(), message->hates.size());
   SEND_MASK(EM_USERINFO, IUserInterests(message->user, message->likes, message->hates));
 }
 
 void
-Museek::IfaceManager::onPeerSocketUnavailable(std::string user)
+newsoul::IfaceManager::onPeerSocketUnavailable(std::string user)
 {
   std::map<std::string, std::vector<NewNet::WeakRefPtr<IfaceSocket> > >::iterator it;
   it = m_PendingInfo.find(user);
@@ -1278,7 +1278,7 @@ Museek::IfaceManager::onPeerSocketUnavailable(std::string user)
 }
 
 void
-Museek::IfaceManager::onPeerSocketReady(PeerSocket * socket)
+newsoul::IfaceManager::onPeerSocketReady(PeerSocket * socket)
 {
     std::vector<std::string>::iterator iit = std::find(m_PendingInfoWaiting.begin(), m_PendingInfoWaiting.end(), socket->user());
     if (iit != m_PendingInfoWaiting.end()) {
@@ -1298,7 +1298,7 @@ Museek::IfaceManager::onPeerSocketReady(PeerSocket * socket)
 }
 
 void
-Museek::IfaceManager::onPeerInfoReceived(const PInfoReply * message)
+newsoul::IfaceManager::onPeerInfoReceived(const PInfoReply * message)
 {
     PeerSocket * socket = message->peerSocket();
     std::map<std::string, std::vector<NewNet::WeakRefPtr<IfaceSocket> > >::iterator it;
@@ -1307,7 +1307,7 @@ Museek::IfaceManager::onPeerInfoReceived(const PInfoReply * message)
     if (it != m_PendingInfo.end()) {
         for (fit = it->second.begin(); fit != it->second.end(); fit++) {
             if (fit->isValid()) {
-                IUserInfo msg(socket->user(), museekd()->codeset()->fromPeer(socket->user(), message->description), message->picture, message->totalupl, message->queuesize, message->slotfree);
+                IUserInfo msg(socket->user(), newsoul()->codeset()->fromPeer(socket->user(), message->description), message->picture, message->totalupl, message->queuesize, message->slotfree);
                 (*fit)->sendMessage(msg.make_network_packet());
             }
         }
@@ -1323,7 +1323,7 @@ Museek::IfaceManager::onPeerInfoReceived(const PInfoReply * message)
 }
 
 void
-Museek::IfaceManager::onPeerSharesReceived(const PSharesReply * message)
+newsoul::IfaceManager::onPeerSharesReceived(const PSharesReply * message)
 {
     PeerSocket * socket = message->peerSocket();
 
@@ -1335,9 +1335,9 @@ Museek::IfaceManager::onPeerSharesReceived(const PSharesReply * message)
     for(itFold = oriShares.begin(); itFold != oriShares.end(); ++itFold) {
         Folder newFold;
         for(itFile = itFold->second.begin(); itFile != itFold->second.end(); ++itFile) {
-            newFold[museekd()->codeset()->fromPeer(socket->user(), itFile->first)] = itFile->second;
+            newFold[newsoul()->codeset()->fromPeer(socket->user(), itFile->first)] = itFile->second;
         }
-        encShares[museekd()->codeset()->fromPeer(socket->user(), itFold->first)] = newFold;
+        encShares[newsoul()->codeset()->fromPeer(socket->user(), itFold->first)] = newFold;
     }
 
     std::map<std::string, std::vector<NewNet::WeakRefPtr<IfaceSocket> > >::iterator it;
@@ -1362,7 +1362,7 @@ Museek::IfaceManager::onPeerSharesReceived(const PSharesReply * message)
 }
 
 void
-Museek::IfaceManager::onServerLoggedIn(const SLogin * message)
+newsoul::IfaceManager::onServerLoggedIn(const SLogin * message)
 {
 
   if(message->success)
@@ -1372,37 +1372,37 @@ Museek::IfaceManager::onServerLoggedIn(const SLogin * message)
 }
 
 void
-Museek::IfaceManager::sendStatusMessage(bool type, std::string message)
+newsoul::IfaceManager::sendStatusMessage(bool type, std::string message)
 {
   SEND_ALL(IStatusMessage(type, message));
 }
 
 void
-Museek::IfaceManager::onDownloadUpdated(Download * download)
+newsoul::IfaceManager::onDownloadUpdated(Download * download)
 {
   SEND_MASK(EM_TRANSFERS, ITransferUpdate(download));
 }
 
 void
-Museek::IfaceManager::onDownloadRemoved(Download * download)
+newsoul::IfaceManager::onDownloadRemoved(Download * download)
 {
   SEND_MASK(EM_TRANSFERS, ITransferRemove(false, download->user(), download->remotePath()));
 }
 
 void
-Museek::IfaceManager::onUploadUpdated(Upload * upload)
+newsoul::IfaceManager::onUploadUpdated(Upload * upload)
 {
   SEND_MASK(EM_TRANSFERS, ITransferUpdate(upload));
 }
 
 void
-Museek::IfaceManager::onUploadRemoved(Upload * upload)
+newsoul::IfaceManager::onUploadRemoved(Upload * upload)
 {
-    SEND_MASK(EM_TRANSFERS, ITransferRemove(true, upload->user(), museekd()->codeset()->fromFsToUtf8(upload->localPath())));
+    SEND_MASK(EM_TRANSFERS, ITransferRemove(true, upload->user(), newsoul()->codeset()->fromFsToUtf8(upload->localPath())));
 }
 
 void
-Museek::IfaceManager::onSearchReply(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint queuelen, const Folder & folders)
+newsoul::IfaceManager::onSearchReply(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint queuelen, const Folder & folders)
 {
   SEND_ALL(ISearchReply(ticket, user, slotfree, avgspeed, queuelen, folders));
 }

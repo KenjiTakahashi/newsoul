@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
     Karol 'Kenji Takahashi' Woźniak © 2013
@@ -19,8 +19,8 @@
 
  */
 
-#ifndef MUSEEK_MUSEEKD_H
-#define MUSEEK_MUSEEKD_H
+#ifndef NEWSOUL_NEWSOUL_H
+#define NEWSOUL_NEWSOUL_H
 
 #include <string>
 #include "sharesdb.h"
@@ -28,9 +28,7 @@
 #include "NewNet/nnreactor.h"
 #include "NewNet/nnrefptr.h"
 
-using namespace newsoul; // FIXME: remove it once we move to new ns
-
-namespace Museek
+namespace newsoul
 {
   /* Forward definitions for classes we use for the class definition. */
   class ConfigManager;
@@ -42,11 +40,11 @@ namespace Museek
   class SearchManager;
   class IfaceManager;
 
-  class Museekd : public NewNet::Object
+  class Newsoul : public NewNet::Object
   {
   public:
-    Museekd(NewNet::Reactor * reactor = 0);
-    ~Museekd();
+    Newsoul(NewNet::Reactor * reactor = 0);
+    ~Newsoul();
 
     /* Generate the next unique (within this session) token. Used for
        identifying peer sockets and transfers. */
@@ -161,4 +159,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_MUSEEKD_H
+#endif // NEWSOUL_NEWSOUL_H

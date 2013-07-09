@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_UPLOADMANAGER_H
-#define MUSEEK_UPLOADMANAGER_H
+#ifndef NEWSOUL_UPLOADMANAGER_H
+#define NEWSOUL_UPLOADMANAGER_H
 
 #include "configmanager.h"
 #include "peersocket.h"
@@ -31,14 +31,14 @@
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnweakrefptr.h"
 
-namespace Museek
+namespace newsoul
 {
   /* Definition of the upload structure. */
   class UploadManager;
   class Upload : public NewNet::Object
   {
   public:
-    Upload(Museekd * museekd, const std::string & user, const std::string & localPath);
+    Upload(Newsoul * newsoul, const std::string & user, const std::string & localPath);
     ~Upload();
 
     void initiate(PeerSocket * socket);
@@ -50,7 +50,7 @@ namespace Museek
     void sent(uint count);
     void collect(uint bytes);
 
-    Museekd * museekd() const { return m_Museekd; }
+    Newsoul * newsoul() const { return m_Newsoul; }
 
     UploadSocket * socket() const { return m_Socket; }
     void setSocket(UploadSocket * socket);
@@ -84,7 +84,7 @@ namespace Museek
   private:
     void replyTimeout(long);
 
-    NewNet::WeakRefPtr<Museekd>         m_Museekd; // Ref to the museekd
+    NewNet::WeakRefPtr<Newsoul>         m_Newsoul; // Ref to the newsoul
 
     std::ifstream *                     m_File; // The file we need to send
     NewNet::WeakRefPtr<UploadSocket>    m_Socket; // Ref to the socket associated
@@ -115,11 +115,11 @@ namespace Museek
   class UploadManager : public NewNet::Object
   {
   public:
-    UploadManager(Museekd * museekd);
+    UploadManager(Newsoul * newsoul);
     ~UploadManager();
 
-    /* Return pointer to museekd instance. */
-    Museekd * museekd() const { return m_Museekd; }
+    /* Return pointer to newsoul instance. */
+    Newsoul * newsoul() const { return m_Newsoul; }
 
     /* List all uploads. */
     const std::vector<NewNet::RefPtr<Upload> > & uploads() const { return m_Uploads; }
@@ -195,7 +195,7 @@ namespace Museek
     void onConfigKeySet(const ConfigManager::ChangeNotify * data);
     void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
 
-    NewNet::WeakRefPtr<Museekd>                             m_Museekd;      // Ref to the museekd
+    NewNet::WeakRefPtr<Newsoul>                             m_Newsoul;      // Ref to the newsoul
     std::vector<NewNet::RefPtr<Upload> >                    m_Uploads;      // List of all the uploads
     std::map<std::string, NewNet::WeakRefPtr<Upload> >      m_Initiating;   // List of all the uploads currently being initiated
     std::map<std::string, NewNet::WeakRefPtr<Upload> >      m_Uploading;    // List of user we're currently uploading
@@ -205,4 +205,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_UPLOADMANAGER_H
+#endif // NEWSOUL_UPLOADMANAGER_H

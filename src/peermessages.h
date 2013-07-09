@@ -1,4 +1,4 @@
-/* Museek - Museek's 'core' library
+/* newsoul - newsoul's 'core' library
  *
  * Copyright (C) 2003-2007 Hyriand <hyriand@thegraveyard.org>
  * Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
@@ -18,12 +18,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MUSEEK_PEERMESSAGES_H
-#define MUSEEK_PEERMESSAGES_H
+#ifndef NEWSOUL_PEERMESSAGES_H
+#define NEWSOUL_PEERMESSAGES_H
 
 #include "sharesdb.h"
 
-namespace Museek
+namespace newsoul
 {
 	class PeerSocket;
 }
@@ -33,16 +33,16 @@ class PeerMessage : public NetworkMessage
 protected:
     void default_garbage_collector() { }
 public:
-	void setPeerSocket(Museek::PeerSocket * peerSocket)
+	void setPeerSocket(newsoul::PeerSocket * peerSocket)
 	{
 		m_PeerSocket = peerSocket;
 	}
-	Museek::PeerSocket * peerSocket() const
+	newsoul::PeerSocket * peerSocket() const
 	{
 		return m_PeerSocket;
 	}
 private:
-	Museek::PeerSocket * m_PeerSocket;
+	newsoul::PeerSocket * m_PeerSocket;
 };
 #define PEERMESSAGE(mtype, m_id) NETWORKMESSAGE(PeerMessage, mtype, m_id)
 
@@ -580,4 +580,4 @@ PEERMESSAGE(PUploadQueueNotification, 52)
 END
 
 
-#endif // MUSEEK_PEERMESSAGES_H
+#endif // NEWSOUL_PEERMESSAGES_H

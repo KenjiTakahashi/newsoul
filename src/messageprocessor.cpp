@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -21,7 +21,7 @@
 #include "messageprocessor.h"
 
 bool
-Museek::MessageProcessor::parseMessage(NewNet::ClientSocket * socket)
+newsoul::MessageProcessor::parseMessage(NewNet::ClientSocket * socket)
 {
   /* How many bytes do we have in store? */
   size_t count = socket->receiveBuffer().count();

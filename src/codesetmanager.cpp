@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
     Karol 'Kenji Takahashi' Woźniak © 2013
@@ -21,11 +21,11 @@
 
 #include "codesetmanager.h"
 
-Museek::CodesetManager::CodesetManager(Museekd * museekd) : m_Museekd(museekd)
+newsoul::CodesetManager::CodesetManager(Newsoul * newsoul) : m_Newsoul(newsoul)
 {
 }
 
-Museek::CodesetManager::~CodesetManager()
+newsoul::CodesetManager::~CodesetManager()
 {
   /* Free all the stored iconv contexts. */
   std::map<std::pair<std::string, std::string>, iconv_t>::iterator it, end = m_Contexts.end();
@@ -34,7 +34,7 @@ Museek::CodesetManager::~CodesetManager()
 }
 
 std::string
-Museek::CodesetManager::convert(const std::string & from, const std::string & to, const std::string & str)
+newsoul::CodesetManager::convert(const std::string & from, const std::string & to, const std::string & str)
 {
   /* No point in trying to convert an empty string. */
   if(str.empty())
@@ -97,25 +97,25 @@ Museek::CodesetManager::convert(const std::string & from, const std::string & to
 }
 
 std::string
-Museek::CodesetManager::getNetworkCodeset(const std::string & domain, const std::string & key) const
+newsoul::CodesetManager::getNetworkCodeset(const std::string & domain, const std::string & key) const
 {
   // Try to get the requested character set
-  std::string codeset = museekd()->config()->get(domain, key);
+  std::string codeset = newsoul()->config()->get(domain, key);
   if(codeset.empty()) // Get the default network encoding
-    codeset = museekd()->config()->get("encoding", "network");
+    codeset = newsoul()->config()->get("encoding", "network");
   if(codeset.empty()) // Fall back to UTF-8
     codeset = "UTF-8";
   return codeset;
 }
 
 std::string
-Museek::CodesetManager::fromRoom(const std::string & room, const std::string & str)
+newsoul::CodesetManager::fromRoom(const std::string & room, const std::string & str)
 {
   return convert(getNetworkCodeset("encoding.rooms", room), "UTF-8", str);
 }
 
 std::map<std::string, std::string>
-Museek::CodesetManager::fromRoomMap(const std::string & room, const std::map<std::string, std::string> & map)
+newsoul::CodesetManager::fromRoomMap(const std::string & room, const std::map<std::string, std::string> & map)
 {
   // Get the character set for the room.
   std::string codeset = getNetworkCodeset("encoding.rooms", room);
@@ -131,25 +131,25 @@ Museek::CodesetManager::fromRoomMap(const std::string & room, const std::map<std
 }
 
 std::string
-Museek::CodesetManager::toRoom(const std::string & room, const std::string & str)
+newsoul::CodesetManager::toRoom(const std::string & room, const std::string & str)
 {
     return convert("UTF-8", getNetworkCodeset("encoding.rooms", room), str);
 }
 
 std::string
-Museek::CodesetManager::fromPeer(const std::string & peer, const std::string & str)
+newsoul::CodesetManager::fromPeer(const std::string & peer, const std::string & str)
 {
   return convert(getNetworkCodeset("encoding.users", peer), "UTF-8", str);
 }
 
 std::string
-Museek::CodesetManager::toPeer(const std::string & peer, const std::string & str)
+newsoul::CodesetManager::toPeer(const std::string & peer, const std::string & str)
 {
     return convert("UTF-8", getNetworkCodeset("encoding.users", peer), str);
 }
 
 std::string
-Museek::CodesetManager::fromFSToNet(const std::string & str, bool slashes)
+newsoul::CodesetManager::fromFSToNet(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
@@ -158,7 +158,7 @@ Museek::CodesetManager::fromFSToNet(const std::string & str, bool slashes)
 }
 
 std::string
-Museek::CodesetManager::fromNetToFS(const std::string & str, bool slashes)
+newsoul::CodesetManager::fromNetToFS(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
@@ -167,7 +167,7 @@ Museek::CodesetManager::fromNetToFS(const std::string & str, bool slashes)
 }
 
 std::string
-Museek::CodesetManager::fromFSToPeer(const std::string & peer, const std::string & str, bool slashes)
+newsoul::CodesetManager::fromFSToPeer(const std::string & peer, const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
@@ -176,7 +176,7 @@ Museek::CodesetManager::fromFSToPeer(const std::string & peer, const std::string
 }
 
 std::string
-Museek::CodesetManager::fromPeerToFS(const std::string & peer, const std::string & str, bool slashes)
+newsoul::CodesetManager::fromPeerToFS(const std::string & peer, const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
@@ -185,7 +185,7 @@ Museek::CodesetManager::fromPeerToFS(const std::string & peer, const std::string
 }
 
 std::string
-Museek::CodesetManager::fromUtf8ToFS(const std::string & str, bool slashes)
+newsoul::CodesetManager::fromUtf8ToFS(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
@@ -194,7 +194,7 @@ Museek::CodesetManager::fromUtf8ToFS(const std::string & str, bool slashes)
 }
 
 std::string
-Museek::CodesetManager::fromFsToUtf8(const std::string & str, bool slashes)
+newsoul::CodesetManager::fromFsToUtf8(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
@@ -203,31 +203,31 @@ Museek::CodesetManager::fromFsToUtf8(const std::string & str, bool slashes)
 }
 
 std::string
-Museek::CodesetManager::fromNet(const std::string & str)
+newsoul::CodesetManager::fromNet(const std::string & str)
 {
     return convert(getNetworkCodeset("encoding", "network"), "UTF-8", str);
 }
 
 std::string
-Museek::CodesetManager::toNet(const std::string & str)
+newsoul::CodesetManager::toNet(const std::string & str)
 {
     return convert("UTF-8", getNetworkCodeset("encoding", "network"), str);
 }
 
 std::string
-Museek::CodesetManager::fromUtf8ToNet(const std::string & str)
+newsoul::CodesetManager::fromUtf8ToNet(const std::string & str)
 {
     return fromUtf8(getNetworkCodeset("encoding", "network"), str);
 }
 
 std::string
-Museek::CodesetManager::fromNetToUtf8(const std::string & str)
+newsoul::CodesetManager::fromNetToUtf8(const std::string & str)
 {
     return toUtf8(getNetworkCodeset("encoding", "network"), str);
 }
 
 iconv_t
-Museek::CodesetManager::getContext(const std::string & from, const std::string & to)
+newsoul::CodesetManager::getContext(const std::string & from, const std::string & to)
 {
   // This is the context store key.
   std::pair<std::string, std::string> key(from, to);

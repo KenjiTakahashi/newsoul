@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -20,7 +20,7 @@
 
 #include "distributedsocket.h"
 
-Museek::DistributedSocket::DistributedSocket(Museek::HandshakeSocket * that) : Museek::UserSocket(that, "D"), Museek::MessageProcessor(1)
+newsoul::DistributedSocket::DistributedSocket(newsoul::HandshakeSocket * that) : newsoul::UserSocket(that, "D"), newsoul::MessageProcessor(1)
 {
     messageReceivedEvent.connect(this, &DistributedSocket::onMessageReceived);
     dataReceivedEvent.connect(this, &TcpMessageSocket::onDataReceived);
@@ -32,7 +32,7 @@ Museek::DistributedSocket::DistributedSocket(Museek::HandshakeSocket * that) : M
     connectedEvent.connect(this, &DistributedSocket::onConnected);
 }
 
-Museek::DistributedSocket::DistributedSocket(Museek::Museekd * museekd) : Museek::UserSocket(museekd, "D"), Museek::MessageProcessor(1)
+newsoul::DistributedSocket::DistributedSocket(newsoul::Newsoul * newsoul) : newsoul::UserSocket(newsoul, "D"), newsoul::MessageProcessor(1)
 {
     messageReceivedEvent.connect(this, &DistributedSocket::onMessageReceived);
     dataReceivedEvent.connect(this, &TcpMessageSocket::onDataReceived);
@@ -44,13 +44,13 @@ Museek::DistributedSocket::DistributedSocket(Museek::Museekd * museekd) : Museek
     connectedEvent.connect(this, &DistributedSocket::onConnected);
 }
 
-Museek::DistributedSocket::~DistributedSocket()
+newsoul::DistributedSocket::~DistributedSocket()
 {
     if (m_DisconnectNowTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_DisconnectNowTimeout);
+        newsoul()->reactor()->removeTimeout(m_DisconnectNowTimeout);
 
     if (m_DataTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_DataTimeout);
+        newsoul()->reactor()->removeTimeout(m_DataTimeout);
 
     NNLOG("newsoul.distrib.debug", "DistributedSocket destroyed");
 }
@@ -58,23 +58,23 @@ Museek::DistributedSocket::~DistributedSocket()
 /**
   * Sends our position in the soulseek search tree
   */
-void Museek::DistributedSocket::sendPosition() {
-    DBranchLevel msgL(museekd()->searches()->branchLevel());
+void newsoul::DistributedSocket::sendPosition() {
+    DBranchLevel msgL(newsoul()->searches()->branchLevel());
     sendMessage(msgL.make_network_packet());
 
-    DBranchRoot msgR(museekd()->searches()->branchRoot());
+    DBranchRoot msgR(newsoul()->searches()->branchRoot());
     sendMessage(msgR.make_network_packet());
 }
 
 void
-Museek::DistributedSocket::initiateActiveWithIP(const std::string & user, const std::string & ip, uint port)
+newsoul::DistributedSocket::initiateActiveWithIP(const std::string & user, const std::string & ip, uint port)
 {
     setUser(user);
-    setToken(museekd()->token());
+    setToken(newsoul()->token());
 
     NNLOG("newsoul.distrib.debug", "Initiating active distributed connection to %s (type %s, ip %s, port %d).", user.c_str(), type().c_str(), ip.c_str(), port);
 
-    HInitiate handshake(museekd()->server()->username(), type(), token());
+    HInitiate handshake(newsoul()->server()->username(), type(), token());
     sendMessage(handshake.make_network_packet());
 
     cannotConnectEvent.connect(this, & DistributedSocket::onCannotConnectActive);
@@ -90,28 +90,28 @@ Museek::DistributedSocket::initiateActiveWithIP(const std::string & user, const 
   * Ping the peer and launch a timer for the next ping
   */
 void
-Museek::DistributedSocket::ping(long) {
+newsoul::DistributedSocket::ping(long) {
     DPing msg;
     sendMessage(msg.make_network_packet());
-    m_PingTimeout = museekd()->reactor()->addTimeout(60000, this, &DistributedSocket::ping);
+    m_PingTimeout = newsoul()->reactor()->addTimeout(60000, this, &DistributedSocket::ping);
 }
 
 void
-Museek::DistributedSocket::onConnected(NewNet::ClientSocket * socket) {
+newsoul::DistributedSocket::onConnected(NewNet::ClientSocket * socket) {
     // Check that the peer sends us something (if not, it's probably a child who has found another parent)
     if (m_DataTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_DataTimeout);
+        newsoul()->reactor()->removeTimeout(m_DataTimeout);
 
-    m_DataTimeout = museekd()->reactor()->addTimeout(60000, this, &DistributedSocket::onDisconnectNow);
+    m_DataTimeout = newsoul()->reactor()->addTimeout(60000, this, &DistributedSocket::onDisconnectNow);
 }
 
 void
-Museek::DistributedSocket::onDisconnected(NewNet::ClientSocket * socket) {
+newsoul::DistributedSocket::onDisconnected(NewNet::ClientSocket * socket) {
     // We have to remove our timeout
-    museekd()->reactor()->removeTimeout(m_PingTimeout);
+    newsoul()->reactor()->removeTimeout(m_PingTimeout);
 }
 
-void Museek::DistributedSocket::onCannotConnectActive(NewNet::ClientSocket * socket) {
+void newsoul::DistributedSocket::onCannotConnectActive(NewNet::ClientSocket * socket) {
     NNLOG("newsoul.distrib.debug", "Cannot connect a distributed socket in active mode. Trying passive.");
     socket->sendBuffer().clear(); // We have a HInitiate message still waiting in the buffer. We don't need it anymore
     disconnect();
@@ -119,7 +119,7 @@ void Museek::DistributedSocket::onCannotConnectActive(NewNet::ClientSocket * soc
 }
 
 void
-Museek::DistributedSocket::onFirewallPierceTimedOut(long)
+newsoul::DistributedSocket::onFirewallPierceTimedOut(long)
 {
     // Distributed socket tries first active mode, then passive (unlike usersocket).
     // So no need to retry active when passive fails.
@@ -128,34 +128,34 @@ Museek::DistributedSocket::onFirewallPierceTimedOut(long)
     disconnect();
 }
 
-void Museek::DistributedSocket::onBranchLevelReceived(const DBranchLevel * msg) {
-    museekd()->searches()->branchLevelReceived(this, msg->level);
+void newsoul::DistributedSocket::onBranchLevelReceived(const DBranchLevel * msg) {
+    newsoul()->searches()->branchLevelReceived(this, msg->level);
 }
 
-void Museek::DistributedSocket::onBranchRootReceived(const DBranchRoot * msg) {
-    if (this == museekd()->searches()->parent())
-        museekd()->searches()->setBranchRoot(msg->root);
+void newsoul::DistributedSocket::onBranchRootReceived(const DBranchRoot * msg) {
+    if (this == newsoul()->searches()->parent())
+        newsoul()->searches()->setBranchRoot(msg->root);
 }
 
-void Museek::DistributedSocket::onChildDepthReceived(const DChildDepth * msg) {
-    if (this != museekd()->searches()->parent())
-        museekd()->searches()->setChild(this, msg->depth);
+void newsoul::DistributedSocket::onChildDepthReceived(const DChildDepth * msg) {
+    if (this != newsoul()->searches()->parent())
+        newsoul()->searches()->setChild(this, msg->depth);
 }
 
-void Museek::DistributedSocket::onSearchRequested(const DSearchRequest * msg) {
-    std::string query = museekd()->codeset()->fromNet(msg->query);
+void newsoul::DistributedSocket::onSearchRequested(const DSearchRequest * msg) {
+    std::string query = newsoul()->codeset()->fromNet(msg->query);
 
     NNLOG("newsoul.distrib.debug", "Received search request from our parent: %s for %s", query.c_str(), msg->username.c_str());
 
-    museekd()->searches()->transmitSearch(msg->unknown, msg->username, msg->ticket, query);
-    museekd()->searches()->sendSearchResults(msg->username, query, msg->ticket);
+    newsoul()->searches()->transmitSearch(msg->unknown, msg->username, msg->ticket, query);
+    newsoul()->searches()->sendSearchResults(msg->username, query, msg->ticket);
 }
 
 void
-Museek::DistributedSocket::onMessageReceived(const MessageData * data)
+newsoul::DistributedSocket::onMessageReceived(const MessageData * data)
 {
     if (m_DataTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_DataTimeout);
+        newsoul()->reactor()->removeTimeout(m_DataTimeout);
 
   switch(data->type)
   {
@@ -180,14 +180,14 @@ Museek::DistributedSocket::onMessageReceived(const MessageData * data)
 }
 
 void
-Museek::DistributedSocket::addDisconnectNowTimeout() {
+newsoul::DistributedSocket::addDisconnectNowTimeout() {
     if (m_DisconnectNowTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_DisconnectNowTimeout);
-    m_DisconnectNowTimeout = museekd()->reactor()->addTimeout(1000, this, &DistributedSocket::onDisconnectNow);
+        newsoul()->reactor()->removeTimeout(m_DisconnectNowTimeout);
+    m_DisconnectNowTimeout = newsoul()->reactor()->addTimeout(1000, this, &DistributedSocket::onDisconnectNow);
 }
 
 void
-Museek::DistributedSocket::onDisconnectNow(long) {
+newsoul::DistributedSocket::onDisconnectNow(long) {
     stop();
 }
 
@@ -195,7 +195,7 @@ Museek::DistributedSocket::onDisconnectNow(long) {
     Stops the socket
 */
 void
-Museek::DistributedSocket::stop()
+newsoul::DistributedSocket::stop()
 {
     NNLOG("newsoul.distrib.debug", "Disconnecting distributed socket...");
     disconnect();

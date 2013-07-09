@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_PEERMANAGER_H
-#define MUSEEK_PEERMANAGER_H
+#ifndef NEWSOUL_PEERMANAGER_H
+#define NEWSOUL_PEERMANAGER_H
 
 #include "configmanager.h"
 #include "peersocket.h"
@@ -29,18 +29,18 @@
 #include "NewNet/nntcpserversocket.h"
 #include "NewNet/nnweakrefptr.h"
 
-namespace Museek
+namespace newsoul
 {
   class PeerManager : public NewNet::Object
   {
   public:
     typedef NewNet::FactorySocket<NewNet::TcpServerSocket, HandshakeSocket> PeerFactory;
 
-    PeerManager(Museekd * museekd);
+    PeerManager(Newsoul * newsoul);
     ~PeerManager();
 
-    /* Return pointer to museekd instance. */
-    Museekd * museekd() const { return m_Museekd; }
+    /* Return pointer to newsoul instance. */
+    Newsoul * newsoul() const { return m_Newsoul; }
 
     PeerFactory * peerFactory() const
     {
@@ -90,7 +90,7 @@ namespace Museek
 
     void createPeerSocket(const std::string&);
 
-    NewNet::WeakRefPtr<Museekd> m_Museekd;
+    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
     NewNet::RefPtr<PeerFactory> m_Factory;
 
     std::map<std::string, struct timeval >                  m_LastStatusTime;   // When did we ask for status of each user?
@@ -101,4 +101,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_PEERMANAGER_H
+#endif // NEWSOUL_PEERMANAGER_H

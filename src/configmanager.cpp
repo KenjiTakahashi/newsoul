@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -20,7 +20,7 @@
 
 #include "configmanager.h"
 
-Museek::ConfigManager::ConfigManager() : m_AutoSave(true)
+newsoul::ConfigManager::ConfigManager() : m_AutoSave(true)
 {
   /* Check if the libxml we linked against when ConfigManager was compiled
      is compatible with the libxml version we're linked against at runtime. */
@@ -28,7 +28,7 @@ Museek::ConfigManager::ConfigManager() : m_AutoSave(true)
 }
 
 bool
-Museek::ConfigManager::load(const std::string & path)
+newsoul::ConfigManager::load(const std::string & path)
 {
   NNLOG("newsoul.config.debug", "Loading configuration '%s'.", path.c_str());
 
@@ -117,7 +117,7 @@ Museek::ConfigManager::load(const std::string & path)
 }
 
 bool
-Museek::ConfigManager::save(const std::string & path) const
+newsoul::ConfigManager::save(const std::string & path) const
 {
   // Check if we know where to save the configuration.
   if(path.empty() && m_Path.empty())
@@ -172,7 +172,7 @@ Museek::ConfigManager::save(const std::string & path) const
   * Update config.xml
   */
 void
-Museek::ConfigManager::updateConfigFile() {
+newsoul::ConfigManager::updateConfigFile() {
     std::string version = get("newsoul", "version", "none");
 
     if (version == "none") {
@@ -193,7 +193,7 @@ Museek::ConfigManager::updateConfigFile() {
 }
 
 std::string
-Museek::ConfigManager::get(const std::string & domain, const std::string & key, const std::string & defaultValue) const
+newsoul::ConfigManager::get(const std::string & domain, const std::string & key, const std::string & defaultValue) const
 {
   // Try to find the domain.
   Config::const_iterator it = m_Config.find(domain);
@@ -208,7 +208,7 @@ Museek::ConfigManager::get(const std::string & domain, const std::string & key, 
 }
 
 unsigned int
-Museek::ConfigManager::getUint(const std::string & domain, const std::string & key, unsigned int defaultValue) const
+newsoul::ConfigManager::getUint(const std::string & domain, const std::string & key, unsigned int defaultValue) const
 {
   // Get the string value from the configuration.
   std::string value(get(domain, key));
@@ -218,7 +218,7 @@ Museek::ConfigManager::getUint(const std::string & domain, const std::string & k
 }
 
 int
-Museek::ConfigManager::getInt(const std::string & domain, const std::string & key, int defaultValue) const
+newsoul::ConfigManager::getInt(const std::string & domain, const std::string & key, int defaultValue) const
 {
   // Get the string value from the configuration.
   std::string value(get(domain, key));
@@ -228,7 +228,7 @@ Museek::ConfigManager::getInt(const std::string & domain, const std::string & ke
 }
 
 double
-Museek::ConfigManager::getDouble(const std::string & domain, const std::string & key, double defaultValue) const
+newsoul::ConfigManager::getDouble(const std::string & domain, const std::string & key, double defaultValue) const
 {
   // Get the string value from the configuration.
   std::string value(get(domain, key));
@@ -238,7 +238,7 @@ Museek::ConfigManager::getDouble(const std::string & domain, const std::string &
 }
 
 bool
-Museek::ConfigManager::getBool(const std::string & domain, const std::string & key, bool defaultValue) const
+newsoul::ConfigManager::getBool(const std::string & domain, const std::string & key, bool defaultValue) const
 {
   // Get the string value from the configuration.
   std::string value(get(domain, key));
@@ -248,7 +248,7 @@ Museek::ConfigManager::getBool(const std::string & domain, const std::string & k
 }
 
 void
-Museek::ConfigManager::set(const std::string & domain, const std::string & key, const std::string & value)
+newsoul::ConfigManager::set(const std::string & domain, const std::string & key, const std::string & value)
 {
   // Set the value in the configuration.
   m_Config[domain][key] = value;
@@ -259,7 +259,7 @@ Museek::ConfigManager::set(const std::string & domain, const std::string & key, 
 }
 
 void
-Museek::ConfigManager::set(const std::string & domain, const std::string & key, const char * value)
+newsoul::ConfigManager::set(const std::string & domain, const std::string & key, const char * value)
 {
   // Set the value in the configuration.
   m_Config[domain][key] = value;
@@ -270,7 +270,7 @@ Museek::ConfigManager::set(const std::string & domain, const std::string & key, 
 }
 
 void
-Museek::ConfigManager::set(const std::string & domain, const std::string & key, unsigned int value)
+newsoul::ConfigManager::set(const std::string & domain, const std::string & key, unsigned int value)
 {
   // Format the unsigned integer to a string value.
   char x[80];
@@ -284,7 +284,7 @@ Museek::ConfigManager::set(const std::string & domain, const std::string & key, 
 }
 
 void
-Museek::ConfigManager::set(const std::string & domain, const std::string & key, int value)
+newsoul::ConfigManager::set(const std::string & domain, const std::string & key, int value)
 {
   // Format the unsigned integer to a string value.
   char x[80];
@@ -298,7 +298,7 @@ Museek::ConfigManager::set(const std::string & domain, const std::string & key, 
 }
 
 void
-Museek::ConfigManager::set(const std::string & domain, const std::string & key, double value)
+newsoul::ConfigManager::set(const std::string & domain, const std::string & key, double value)
 {
   // Format the unsigned integer to a string value.
   char x[80];
@@ -312,7 +312,7 @@ Museek::ConfigManager::set(const std::string & domain, const std::string & key, 
 }
 
 void
-Museek::ConfigManager::set(const std::string & domain, const std::string & key, bool value)
+newsoul::ConfigManager::set(const std::string & domain, const std::string & key, bool value)
 {
   // Set the value in the configuration.
   m_Config[domain][key] = value ? "true" : "false";
@@ -323,7 +323,7 @@ Museek::ConfigManager::set(const std::string & domain, const std::string & key, 
 }
 
 void
-Museek::ConfigManager::removeKey(const std::string & domain, const std::string & key)
+newsoul::ConfigManager::removeKey(const std::string & domain, const std::string & key)
 {
   // Check if the domain exists.
   Config::iterator it = m_Config.find(domain);
@@ -348,14 +348,14 @@ Museek::ConfigManager::removeKey(const std::string & domain, const std::string &
 }
 
 bool
-Museek::ConfigManager::hasDomain(const std::string & domain) const
+newsoul::ConfigManager::hasDomain(const std::string & domain) const
 {
   // Check if the domain exists.
   return m_Config.find(domain) != m_Config.end();
 }
 
 bool
-Museek::ConfigManager::hasKey(const std::string & domain, const std::string & key) const
+newsoul::ConfigManager::hasKey(const std::string & domain, const std::string & key) const
 {
   // Check if the domain exists.
   Config::const_iterator it = m_Config.find(domain);
@@ -366,7 +366,7 @@ Museek::ConfigManager::hasKey(const std::string & domain, const std::string & ke
 }
 
 std::vector<std::string>
-Museek::ConfigManager::keys(const std::string & domain) const
+newsoul::ConfigManager::keys(const std::string & domain) const
 {
   std::vector<std::string> result;
 
@@ -385,7 +385,7 @@ Museek::ConfigManager::keys(const std::string & domain) const
 }
 
 void
-Museek::ConfigManager::emitKeySetEvent(const std::string & domain, const std::string & key, const std::string & value)
+newsoul::ConfigManager::emitKeySetEvent(const std::string & domain, const std::string & key, const std::string & value)
 {
   // Set up the event's data object.
   ChangeNotify data;

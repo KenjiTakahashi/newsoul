@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,15 +18,15 @@
 
  */
 
-#ifndef MUSEEK_HANDSHAKESOCKET_H
-#define MUSEEK_HANDSHAKESOCKET_H
+#ifndef NEWSOUL_HANDSHAKESOCKET_H
+#define NEWSOUL_HANDSHAKESOCKET_H
 
 #include "messageprocessor.h"
 #include "newsoul.h"
 #include "NewNet/nnclientsocket.h"
 #include "NewNet/nnweakrefptr.h"
 
-namespace Museek
+namespace newsoul
 {
   /* HandshakeSocket is used when a new incoming connection has been
      established. HandshakeSocket reads one message then creates the
@@ -37,10 +37,10 @@ namespace Museek
     HandshakeSocket();
     ~HandshakeSocket();
 
-    void setMuseekd(Museekd * museekd);
-    Museekd * museekd() const
+    void setNewsoul(Newsoul * newsoul);
+    Newsoul * newsoul() const
     {
-      return m_Museekd;
+      return m_Newsoul;
     }
 
     /* Return the token the remote peer sent. */
@@ -61,10 +61,10 @@ namespace Museek
     void onDisconnected(NewNet::ClientSocket * socket);
     void onCannotConnect(NewNet::ClientSocket * socket);
 
-    NewNet::WeakRefPtr<Museekd> m_Museekd;
+    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
     uint m_Token;
     std::string m_User;
   };
 }
 
-#endif // MUSEEK_HANDSHAKESOCKET_H
+#endif // NEWSOUL_HANDSHAKESOCKET_H

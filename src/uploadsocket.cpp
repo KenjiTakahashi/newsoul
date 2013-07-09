@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -21,8 +21,8 @@
 #include "uploadsocket.h"
 #include "ticketsocket.h"
 
-Museek::UploadSocket::UploadSocket(Museek::Museekd * museekd, Museek::Upload * upload)
-              : UserSocket(museekd, "F")
+newsoul::UploadSocket::UploadSocket(newsoul::Newsoul * newsoul, newsoul::Upload * upload)
+              : UserSocket(newsoul, "F")
 {
     m_Upload = upload;
 
@@ -39,7 +39,7 @@ Museek::UploadSocket::UploadSocket(Museek::Museekd * museekd, Museek::Upload * u
     dataReceivedEvent.connect(this, &UploadSocket::onDataReceived);
 }
 
-Museek::UploadSocket::~UploadSocket()
+newsoul::UploadSocket::~UploadSocket()
 {
     NNLOG("newsoul.up.debug", "UploadSocket destroyed");
 }
@@ -48,7 +48,7 @@ Museek::UploadSocket::~UploadSocket()
     Called when the connection is lost
 */
 void
-Museek::UploadSocket::onDisconnected(ClientSocket * socket)
+newsoul::UploadSocket::onDisconnected(ClientSocket * socket)
 {
 	if(m_Upload->state() == TS_RemoteError || m_Upload->state() == TS_LocalError)
 		return;
@@ -65,7 +65,7 @@ Museek::UploadSocket::onDisconnected(ClientSocket * socket)
     Called when the connection cannot be established
 */
 void
-Museek::UploadSocket::onCannotConnect(ClientSocket * socket)
+newsoul::UploadSocket::onCannotConnect(ClientSocket * socket)
 {
 	if(m_Upload->state() == TS_RemoteError || m_Upload->state() == TS_LocalError)
 		return;
@@ -76,30 +76,30 @@ Museek::UploadSocket::onCannotConnect(ClientSocket * socket)
 }
 
 void
-Museek::UploadSocket::send(const unsigned char * data, size_t n)
+newsoul::UploadSocket::send(const unsigned char * data, size_t n)
 {
     ClientSocket::send(data, n);
     m_lastDataSentCount = sendBuffer().count();
 }
 
 void
-Museek::UploadSocket::wait()
+newsoul::UploadSocket::wait()
 {
     if (m_DataTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_DataTimeout);
+        newsoul()->reactor()->removeTimeout(m_DataTimeout);
 
-    m_DataTimeout = museekd()->reactor()->addTimeout(120000, this, &UploadSocket::dataTimeout);
+    m_DataTimeout = newsoul()->reactor()->addTimeout(120000, this, &UploadSocket::dataTimeout);
 
     // Wait for an incoming connection (via TicketSocket).
     m_Upload->setState(TS_Waiting);
-    museekd()->uploads()->transferTicketReceivedEvent.connect(this, &UploadSocket::onTransferTicketReceived);
+    newsoul()->uploads()->transferTicketReceivedEvent.connect(this, &UploadSocket::onTransferTicketReceived);
 }
 
 /*
     Stops this socket
 */
 void
-Museek::UploadSocket::stop()
+newsoul::UploadSocket::stop()
 {
     NNLOG("newsoul.up.debug", "Disconnecting upload socket...");
     disconnect();
@@ -109,7 +109,7 @@ Museek::UploadSocket::stop()
     When we're trying to initiate an upload, after sending a PTransferRequest, we get a PTransferReply
     and then we need to send the ticket (right here). We'll receive the position and then we'll begin to send the data
 */
-void Museek::UploadSocket::sendTicket() {
+void newsoul::UploadSocket::sendTicket() {
     // Send the ticket
     char buf[4];
     uint64 ticket = m_Upload->ticket();
@@ -120,9 +120,9 @@ void Museek::UploadSocket::sendTicket() {
 
 
     if (m_DataTimeout.isValid())
-        museekd()->reactor()->removeTimeout(m_DataTimeout);
+        newsoul()->reactor()->removeTimeout(m_DataTimeout);
 
-    m_DataTimeout = museekd()->reactor()->addTimeout(60000, this, &UploadSocket::dataTimeout);
+    m_DataTimeout = newsoul()->reactor()->addTimeout(60000, this, &UploadSocket::dataTimeout);
 
     send((const unsigned char *) &buf, 4);
     m_Upload->setState(TS_Waiting);
@@ -132,7 +132,7 @@ void Museek::UploadSocket::sendTicket() {
 /*
     Called when some data (probably the position) has been received
 */
-void Museek::UploadSocket::onDataReceived(NewNet::ClientSocket * socket) {
+void newsoul::UploadSocket::onDataReceived(NewNet::ClientSocket * socket) {
     if(m_Upload->state() == TS_Waiting) {
         NNLOG("newsoul.up.debug", "got %u bytes in uploadsocket", receiveBuffer().count());
 
@@ -143,12 +143,12 @@ void Museek::UploadSocket::onDataReceived(NewNet::ClientSocket * socket) {
 /*
     Called when the data has been sent and we need to send new data
 */
-void Museek::UploadSocket::onDataSent(NewNet::ClientSocket * socket) {
+void newsoul::UploadSocket::onDataSent(NewNet::ClientSocket * socket) {
     if (m_Upload->state() == TS_Transferring) {
         if (m_DataTimeout.isValid())
-            museekd()->reactor()->removeTimeout(m_DataTimeout);
+            newsoul()->reactor()->removeTimeout(m_DataTimeout);
 
-        m_DataTimeout = museekd()->reactor()->addTimeout(60000, this, &UploadSocket::dataTimeout);
+        m_DataTimeout = newsoul()->reactor()->addTimeout(60000, this, &UploadSocket::dataTimeout);
 
         size_t sent = 0;
         if (m_lastDataSentCount > sendBuffer().count())
@@ -172,7 +172,7 @@ void Museek::UploadSocket::onDataSent(NewNet::ClientSocket * socket) {
     And now, the downloader sends us the ticket and the position where to start the upload.
 */
 void
-Museek::UploadSocket::onTransferTicketReceived(TicketSocket * socket)
+newsoul::UploadSocket::onTransferTicketReceived(TicketSocket * socket)
 {
     if((m_Upload->state() == TS_Waiting) && (m_Upload->ticket() == socket->ticket()) && (m_Upload->user() == socket->user())) {
         // Steal the socket and its data.
@@ -191,7 +191,7 @@ Museek::UploadSocket::onTransferTicketReceived(TicketSocket * socket)
     Tries to get the position given by the downloader in the data taken in the receive buffer
 */
 void
-Museek::UploadSocket::findPosition() {
+newsoul::UploadSocket::findPosition() {
     if(!mHavePos && receiveBuffer().count() >= 8) {
         // Getting the position
         uint64 pos = 0;
@@ -234,7 +234,7 @@ Museek::UploadSocket::findPosition() {
     Called when we cannot send any data in this socket
 */
 void
-Museek::UploadSocket::dataTimeout(long) {
+newsoul::UploadSocket::dataTimeout(long) {
     NNLOG("newsoul.up.debug", "Data timeout while uploading.");
     stop();
 }

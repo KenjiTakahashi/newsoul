@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -21,7 +21,7 @@
 #include "handshakesocket.h"
 #include "distributedsocket.h"
 
-Museek::HandshakeSocket::HandshakeSocket() : NewNet::ClientSocket(), Museek::MessageProcessor(1)
+newsoul::HandshakeSocket::HandshakeSocket() : NewNet::ClientSocket(), newsoul::MessageProcessor(1)
 {
   // Connect some signals.
   dataReceivedEvent.connect(this, &HandshakeSocket::onDataReceived);
@@ -30,19 +30,19 @@ Museek::HandshakeSocket::HandshakeSocket() : NewNet::ClientSocket(), Museek::Mes
   cannotConnectEvent.connect(this, &HandshakeSocket::onCannotConnect);
 }
 
-Museek::HandshakeSocket::~HandshakeSocket()
+newsoul::HandshakeSocket::~HandshakeSocket()
 {
   NNLOG("newsoul.hand.debug", "HandshakeSocket %d destroyed", descriptor());
 }
 
 void
-Museek::HandshakeSocket::setMuseekd(Museekd * museekd)
+newsoul::HandshakeSocket::setNewsoul(Newsoul * newsoul)
 {
-  m_Museekd = museekd;
+  m_Newsoul = newsoul;
 }
 
 void
-Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
+newsoul::HandshakeSocket::onMessageReceived(const MessageData * data)
 {
   switch(data->type)
   {
@@ -55,7 +55,7 @@ Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
       m_Token = msg.token;
       receiveBuffer().seek(data->length + 5);
       // Tell the peer manager, it should know more.
-      m_Museekd->peers()->firewallPiercedEvent(this);
+      m_Newsoul->peers()->firewallPiercedEvent(this);
       // This particular socket is no longer needed. Remove it from the reactor.
       reactor()->remove(this);
       return;
@@ -78,15 +78,15 @@ Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
       if(msg.type == "P")
       {
         // Create a new PeerSocket which will copy our descriptor and state.
-        Museek::PeerSocket * that = new Museek::PeerSocket(this);
-        museekd()->peers()->addPeerSocket(that);
+        newsoul::PeerSocket * that = new newsoul::PeerSocket(this);
+        newsoul()->peers()->addPeerSocket(that);
         // Add the newly constructed socket to the reactor.
         reactor()->add(that);
       }
       else if(msg.type == "F")
       {
         // Create a new TicketSocket which will copy our descriptor and state.
-        Museek::TicketSocket * that = new Museek::TicketSocket(this);
+        newsoul::TicketSocket * that = new newsoul::TicketSocket(this);
         // Add the newly constructed socket to the reactor.
         reactor()->add(that);
         // There may be some data waiting in the buffer (sent at connection). We have to ask the ticketsocket to check it.
@@ -95,9 +95,9 @@ Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
       else if(msg.type == "D")
       {
         // Create a new DistributedSocket which will copy our descriptor and state.
-        Museek::DistributedSocket * that = new Museek::DistributedSocket(this);
+        newsoul::DistributedSocket * that = new newsoul::DistributedSocket(this);
         // A potential parent doesn't care about our position
-        if (!museekd()->searches()->isPotentialParent(m_User))
+        if (!newsoul()->searches()->isPotentialParent(m_User))
             that->sendPosition();
         // Add the newly constructed socket to the reactor.
         reactor()->add(that);
@@ -120,14 +120,14 @@ Museek::HandshakeSocket::onMessageReceived(const MessageData * data)
 }
 
 void
-Museek::HandshakeSocket::onDisconnected(NewNet::ClientSocket * socket) {
+newsoul::HandshakeSocket::onDisconnected(NewNet::ClientSocket * socket) {
   NNLOG("newsoul.hand.debug", "Handshake socket for %s has been disconnected.", m_User.c_str());
   if(reactor())
     reactor()->remove(this);
 }
 
 void
-Museek::HandshakeSocket::onCannotConnect(NewNet::ClientSocket *)
+newsoul::HandshakeSocket::onCannotConnect(NewNet::ClientSocket *)
 {
   NNLOG("newsoul.hand.debug", "Could not connect handshake socket for user %s.", m_User.c_str());
   disconnect();

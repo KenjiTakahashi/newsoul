@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,19 +18,19 @@
 
  */
 
-#ifndef MUSEEK_PEERSOCKET_H
-#define MUSEEK_PEERSOCKET_H
+#ifndef NEWSOUL_PEERSOCKET_H
+#define NEWSOUL_PEERSOCKET_H
 
 #include "messageprocessor.h"
 #include "peermessages.h"
 #include "usersocket.h"
 
-namespace Museek
+namespace newsoul
 {
   class PeerSocket : public UserSocket, public MessageProcessor
   {
   public:
-    PeerSocket(Museekd * museekd);
+    PeerSocket(Newsoul * newsoul);
     PeerSocket(HandshakeSocket * that);
     ~PeerSocket();
 
@@ -72,4 +72,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_PEERSOCKET_H
+#endif // NEWSOUL_PEERSOCKET_H

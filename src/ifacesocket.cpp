@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -20,7 +20,7 @@
 
 #include "ifacesocket.h"
 
-Museek::IfaceSocket::IfaceSocket() : NewNet::ClientSocket(), MessageProcessor(4), m_Authenticated(false)
+newsoul::IfaceSocket::IfaceSocket() : NewNet::ClientSocket(), MessageProcessor(4), m_Authenticated(false)
 {
   m_CipherContext = new CipherContext();
   dataReceivedEvent.connect(this, &IfaceSocket::onDataReceived);
@@ -28,14 +28,14 @@ Museek::IfaceSocket::IfaceSocket() : NewNet::ClientSocket(), MessageProcessor(4)
   cannotConnectEvent.connect(this, &IfaceSocket::onCannotConnect);
 }
 
-Museek::IfaceSocket::~IfaceSocket()
+newsoul::IfaceSocket::~IfaceSocket()
 {
   NNLOG("newsoul.iface.debug", "IfaceSocket destroyed");
   free(m_CipherContext);
 }
 
 void
-Museek::IfaceSocket::sendMessage(const NewNet::Buffer & buffer)
+newsoul::IfaceSocket::sendMessage(const NewNet::Buffer & buffer)
 {
   if(socketState() != SocketConnected)
   {
@@ -53,7 +53,7 @@ Museek::IfaceSocket::sendMessage(const NewNet::Buffer & buffer)
 }
 
 void
-Museek::IfaceSocket::onMessageReceived(const MessageData * data)
+newsoul::IfaceSocket::onMessageReceived(const MessageData * data)
 {
   if((! authenticated()) && (data->type != 2))
   {
@@ -96,7 +96,7 @@ Museek::IfaceSocket::onMessageReceived(const MessageData * data)
 }
 
 void
-Museek::IfaceSocket::onCannotConnect(NewNet::ClientSocket *)
+newsoul::IfaceSocket::onCannotConnect(NewNet::ClientSocket *)
 {
   disconnect();
 }

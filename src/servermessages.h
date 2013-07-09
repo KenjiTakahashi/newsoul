@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_SERVERMESSAGES_H
-#define MUSEEK_SERVERMESSAGES_H
+#ifndef NEWSOUL_SERVERMESSAGES_H
+#define NEWSOUL_SERVERMESSAGES_H
 
 #include "networkmessage.h"
 
@@ -1224,4 +1224,4 @@ SERVERMESSAGE(SCannotConnect, 1001)
 	std::string user;
 END
 
-#endif // MUSEEK_SERVERMESSAGES_H
+#endif // NEWSOUL_SERVERMESSAGES_H

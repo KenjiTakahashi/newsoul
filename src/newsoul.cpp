@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
     Karol 'Kenji Takahashi' Woźniak © 2013
@@ -22,7 +22,7 @@
 #include "newsoul.h"
 #include "searchmanager.h"
 
-Museek::Museekd::Museekd(NewNet::Reactor * reactor) : m_Reactor(reactor)
+newsoul::Newsoul::Newsoul(NewNet::Reactor * reactor) : m_Reactor(reactor)
 {
   /* Seed the random generator and fabricate our starting token. */
   srand(time(NULL));
@@ -45,7 +45,7 @@ Museek::Museekd::Museekd(NewNet::Reactor * reactor) : m_Reactor(reactor)
   m_Searches = new SearchManager(this);
 }
 
-void Museek::Museekd::LoadShares() {
+void newsoul::Newsoul::LoadShares() {
     std::string shares = m_Config->get("shares", "database");
     if (!shares.empty()) {
         m_Shares = new SharesDB(shares, [this]{this->sendSharedNumber();});
@@ -56,74 +56,74 @@ void Museek::Museekd::LoadShares() {
     }
 }
 
-void Museek::Museekd::LoadDownloads() {
+void newsoul::Newsoul::LoadDownloads() {
     m_Downloads->loadDownloads();
 }
 
-Museek::Museekd::~Museekd()
+newsoul::Newsoul::~Newsoul()
 {
   /* This destructor doesn't do much. */
   NNLOG("newsoul.debug", "newsoul destroyed");
 }
 
-bool Museek::Museekd::isBanned(const std::string u) {
+bool newsoul::Newsoul::isBanned(const std::string u) {
     return config()->hasKey("banned", u);
 }
 
-bool Museek::Museekd::isIgnored(const std::string u) {
+bool newsoul::Newsoul::isIgnored(const std::string u) {
     return config()->hasKey("ignored", u);
 }
 
-bool Museek::Museekd::isTrusted(const std::string u) {
+bool newsoul::Newsoul::isTrusted(const std::string u) {
     return config()->hasKey("trusted", u);
 }
 
-bool Museek::Museekd::isBuddied(const std::string u) {
+bool newsoul::Newsoul::isBuddied(const std::string u) {
     return config()->hasKey("buddies", u);
 }
 
-bool Museek::Museekd::isPrivileged(const std::string u) {
+bool newsoul::Newsoul::isPrivileged(const std::string u) {
     return std::find(mPrivilegedUsers.begin(), mPrivilegedUsers.end(), u) != mPrivilegedUsers.end();
 }
 
-bool Museek::Museekd::toBuddiesOnly() {
+bool newsoul::Newsoul::toBuddiesOnly() {
     return config()->getBool("transfers", "only_buddies", false);
 }
 
-bool Museek::Museekd::haveBuddyShares() {
+bool newsoul::Newsoul::haveBuddyShares() {
     return config()->getBool("transfers", "have_buddy_shares", false);
 }
 
-bool Museek::Museekd::trustingUploads() {
+bool newsoul::Newsoul::trustingUploads() {
     return config()->getBool("transfers", "trusting_uploads", false);
 }
 
-bool Museek::Museekd::autoClearFinishedDownloads() {
+bool newsoul::Newsoul::autoClearFinishedDownloads() {
     return config()->getBool("transfers", "autoclear_finished_downloads", false);
 }
 
-bool Museek::Museekd::autoRetryDownloads() {
+bool newsoul::Newsoul::autoRetryDownloads() {
     return config()->getBool("transfers", "autoretry_downloads", false);
 }
 
-bool Museek::Museekd::autoClearFinishedUploads() {
+bool newsoul::Newsoul::autoClearFinishedUploads() {
     return config()->getBool("transfers", "autoclear_finished_uploads", false);
 }
 
-bool Museek::Museekd::privilegeBuddies() {
+bool newsoul::Newsoul::privilegeBuddies() {
     return config()->getBool("transfers", "privilege_buddies", false);
 }
 
-uint Museek::Museekd::upSlots() {
+uint newsoul::Newsoul::upSlots() {
     return config()->getUint("transfers", "upload_slots", 0);
 }
 
-uint Museek::Museekd::downSlots() {
+uint newsoul::Newsoul::downSlots() {
     return config()->getUint("transfers", "download_slots", 0);
 }
 
 // Add this user to the list of privileged ones
-void Museek::Museekd::addPrivilegedUser(const std::string & user) {
+void newsoul::Newsoul::addPrivilegedUser(const std::string & user) {
     if (!isPrivileged(user)) {
         mPrivilegedUsers.push_back(user);
         NNLOG("newsoul.debug", "%u privileged users", mPrivilegedUsers.size());
@@ -131,12 +131,12 @@ void Museek::Museekd::addPrivilegedUser(const std::string & user) {
 }
 
 // Replace the privileged users list with this new one
-void Museek::Museekd::setPrivilegedUsers(const std::vector<std::string> & users) {
+void newsoul::Newsoul::setPrivilegedUsers(const std::vector<std::string> & users) {
     mPrivilegedUsers = users;
     NNLOG("newsoul.debug", "%u privileged users", mPrivilegedUsers.size());
 }
 
-void Museek::Museekd::sendSharedNumber() {
+void newsoul::Newsoul::sendSharedNumber() {
 	if(server()->loggedIn()) {
         unsigned int numFiles = m_Shares->filesCount();
         unsigned int numFolders = m_Shares->dirsCount();
@@ -149,6 +149,6 @@ void Museek::Museekd::sendSharedNumber() {
 	}
 }
 
-bool Museek::Museekd::isEnabledPrivRoom() {
+bool newsoul::Newsoul::isEnabledPrivRoom() {
     return config()->getBool("priv_rooms", "enable_priv_room", false);
 }

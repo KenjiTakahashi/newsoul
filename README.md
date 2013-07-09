@@ -10,6 +10,7 @@ This is *only* the daemon/server part, no clients (besides CLI) are developed he
 * libevent
 * taglib
 * nettle
+* BerkeleyDB (often referred to as *db*)
 * premake4 (for compilation)
 * python2.x (for bindings and some misc utils)
 * pycrypto (for bindings and some misc utils)

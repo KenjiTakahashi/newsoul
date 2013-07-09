@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_CONFIGMANAGER_H
-#define MUSEEK_CONFIGMANAGER_H
+#ifndef NEWSOUL_CONFIGMANAGER_H
+#define NEWSOUL_CONFIGMANAGER_H
 
 #include <cstring>
 #include <libxml/parser.h>
@@ -29,7 +29,7 @@
 #include "NewNet/nnlog.h"
 #include "NewNet/nnobject.h"
 
-namespace Museek
+namespace newsoul
 {
   class ConfigManager : public NewNet::Object
   {
@@ -143,4 +143,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_CONFIGMANAGER_H
+#endif // NEWSOUL_CONFIGMANAGER_H

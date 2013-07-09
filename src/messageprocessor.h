@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,13 +18,13 @@
 
  */
 
-#ifndef MUSEEK_MESSAGEPROCESSOR_H
-#define MUSEEK_MESSAGEPROCESSOR_H
+#ifndef NEWSOUL_MESSAGEPROCESSOR_H
+#define NEWSOUL_MESSAGEPROCESSOR_H
 
 #include "mutypes.h"
 #include "NewNet/nnclientsocket.h"
 
-namespace Museek
+namespace newsoul
 {
   /* MessageProcessor is a mix-in class that provides the means to process
      soulseek message packets coming in on a socket. */
@@ -72,4 +72,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_MESSAGEPROCESSOR_H
+#endif // NEWSOUL_MESSAGEPROCESSOR_H

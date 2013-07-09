@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -21,41 +21,41 @@
 #include "peermanager.h"
 #include "ifacemanager.h"
 
-Museek::PeerManager::PeerManager(Museekd * museekd) : m_Museekd(museekd)
+newsoul::PeerManager::PeerManager(Newsoul * newsoul) : m_Newsoul(newsoul)
 {
-  museekd->config()->keySetEvent.connect(this, &PeerManager::onConfigKeySet);
-  museekd->config()->keyRemovedEvent.connect(this, &PeerManager::onConfigKeyRemoved);
-  museekd->server()->loggedInStateChangedEvent.connect(this, &PeerManager::onServerLoggedInStateChanged);
-  museekd->server()->cannotConnectNotifyReceivedEvent.connect(this, &PeerManager::onCannotConnectNotify);
-  museekd->server()->connectToPeerRequestedEvent.connect(this, &PeerManager::onServerConnectToPeerRequested);
-  museekd->server()->userStatusReceivedEvent.connect(this, &PeerManager::onServerUserStatusReceived);
-  museekd->server()->addUserReceivedEvent.connect(this, &PeerManager::onServerAddUserReceived);
+  newsoul->config()->keySetEvent.connect(this, &PeerManager::onConfigKeySet);
+  newsoul->config()->keyRemovedEvent.connect(this, &PeerManager::onConfigKeyRemoved);
+  newsoul->server()->loggedInStateChangedEvent.connect(this, &PeerManager::onServerLoggedInStateChanged);
+  newsoul->server()->cannotConnectNotifyReceivedEvent.connect(this, &PeerManager::onCannotConnectNotify);
+  newsoul->server()->connectToPeerRequestedEvent.connect(this, &PeerManager::onServerConnectToPeerRequested);
+  newsoul->server()->userStatusReceivedEvent.connect(this, &PeerManager::onServerUserStatusReceived);
+  newsoul->server()->addUserReceivedEvent.connect(this, &PeerManager::onServerAddUserReceived);
 
   firewallPiercedEvent.connect(this, &PeerManager::onFirewallPierced);
 
   listen();
 }
 
-Museek::PeerManager::~PeerManager()
+newsoul::PeerManager::~PeerManager()
 {
 }
 
 void
-Museek::PeerManager::unlisten()
+newsoul::PeerManager::unlisten()
 {
     if(m_Factory.isValid()) {
         m_Factory->serverSocket()->disconnect();
         if (m_Factory->serverSocket()->reactor())
-            m_Museekd->reactor()->remove(m_Factory->serverSocket());
+            m_Newsoul->reactor()->remove(m_Factory->serverSocket());
     }
     m_Factory = 0;
 }
 
 void
-Museek::PeerManager::listen()
+newsoul::PeerManager::listen()
 {
-  uint first = m_Museekd->config()->getUint("clients.bind", "first"),
-       last =  m_Museekd->config()->getUint("clients.bind", "last");
+  uint first = m_Newsoul->config()->getUint("clients.bind", "first"),
+       last =  m_Newsoul->config()->getUint("clients.bind", "last");
 
   if((first == 0) || (first > last))
   {
@@ -79,11 +79,11 @@ Museek::PeerManager::listen()
     m_Factory = new PeerFactory();
     m_Factory->clientAcceptedEvent.connect(this, &PeerManager::onClientAccepted);
 
-    m_Museekd->reactor()->add(m_Factory->serverSocket());
+    m_Newsoul->reactor()->add(m_Factory->serverSocket());
     m_Factory->serverSocket()->listen(port);
     if(m_Factory->serverSocket()->socketState() == NewNet::Socket::SocketListening)
     {
-      onServerLoggedInStateChanged(m_Museekd->server()->loggedIn());
+      onServerLoggedInStateChanged(m_Newsoul->server()->loggedIn());
       NNLOG("newsoul.peers.debug", "Listening for peers on port %i", port);
       return;
     }
@@ -98,7 +98,7 @@ Museek::PeerManager::listen()
   * Returns a peersocket for the given user name.
   */
 void
-Museek::PeerManager::peerSocket(const std::string & user, bool force) {
+newsoul::PeerManager::peerSocket(const std::string & user, bool force) {
     NNLOG("newsoul.peers.debug", "Asking a peersocket for %s", user.c_str());
 
     // Check if this user is already registered.
@@ -106,8 +106,8 @@ Museek::PeerManager::peerSocket(const std::string & user, bool force) {
     it = m_Peers.find(user);
     if(it == m_Peers.end() || !it->second) {
         // Nope, see if we can open a new peersocket
-        int maxSocket = museekd()->reactor()->maxSocketNo();
-        int currentSockets = museekd()->reactor()->currentSocketNo();
+        int maxSocket = newsoul()->reactor()->maxSocketNo();
+        int currentSockets = newsoul()->reactor()->currentSocketNo();
 
         if (!force && (maxSocket > 0) && (currentSockets > (maxSocket - static_cast<int>(maxSocket*0.5)))) {
             NNLOG("newsoul.peers.warn", "Too many opened peer socket, cannot open a new one with low priority");
@@ -118,7 +118,7 @@ Museek::PeerManager::peerSocket(const std::string & user, bool force) {
         // We can, register the user
         m_Peers[user] = 0;
 
-        if(museekd()->server()->loggedIn()) {
+        if(newsoul()->server()->loggedIn()) {
             std::map<std::string, uint32>::iterator it = m_UserStatus.find(user);
             if (it == m_UserStatus.end()) {
                 NNLOG("newsoul.peers.debug", "No peer socket to %s, requesting status.", user.c_str());
@@ -147,7 +147,7 @@ Museek::PeerManager::peerSocket(const std::string & user, bool force) {
 /**
   * Ask the server to give us the given user existence, status and stats
   */
-void Museek::PeerManager::requestUserData(const std::string& user) {
+void newsoul::PeerManager::requestUserData(const std::string& user) {
     // Tell the server we want to watch this user
     // We don't need to send another SAddUser if we've just sent one
     struct timeval now;
@@ -160,14 +160,14 @@ void Museek::PeerManager::requestUserData(const std::string& user) {
 
         // Let the server know we want to track the status of this user.
         SAddUser msg(user);
-        museekd()->server()->sendMessage(msg.make_network_packet());
+        newsoul()->server()->sendMessage(msg.make_network_packet());
     }
 }
 
 /**
   * Register a peer socket associated with the given user
   */
-void Museek::PeerManager::addPeerSocket(PeerSocket * socket) {
+void newsoul::PeerManager::addPeerSocket(PeerSocket * socket) {
     if(socket->user() == std::string()) {
         NNLOG("newsoul.peers.warn", "Cannot add a peer socket with no user associated.");
         return;
@@ -175,7 +175,7 @@ void Museek::PeerManager::addPeerSocket(PeerSocket * socket) {
 
     NNLOG("newsoul.peers.debug", "Adding peer socket for %s", socket->user().c_str());
 
-    bool isOurself = (socket->user() == museekd()->server()->username());
+    bool isOurself = (socket->user() == newsoul()->server()->username());
 
     // Disconnect and remove any existing peer socket for this user except if we're connecting to ourself
     if (!isOurself)
@@ -197,7 +197,7 @@ void Museek::PeerManager::addPeerSocket(PeerSocket * socket) {
 /**
   * Remove a peer socket associated with the given user if found. If disconnect is set to true, the peer socket will be disconnected first.
   */
-void Museek::PeerManager::removePeerSocket(const std::string & user, bool disconnect) {
+void newsoul::PeerManager::removePeerSocket(const std::string & user, bool disconnect) {
     std::map<std::string, NewNet::WeakRefPtr<PeerSocket> >::iterator it;
     it = m_Peers.find(user);
     if (it != m_Peers.end()) {
@@ -212,7 +212,7 @@ void Museek::PeerManager::removePeerSocket(const std::string & user, bool discon
     The status of a user has changed
 */
 void
-Museek::PeerManager::onServerUserStatusReceived(const SGetStatus * message)
+newsoul::PeerManager::onServerUserStatusReceived(const SGetStatus * message)
 {
     setUserStatus(message->user, message->status); // Store status for future ifaces
 
@@ -233,7 +233,7 @@ Museek::PeerManager::onServerUserStatusReceived(const SGetStatus * message)
   *  Set the status of an user
   */
 void
-Museek::PeerManager::setUserStatus(const std::string& user, uint32 status)
+newsoul::PeerManager::setUserStatus(const std::string& user, uint32 status)
 {
     m_UserStatus[user] = status; // Store status for future ifaces
 }
@@ -242,7 +242,7 @@ Museek::PeerManager::setUserStatus(const std::string& user, uint32 status)
   * Create a peer socket for the given user. You shouldn't call this directly, call peerSocket() first.
   */
 void
-Museek::PeerManager::createPeerSocket(const std::string& user) {
+newsoul::PeerManager::createPeerSocket(const std::string& user) {
     // Only create a peer socket if we asked for it earlier
     std::map<std::string, NewNet::WeakRefPtr<PeerSocket> >::iterator it;
     it = m_Peers.find(user);
@@ -251,11 +251,11 @@ Museek::PeerManager::createPeerSocket(const std::string& user) {
         PeerSocket * socket = m_Peers[user];
         if(! socket) {
             // Nope. Create a new one.
-            socket = new PeerSocket(museekd());
+            socket = new PeerSocket(newsoul());
             socket->setUser(user);
             addPeerSocket(socket);
-            museekd()->reactor()->add(socket);
-            if (user == museekd()->server()->username())
+            newsoul()->reactor()->add(socket);
+            if (user == newsoul()->server()->username())
                 socket->initiateOurself();
             else
                 socket->initiate(user);
@@ -267,7 +267,7 @@ Museek::PeerManager::createPeerSocket(const std::string& user) {
   * We have received stats of an user
   */
 void
-Museek::PeerManager::onServerAddUserReceived(const SAddUser * message)
+newsoul::PeerManager::onServerAddUserReceived(const SAddUser * message)
 {
     if (!message->exists)
         return;
@@ -294,7 +294,7 @@ Museek::PeerManager::onServerAddUserReceived(const SAddUser * message)
 /**
   * Returns true if the given user is known to be online by newsoul. If the user is offline or is not known by us, returns false.
   */
-bool Museek::PeerManager::isUserConnected(const std::string& user) {
+bool newsoul::PeerManager::isUserConnected(const std::string& user) {
     std::map<std::string, uint32>::iterator it = m_UserStatus.find(user);
     if (it == m_UserStatus.end())
         return false;
@@ -306,7 +306,7 @@ bool Museek::PeerManager::isUserConnected(const std::string& user) {
     Called when the connection cannot be made with the peer.
 */
 void
-Museek::PeerManager::onPeerCannotConnect(NewNet::ClientSocket * socket_)
+newsoul::PeerManager::onPeerCannotConnect(NewNet::ClientSocket * socket_)
 {
 	NNLOG("newsoul.peers.debug", "Cannot connect to the peer");
     // Cast the socket to a peer socket.
@@ -323,17 +323,17 @@ Museek::PeerManager::onPeerCannotConnect(NewNet::ClientSocket * socket_)
     Called when the connection cannot be made with ourself (actively 127.0.0.1:listenport).
 */
 void
-Museek::PeerManager::onCannotConnectOurself(NewNet::ClientSocket * socket_) {
+newsoul::PeerManager::onCannotConnectOurself(NewNet::ClientSocket * socket_) {
     // Could't connect actively, try the standard way (which needs reverse NAT)
     PeerSocket * socket = (PeerSocket *)socket_;
     if (socket) {
         socket->stopConnectOurself();
-        socket->initiate(museekd()->server()->username());
+        socket->initiate(newsoul()->server()->username());
     }
 }
 
 void
-Museek::PeerManager::onCannotConnectNotify(const SCannotConnect * msg) {
+newsoul::PeerManager::onCannotConnectNotify(const SCannotConnect * msg) {
 	NNLOG("newsoul.peers.debug", "Cannot connect to the peer %s", msg->user.c_str());
 
     peerSocketUnavailableEvent(msg->user);
@@ -343,7 +343,7 @@ Museek::PeerManager::onCannotConnectNotify(const SCannotConnect * msg) {
     Called when a peer socket gets disconnected
 */
 void
-Museek::PeerManager::onDisconnected(NewNet::ClientSocket * socket_)
+newsoul::PeerManager::onDisconnected(NewNet::ClientSocket * socket_)
 {
 	NNLOG("newsoul.peers.debug", "Peer socket disconnected");
 
@@ -357,7 +357,7 @@ Museek::PeerManager::onDisconnected(NewNet::ClientSocket * socket_)
 }
 
 void
-Museek::PeerManager::onConnected(NewNet::ClientSocket * socket_)
+newsoul::PeerManager::onConnected(NewNet::ClientSocket * socket_)
 {
     // Cast the socket to a peer socket.
     PeerSocket * socket = (PeerSocket *)socket_;
@@ -365,22 +365,13 @@ Museek::PeerManager::onConnected(NewNet::ClientSocket * socket_)
 }
 
 void
-Museek::PeerManager::onClientAccepted(Museek::HandshakeSocket * socket)
+newsoul::PeerManager::onClientAccepted(newsoul::HandshakeSocket * socket)
 {
-  socket->setMuseekd(m_Museekd);
+  socket->setNewsoul(m_Newsoul);
 }
 
 void
-Museek::PeerManager::onConfigKeySet(const Museek::ConfigManager::ChangeNotify * data)
-{
-  if(data->domain == "clients.bind")
-  {
-    listen();
-  }
-}
-
-void
-Museek::PeerManager::onConfigKeyRemoved(const Museek::ConfigManager::RemoveNotify * data)
+newsoul::PeerManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
 {
   if(data->domain == "clients.bind")
   {
@@ -389,39 +380,48 @@ Museek::PeerManager::onConfigKeyRemoved(const Museek::ConfigManager::RemoveNotif
 }
 
 void
-Museek::PeerManager::onServerLoggedInStateChanged(bool loggedIn)
+newsoul::PeerManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
+{
+  if(data->domain == "clients.bind")
+  {
+    listen();
+  }
+}
+
+void
+newsoul::PeerManager::onServerLoggedInStateChanged(bool loggedIn)
 {
   if(loggedIn)
   {
     uint port = m_Factory ? m_Factory->serverSocket()->listenPort() : 0;
-    m_Museekd->server()->sendMessage(SSetListenPort(port).make_network_packet());
+    m_Newsoul->server()->sendMessage(SSetListenPort(port).make_network_packet());
   }
 }
 
 void
-Museek::PeerManager::onServerConnectToPeerRequested(const SConnectToPeer * message)
+newsoul::PeerManager::onServerConnectToPeerRequested(const SConnectToPeer * message)
 {
     if (message->type == "P") {
-        PeerSocket * socket = new PeerSocket(m_Museekd);
+        PeerSocket * socket = new PeerSocket(m_Newsoul);
         socket->setUser(message->user);
         addPeerSocket(socket);
-        m_Museekd->reactor()->add(socket);
+        m_Newsoul->reactor()->add(socket);
         socket->reverseConnect(message->user, message->token, message->ip, message->port);
     }
     else if (message->type == "F") {
-        TicketSocket * socket = new TicketSocket(m_Museekd);
-        m_Museekd->reactor()->add(socket);
+        TicketSocket * socket = new TicketSocket(m_Newsoul);
+        m_Newsoul->reactor()->add(socket);
         socket->reverseConnect(message->user, message->token, message->ip, message->port);
         // There may be some data waiting in the buffer (sent at connection). We have to ask the ticketsocket to check it.
         socket->findTicket();
     }
     else if (message->type == "D") {
         // Create a new DistributedSocket which will copy our descriptor and state.
-        DistributedSocket * socket = new DistributedSocket(m_Museekd);
+        DistributedSocket * socket = new DistributedSocket(m_Newsoul);
         // A potential parent doesn't care about our position
-        if (!museekd()->searches()->isPotentialParent(message->user))
+        if (!newsoul()->searches()->isPotentialParent(message->user))
             socket->sendPosition();
-        m_Museekd->reactor()->add(socket);
+        m_Newsoul->reactor()->add(socket);
         socket->reverseConnect(message->user, message->token, message->ip, message->port);
     }
 }
@@ -430,7 +430,7 @@ Museek::PeerManager::onServerConnectToPeerRequested(const SConnectToPeer * messa
   * Register a usersocket that is waiting for a response from a peer during a passive connection.
   */
 void
-Museek::PeerManager::waitingPassiveConnection(UserSocket * socket) {
+newsoul::PeerManager::waitingPassiveConnection(UserSocket * socket) {
     if (socket && (socket->token() > 0)) {
         m_PassiveConnects[socket->token()] = socket;
     }
@@ -440,7 +440,7 @@ Museek::PeerManager::waitingPassiveConnection(UserSocket * socket) {
   * Unregister a usersocket that is no longer waiting for a response from a peer during a passive connection.
   */
 void
-Museek::PeerManager::removePassiveConnectionWaiting(uint token) {
+newsoul::PeerManager::removePassiveConnectionWaiting(uint token) {
     if (token > 0) {
         std::map<uint, NewNet::RefPtr<UserSocket> >::iterator it;
         it = m_PassiveConnects.find(token);
@@ -450,7 +450,7 @@ Museek::PeerManager::removePassiveConnectionWaiting(uint token) {
 }
 
 void
-Museek::PeerManager::onFirewallPierced(Museek::HandshakeSocket * socket)
+newsoul::PeerManager::onFirewallPierced(newsoul::HandshakeSocket * socket)
 {
     std::map<uint, NewNet::RefPtr<UserSocket> >::iterator it;
     it = m_PassiveConnects.find(socket->token());

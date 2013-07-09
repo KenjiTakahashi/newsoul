@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -20,8 +20,8 @@
 
 #include "downloadsocket.h"
 
-Museek::DownloadSocket::DownloadSocket(Museek::Museekd * museekd, Museek::Download * download)
-              : UserSocket(museekd, "F"), m_Download(download)
+newsoul::DownloadSocket::DownloadSocket(newsoul::Newsoul * newsoul, newsoul::Download * download)
+              : UserSocket(newsoul, "F"), m_Download(download)
 {
     // Connect our data received event.
     dataReceivedEvent.connect(this, &DownloadSocket::onDataReceived);
@@ -30,7 +30,7 @@ Museek::DownloadSocket::DownloadSocket(Museek::Museekd * museekd, Museek::Downlo
     cannotConnectEvent.connect(this, &DownloadSocket::onCannotConnect);
 }
 
-Museek::DownloadSocket::~DownloadSocket()
+newsoul::DownloadSocket::~DownloadSocket()
 {
     NNLOG("newsoul.down.debug", "DownloadSocket destroyed");
     if(m_Output.is_open())
@@ -41,7 +41,7 @@ Museek::DownloadSocket::~DownloadSocket()
     Initiate the download from our side => connect to the peer
 */
 void
-Museek::DownloadSocket::pickUp()
+newsoul::DownloadSocket::pickUp()
 {
     connectedEvent.connect(this, &DownloadSocket::onConnected);
 
@@ -54,11 +54,11 @@ Museek::DownloadSocket::pickUp()
     Our connection is successful, send ticket and position.
 */
 void
-Museek::DownloadSocket::onConnected(NewNet::ClientSocket *)
+newsoul::DownloadSocket::onConnected(NewNet::ClientSocket *)
 {
     m_Download->setState(TS_Transferring);
 
-    m_DataTimeout = museekd()->reactor()->addTimeout(120000, this, &DownloadSocket::dataTimeout);
+    m_DataTimeout = newsoul()->reactor()->addTimeout(120000, this, &DownloadSocket::dataTimeout);
 
     // The send buffer (will hold ticket + offset)
     unsigned char buf[12];
@@ -83,7 +83,7 @@ Museek::DownloadSocket::onConnected(NewNet::ClientSocket *)
     We got disconnected
 */
 void
-Museek::DownloadSocket::onDisconnected(ClientSocket *)
+newsoul::DownloadSocket::onDisconnected(ClientSocket *)
 {
 	NNLOG("newsoul.down.debug", "DownloadSocket disconnected");
 
@@ -100,7 +100,7 @@ Museek::DownloadSocket::onDisconnected(ClientSocket *)
     Called when the connection cannot be established
 */
 void
-Museek::DownloadSocket::onCannotConnect(ClientSocket * socket)
+newsoul::DownloadSocket::onCannotConnect(ClientSocket * socket)
 {
 	disconnect();
 }
@@ -109,18 +109,18 @@ Museek::DownloadSocket::onCannotConnect(ClientSocket * socket)
     Wait for the uploader to send us our ticket
 */
 void
-Museek::DownloadSocket::wait()
+newsoul::DownloadSocket::wait()
 {
     // Wait for an incoming connection (via TicketSocket).
     m_Download->setState(TS_Waiting);
-    museekd()->downloads()->transferTicketReceivedEvent.connect(this, &DownloadSocket::onTransferTicketReceived);
+    newsoul()->downloads()->transferTicketReceivedEvent.connect(this, &DownloadSocket::onTransferTicketReceived);
 }
 
 /*
     Stops the downloading
 */
 void
-Museek::DownloadSocket::stop()
+newsoul::DownloadSocket::stop()
 {
     NNLOG("newsoul.down.debug", "Disconnecting download socket...");
     disconnect();
@@ -130,7 +130,7 @@ Museek::DownloadSocket::stop()
     We have received the ticket, we can start downloading
 */
 void
-Museek::DownloadSocket::onTransferTicketReceived(TicketSocket * socket)
+newsoul::DownloadSocket::onTransferTicketReceived(TicketSocket * socket)
 {
     if((m_Download->state() == TS_Waiting) && (m_Download->ticket() == socket->ticket()) && (m_Download->user() == socket->user()))
     {
@@ -161,7 +161,7 @@ Museek::DownloadSocket::onTransferTicketReceived(TicketSocket * socket)
     Open the incomplete file where the data received will be stored.
 */
 bool
-Museek::DownloadSocket::openIncompleteFile()
+newsoul::DownloadSocket::openIncompleteFile()
 {
     // We received data, open the incomplete file if necessary.
     NNLOG("newsoul.down.debug", "Downloading to: %s.", m_Download->incompletePath().c_str());
@@ -184,13 +184,13 @@ Museek::DownloadSocket::openIncompleteFile()
     Some data has been received
 */
 void
-Museek::DownloadSocket::onDataReceived(NewNet::ClientSocket * socket)
+newsoul::DownloadSocket::onDataReceived(NewNet::ClientSocket * socket)
 {
     if (m_Download->state() == TS_Transferring) {
         if (m_DataTimeout.isValid())
-            museekd()->reactor()->removeTimeout(m_DataTimeout);
+            newsoul()->reactor()->removeTimeout(m_DataTimeout);
 
-        m_DataTimeout = museekd()->reactor()->addTimeout(60000, this, &DownloadSocket::dataTimeout);
+        m_DataTimeout = newsoul()->reactor()->addTimeout(60000, this, &DownloadSocket::dataTimeout);
 
         // Write buffer to disk.
         m_Output.write((const char *)receiveBuffer().data(), receiveBuffer().count());
@@ -220,7 +220,7 @@ Museek::DownloadSocket::onDataReceived(NewNet::ClientSocket * socket)
     Call it when the download is complete : move the file from incomplete to complete dir
 */
 void
-Museek::DownloadSocket::finish()
+newsoul::DownloadSocket::finish()
 {
     // Ok, we're done.
     m_Download->setState(TS_Finished);
@@ -303,7 +303,7 @@ Museek::DownloadSocket::finish()
     Called when we don't receive any data in this socket
 */
 void
-Museek::DownloadSocket::dataTimeout(long) {
+newsoul::DownloadSocket::dataTimeout(long) {
     NNLOG("newsoul.down.debug", "Data timeout while downloading.");
     stop();
 }

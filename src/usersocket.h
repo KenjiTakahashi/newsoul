@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,27 +18,27 @@
 
  */
 
-#ifndef MUSEEK_USERSOCKET_H
-#define MUSEEK_USERSOCKET_H
+#ifndef NEWSOUL_USERSOCKET_H
+#define NEWSOUL_USERSOCKET_H
 
 #include "handshakemessages.h"
 #include "handshakesocket.h"
 #include "servermessages.h"
 #include "NewNet/nntcpclientsocket.h"
 
-namespace Museek
+namespace newsoul
 {
   class UserSocket : public NewNet::TcpClientSocket
   {
   public:
-    UserSocket(Museekd * museekd, const std::string & type);
+    UserSocket(Newsoul * newsoul, const std::string & type);
     UserSocket(HandshakeSocket * that, const std::string & type);
     ~UserSocket();
 
     void initiate(const std::string & user);
     void reverseConnect(const std::string & user, uint token, const std::string & ip, uint port);
 
-    Museekd * museekd() const { return m_Museekd; }
+    Newsoul * newsoul() const { return m_Newsoul; }
 
     const std::string & type() const { return m_Type; }
 
@@ -63,7 +63,7 @@ namespace Museek
     void onCannotConnectNotify(const SCannotConnect * msg);
 
   private:
-    NewNet::WeakRefPtr<Museekd> m_Museekd;
+    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
     NewNet::WeakRefPtr<NewNet::Event<long>::Callback> m_PassiveConnectTimeout;
 
     std::string m_Type, m_User;
@@ -71,4 +71,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_USERSOCKET_H
+#endif // NEWSOUL_USERSOCKET_H

@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,20 +18,20 @@
 
  */
 
-#ifndef MUSEEK_TICKETSOCKET_H
-#define MUSEEK_TICKETSOCKET_H
+#ifndef NEWSOUL_TICKETSOCKET_H
+#define NEWSOUL_TICKETSOCKET_H
 
 #include "downloadmanager.h"
 #include "uploadmanager.h"
 #include "usersocket.h"
 
-namespace Museek
+namespace newsoul
 {
   class TicketSocket : public UserSocket
   {
   public:
     TicketSocket(HandshakeSocket * that);
-    TicketSocket(Museekd * museekd);
+    TicketSocket(Newsoul * newsoul);
     ~TicketSocket();
     void findTicket();
 
@@ -44,4 +44,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_TICKETSOCKET_H
+#endif // NEWSOUL_TICKETSOCKET_H

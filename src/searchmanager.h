@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -17,8 +17,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
  */
-#ifndef MUSEEK_SEARCHMANAGER_H
-#define MUSEEK_SEARCHMANAGER_H
+#ifndef NEWSOUL_SEARCHMANAGER_H
+#define NEWSOUL_SEARCHMANAGER_H
 
 #include "distributedsocket.h"
 #include "ifacemanager.h"
@@ -28,17 +28,17 @@
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnweakrefptr.h"
 
-namespace Museek
+namespace newsoul
 {
   /* The search manager manages .. searches. */
   class SearchManager : public NewNet::Object
   {
   public:
-    SearchManager(Museekd * museekd);
+    SearchManager(Newsoul * newsoul);
     ~SearchManager();
 
-    /* Return pointer to museekd instance. */
-    Museekd * museekd() const { return m_Museekd; }
+    /* Return pointer to newsoul instance. */
+    Newsoul * newsoul() const { return m_Newsoul; }
 
     uint childDepth();
 
@@ -91,7 +91,7 @@ namespace Museek
     void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
     void onWishlistTimeout(long);
 
-    NewNet::WeakRefPtr<Museekd>                 m_Museekd;          // Ref to the museekd
+    NewNet::WeakRefPtr<Newsoul>                 m_Newsoul;          // Ref to the newsoul
     std::string                                 m_ParentIp;         // The IP address of our parent
     std::string                                 m_BranchRoot;       // Parent of the branch we're in
     uint                                        m_BranchLevel;      // Position in the branch we're in (starting from top)
@@ -110,4 +110,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_SEARCHMANAGER_H
+#endif // NEWSOUL_SEARCHMANAGER_H

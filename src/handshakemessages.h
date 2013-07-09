@@ -1,4 +1,4 @@
-/* Museek - Museek's 'core' library
+/* newsoul - newsoul's 'core' library
  *
  * Copyright (C) 2003-2007 Hyriand <hyriand@thegraveyard.org>
  * Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
@@ -18,8 +18,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MUSEEK_HANDSHAKEMESSAGES_H
-#define MUSEEK_HANDSHAKEMESSAGES_H
+#ifndef NEWSOUL_HANDSHAKEMESSAGES_H
+#define NEWSOUL_HANDSHAKEMESSAGES_H
 
 #include "networkmessage.h"
 
@@ -69,4 +69,4 @@ public:
 	uint32 token;
 };
 
-#endif // MUSEEK_HANDSHAKEMESSAGES_H
+#endif // NEWSOUL_HANDSHAKEMESSAGES_H

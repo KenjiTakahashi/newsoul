@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_SERVERMANAGER_H
-#define MUSEEK_SERVERMANAGER_H
+#ifndef NEWSOUL_SERVERMANAGER_H
+#define NEWSOUL_SERVERMANAGER_H
 
 #include "codesetmanager.h"
 #include "configmanager.h"
@@ -32,12 +32,12 @@
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnweakrefptr.h"
 
-namespace Museek
+namespace newsoul
 {
   class ServerManager : public NewNet::Object
   {
   public:
-    ServerManager(Museekd * museekd);
+    ServerManager(Newsoul * newsoul);
     ~ServerManager();
 
     const std::string & username() const
@@ -45,9 +45,9 @@ namespace Museek
       return m_Username;
     }
 
-    Museekd * museekd() const
+    Newsoul * newsoul() const
     {
-      return m_Museekd;
+      return m_Newsoul;
     }
 
     TcpMessageSocket * socket()
@@ -113,7 +113,7 @@ namespace Museek
     void launchServerTimeTest(long);
     void serverTimeTestFailed(long);
 
-    NewNet::WeakRefPtr<Museekd> m_Museekd;
+    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
 
     std::string m_Username, m_Password;
 
@@ -130,4 +130,4 @@ namespace Museek
   };
 }
 
-#endif // MUSEEK_SERVERMANAGER_H
+#endif // NEWSOUL_SERVERMANAGER_H

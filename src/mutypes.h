@@ -1,4 +1,4 @@
-/*  Museek - A SoulSeek client written in C++
+/*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
 
@@ -18,8 +18,8 @@
 
  */
 
-#ifndef MUSEEK_MUTYPES_H
-#define MUSEEK_MUTYPES_H
+#ifndef NEWSOUL_MUTYPES_H
+#define NEWSOUL_MUTYPES_H
 
 #include <map>
 #include <string>
@@ -97,4 +97,4 @@ typedef std::map<std::string, UserData> RoomData;
 typedef std::map<std::string, std::vector<std::string> > PrivRoomOperators;
 typedef std::map<std::string, std::string> PrivRoomOwners;
 
-#endif // MUSEEK_MUTYPES_H
+#endif // NEWSOUL_MUTYPES_H
