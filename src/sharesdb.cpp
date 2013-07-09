@@ -18,7 +18,8 @@
 
 #include "sharesdb.h"
 
-newsoul::SharesDB::SharesDB(Museek::Museekd *museekd, const std::string &fn) : dirsdb(NULL, DB_CXX_NO_EXCEPTIONS), attrdb(NULL, DB_CXX_NO_EXCEPTIONS), app(museekd) {
+newsoul::SharesDB::SharesDB(const std::string &fn, std::function<void(void)> func) : dirsdb(NULL, DB_CXX_NO_EXCEPTIONS), attrdb(NULL, DB_CXX_NO_EXCEPTIONS) {
+    this->updateApp = func;
     std::string dfn = path::join({fn, "dirs.db"});
     std::string afn = path::join({fn, "attr.db"});
     this->dirsdb.set_flags(DB_DUPSORT);
@@ -217,7 +218,7 @@ void newsoul::SharesDB::handleFileAction(efsw::WatchID wid, const std::string &d
     }
 
     this->compress();
-    app->sendSharedNumber();
+    this->updateApp();
 }
 
 FileEntry newsoul::SharesDB::getAttrs(const std::string &fn) {

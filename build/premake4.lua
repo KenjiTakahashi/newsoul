@@ -31,6 +31,14 @@ newaction {
             manpath = path.join(prefix, "share/man/man1")
             os.mkdir(manpath)
             os.copyfile("../src/newsoul.1", manpath)
+            print("Installing config template")
+            tmplpath = path.join(prefix, "share/newsoul")
+            os.mkdir(tmplpath)
+            os.copyfile("../src/config.xml.tmpl", tmplpath)
+            print("Installing systemd service file")
+            syspath = path.join(prefix, "lib/systemd/system")
+            os.mkdir(syspath)
+            os.copyfile("../scripts/newsoul@.service", syspath)
         end
     end
 }

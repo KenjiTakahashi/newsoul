@@ -26,15 +26,10 @@
 #include <taglib/fileref.h>
 #include <vector>
 #include <zlib.h>
-#include "newsoul.h"
+#include "servermessages.h"
 #include "utils/path.h"
 #include "utils/string.h"
 #include "efsw/include/efsw/efsw.hpp"
-#include "NewNet/nnweakrefptr.h"
-
-namespace Museek { //FIXME: remove it once we move to new ns
-    class Museekd;
-}
 
 typedef struct FILEENTRY {
     uint64_t size;
@@ -66,7 +61,8 @@ namespace newsoul {
          * where values are corresponding with these in FileEntry structure.
          */
         Db attrdb;
-        NewNet::WeakRefPtr<Museek::Museekd> app;
+        //FIXME: This is silly and will have to go.
+        std::function<void(void)> updateApp;
         std::vector<unsigned char> compressed;
 
         FileEntry getAttrs(const std::string &fn);
@@ -79,7 +75,7 @@ namespace newsoul {
         void compress();
 
     public:
-        SharesDB(Museek::Museekd *museekd, const std::string &fn);
+        SharesDB(const std::string &fn, std::function<void(void)> func);
         ~SharesDB();
 
         void handleFileAction(efsw::WatchID wid, const std::string &dir, const std::string &fn, efsw::Action action, std::string oldFn);

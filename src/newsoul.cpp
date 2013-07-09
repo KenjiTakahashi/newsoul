@@ -48,11 +48,11 @@ Museek::Museekd::Museekd(NewNet::Reactor * reactor) : m_Reactor(reactor)
 void Museek::Museekd::LoadShares() {
     std::string shares = m_Config->get("shares", "database");
     if (!shares.empty()) {
-        m_Shares = new SharesDB(this, shares);
+        m_Shares = new SharesDB(shares, [this]{this->sendSharedNumber();});
     }
     std::string bshares = m_Config->get("buddy.shares", "database");
     if (!bshares.empty() && haveBuddyShares()) {
-        m_BuddyShares = new SharesDB(this, bshares);
+        m_BuddyShares = new SharesDB(bshares, [this]{this->sendSharedNumber();});
     }
 }
 
@@ -137,14 +137,13 @@ void Museek::Museekd::setPrivilegedUsers(const std::vector<std::string> & users)
 }
 
 void Museek::Museekd::sendSharedNumber() {
-    unsigned int numFiles = m_Shares->filesCount();
-    unsigned int numFolders = m_Shares->dirsCount();
-    if (numFiles == 0) {
-        numFiles = m_BuddyShares->filesCount();
-        numFolders = m_BuddyShares->dirsCount();
-    }
-
-	if  (server()->loggedIn()) {
+	if(server()->loggedIn()) {
+        unsigned int numFiles = m_Shares->filesCount();
+        unsigned int numFolders = m_Shares->dirsCount();
+        if(haveBuddyShares()) {
+            numFiles += m_BuddyShares->filesCount();
+            numFolders += m_BuddyShares->dirsCount();
+        }
 	    SSharedFoldersFiles msg(numFolders, numFiles);
 	    server()->sendMessage(msg.make_network_packet());
 	}

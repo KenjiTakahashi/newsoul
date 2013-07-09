@@ -22,10 +22,6 @@
 #ifndef MUSEEK_MUSEEKD_H
 #define MUSEEK_MUSEEKD_H
 
-namespace newsoul {
-    class SharesDB;
-}
-
 #include <string>
 #include "sharesdb.h"
 #include "servermessages.h"
