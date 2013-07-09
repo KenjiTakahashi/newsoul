@@ -7,3 +7,7 @@ This file tracks changes since the last Museek+ svn trunk revision.
 -muscan uses newsoul's configmanager (drops whole libxml++ dependency chain).
 -Added systemd service file, but removed SysV one.
 -Made some minor fixes.
+
+0.2:
+-Moved to premake4 (it will stay for now).
+-Dropped libogg/libvorbis+custom code in favour of taglib.

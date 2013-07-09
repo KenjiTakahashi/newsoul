@@ -2,10 +2,11 @@
 *.swp
 *.a
 *.o
-.tup/
-src/nsscan/nsscan
 src/newsoul
 .td
 src/efsw/lib
 src/efsw/make
 src/efsw/obj
+build/*.make
+build/Makefile
+build/*/

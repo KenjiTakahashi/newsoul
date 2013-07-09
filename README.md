@@ -1,6 +1,6 @@
 **newsoul** is a daemon/server based [Soulseek](http://www.slsknet.org) client, a successor of Museek+.
 
-It is basicaly my attempt to resurrect Museek+, which development ceased few years ago.
+It is basically my attempt to resurrect Museek+, which development ceased few years ago.
 
 This is *only* the daemon/server part, no clients (besides CLI) are developed here.
 
@@ -8,21 +8,20 @@ This is *only* the daemon/server part, no clients (besides CLI) are developed he
 
 * libxml2
 * libevent
-* libvorbis
+* taglib
 * nettle
-* tup (for compilation)
+* premake4 (for compilation)
 * python2.x (for bindings and some misc utils)
 * pycrypto (for bindings and some misc utils)
 
 ## installation
 
-There is no installation script at this time, so you have to something like
 ```sh
-$ ./build
-# cp src/newsoul /usr/bin
-# cp src/nsscan/nsscan /usr/bin
+$ cd build
+$ premake4 gmake  # see premake4 --help for other options
+$ make
+# premake4 install
 ```
-**Note:** There are also manpages you might want to copy over. Some of them might be a bit outdated, though.
 
 ## usage
 
