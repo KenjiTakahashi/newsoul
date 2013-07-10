@@ -19,9 +19,10 @@
 
  */
 
-#ifndef NEWSOUL_NEWSOUL_H
-#define NEWSOUL_NEWSOUL_H
+#ifndef __NEWSOUL_NEWSOUL_H__
+#define __NEWSOUL_NEWSOUL_H__
 
+#include <signal.h>
 #include <string>
 #include "sharesdb.h"
 #include "servermessages.h"
@@ -30,133 +31,124 @@
 
 namespace newsoul
 {
-  /* Forward definitions for classes we use for the class definition. */
-  class ConfigManager;
-  class CodesetManager;
-  class ServerManager;
-  class PeerManager;
-  class DownloadManager;
-  class UploadManager;
-  class SearchManager;
-  class IfaceManager;
+    /* Forward definitions for classes we use for the class definition. */
+    class ConfigManager;
+    class CodesetManager;
+    class ServerManager;
+    class PeerManager;
+    class DownloadManager;
+    class UploadManager;
+    class SearchManager;
+    class IfaceManager;
 
-  class Newsoul : public NewNet::Object
-  {
-  public:
-    Newsoul(NewNet::Reactor * reactor = 0);
-    ~Newsoul();
+    class Newsoul : public NewNet::Object {
+        /* Our strong references to the various components. */
+        NewNet::RefPtr<NewNet::Reactor> m_Reactor;
+        NewNet::RefPtr<ConfigManager> m_Config;
+        NewNet::RefPtr<CodesetManager> m_Codeset;
+        NewNet::RefPtr<ServerManager> m_Server;
+        NewNet::RefPtr<PeerManager> m_Peers;
+        NewNet::RefPtr<DownloadManager> m_Downloads;
+        NewNet::RefPtr<UploadManager> m_Uploads;
+        NewNet::RefPtr<IfaceManager> m_Ifaces;
+        SharesDB *m_Shares, *m_BuddyShares;
+        NewNet::RefPtr<SearchManager> m_Searches;
+        static Newsoul *_instance;
 
-    /* Generate the next unique (within this session) token. Used for
-       identifying peer sockets and transfers. */
-    int token()
-    {
-      return ++m_Token;
-    }
+        int m_Token;
 
-    /* Return a pointer to the reactor. */
-    NewNet::Reactor * reactor() const
-    {
-      return m_Reactor;
-    }
+        std::vector<std::string> mPrivilegedUsers;
 
-    /* Return a pointer to the config manager. */
-    ConfigManager * config() const
-    {
-      return m_Config;
-    }
+        static void handleSignals(int signal);
 
-    /* Return a pointer to the codeset manager (codeset translator). */
-    CodesetManager * codeset() const
-    {
-      return m_Codeset;
-    }
+    public:
+        Newsoul(const std::string &configPath="", bool debug=false);
+        ~Newsoul();
 
-    /* Return a pointer to the server manager (connection to the soulseek
-       server). */
-    ServerManager * server() const
-    {
-      return m_Server;
-    }
+        int run(int argc, char *argv[]);
 
-    /* Return a pointer to the peer manager (handles incoming connections
-       and passive / reverse connection requests. */
-    PeerManager * peers() const
-    {
-      return m_Peers;
-    }
+        /* Generate the next unique (within this session) token. Used for
+           identifying peer sockets and transfers. */
+        int token() {
+            return ++m_Token;
+        }
 
-    /* Return a pointer to the download manager. */
-    DownloadManager * downloads() const
-    {
-      return m_Downloads;
-    }
+        /* Return a pointer to the reactor. */
+        NewNet::Reactor *reactor() const {
+            return m_Reactor;
+        }
 
-    /* Return a pointer to the upload manager. */
-    UploadManager * uploads() const
-    {
-      return m_Uploads;
-    }
+        /* Return a pointer to the config manager. */
+        ConfigManager *config() const {
+            return m_Config;
+        }
 
-    /* Return a pointer to the interface manager. */
-    IfaceManager * ifaces() const
-    {
-      return m_Ifaces;
-    }
+        /* Return a pointer to the codeset manager (codeset translator). */
+        CodesetManager *codeset() const {
+            return m_Codeset;
+        }
 
-    SharesDB *shares() const
-    {
-      return m_Shares;
-    }
+        /* Return a pointer to the server manager (connection to the soulseek
+           server). */
+        ServerManager *server() const {
+            return m_Server;
+        }
 
-    SharesDB *buddyshares() const
-    {
-      return m_BuddyShares;
-    }
+        /* Return a pointer to the peer manager (handles incoming connections
+           and passive / reverse connection requests. */
+        PeerManager *peers() const {
+            return m_Peers;
+        }
 
-    SearchManager * searches() const
-    {
-      return m_Searches;
-    }
+        /* Return a pointer to the download manager. */
+        DownloadManager *downloads() const {
+            return m_Downloads;
+        }
 
-    void LoadShares();
-    void LoadDownloads();
+        /* Return a pointer to the upload manager. */
+        UploadManager *uploads() const {
+            return m_Uploads;
+        }
 
-    bool isBanned(const std::string u);
-    bool isIgnored(const std::string u);
-    bool isTrusted(const std::string u);
-    bool isBuddied(const std::string u);
-    bool isPrivileged(const std::string u);
-    bool toBuddiesOnly();
-    bool haveBuddyShares();
-    bool trustingUploads();
-    bool autoClearFinishedDownloads();
-    bool autoClearFinishedUploads();
-    bool autoRetryDownloads();
-    bool privilegeBuddies();
-    uint upSlots();
-    uint downSlots();
-    void addPrivilegedUser(const std::string & user);
-    void setPrivilegedUsers(const std::vector<std::string> & users);
-    void sendSharedNumber();
-    bool isEnabledPrivRoom();
+        /* Return a pointer to the interface manager. */
+        IfaceManager * ifaces() const {
+            return m_Ifaces;
+        }
 
-  private:
-    /* Our strong references to the various components. */
-    NewNet::RefPtr<NewNet::Reactor> m_Reactor;
-    NewNet::RefPtr<ConfigManager> m_Config;
-    NewNet::RefPtr<CodesetManager> m_Codeset;
-    NewNet::RefPtr<ServerManager> m_Server;
-    NewNet::RefPtr<PeerManager> m_Peers;
-    NewNet::RefPtr<DownloadManager> m_Downloads;
-    NewNet::RefPtr<UploadManager> m_Uploads;
-    NewNet::RefPtr<IfaceManager> m_Ifaces;
-    SharesDB *m_Shares, *m_BuddyShares;
-    NewNet::RefPtr<SearchManager> m_Searches;
+        SharesDB *shares() const {
+            return m_Shares;
+        }
 
-    int m_Token;
+        SharesDB *buddyshares() const {
+            return m_BuddyShares;
+        }
 
-    std::vector<std::string> mPrivilegedUsers; // The list of privileged users
-  };
+        SearchManager *searches() const {
+            return m_Searches;
+        }
+
+        void LoadShares();
+        void LoadDownloads();
+
+        bool isBanned(const std::string u);
+        bool isIgnored(const std::string u);
+        bool isTrusted(const std::string u);
+        bool isBuddied(const std::string u);
+        bool isPrivileged(const std::string u);
+        bool toBuddiesOnly();
+        bool haveBuddyShares();
+        bool trustingUploads();
+        bool autoClearFinishedDownloads();
+        bool autoClearFinishedUploads();
+        bool autoRetryDownloads();
+        bool privilegeBuddies();
+        uint upSlots();
+        uint downSlots();
+        void addPrivilegedUser(const std::string &user);
+        void setPrivilegedUsers(const std::vector<std::string> &users);
+        void sendSharedNumber();
+        bool isEnabledPrivRoom();
+    };
 }
 
-#endif // NEWSOUL_NEWSOUL_H
+#endif // __NEWSOUL_NEWSOUL_H__

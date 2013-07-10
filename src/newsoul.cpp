@@ -22,27 +22,48 @@
 #include "newsoul.h"
 #include "searchmanager.h"
 
-newsoul::Newsoul::Newsoul(NewNet::Reactor * reactor) : m_Reactor(reactor)
-{
-  /* Seed the random generator and fabricate our starting token. */
-  srand(time(NULL));
-  m_Token = rand();
+newsoul::Newsoul *newsoul::Newsoul::_instance = 0; // Yeah, right
 
-  /* Did we get a reactor? No? Create one. */
-  if(! reactor)
-  {
+newsoul::Newsoul::Newsoul(const std::string &configPath, bool debug) {
+    /* Seed the random generator and fabricate our starting token. */
+    srand(time(NULL));
+    m_Token = rand();
+
     m_Reactor = new NewNet::Reactor();
-  }
 
-  /* Instantiate the various components. Order can be important here. */
-  m_Config = new ConfigManager();
-  m_Codeset = new CodesetManager(this);
-  m_Server = new ServerManager(this);
-  m_Peers = new PeerManager(this);
-  m_Downloads = new DownloadManager(this);
-  m_Uploads = new UploadManager(this);
-  m_Ifaces = new IfaceManager(this);
-  m_Searches = new SearchManager(this);
+    /* Instantiate the various components. Order can be important here. */
+    m_Config = new ConfigManager();
+    m_Codeset = new CodesetManager(this);
+    m_Server = new ServerManager(this);
+    m_Peers = new PeerManager(this);
+    m_Downloads = new DownloadManager(this);
+    m_Uploads = new UploadManager(this);
+    m_Ifaces = new IfaceManager(this);
+    m_Searches = new SearchManager(this);
+
+    if(!this->m_Config->load(configPath)) {
+        NNLOG("newsoul.config.warn", "Failed to load configuration");
+    }
+    if(!this->m_Config->getBool("newsoul.debug", "ALL") && !debug) {
+        NNLOG.disable("ALL");
+    }
+
+    this->LoadShares();
+    this->LoadDownloads();
+    _instance = this;
+}
+
+int newsoul::Newsoul::run(int argc, char *argv[]) {
+#ifndef _WIN32
+    signal(SIGHUP, &handleSignals);
+    signal(SIGALRM, &handleSignals);
+#endif
+    signal(SIGINT, &handleSignals);
+
+    this->m_Server->connect();
+    this->m_Reactor->run();
+    this->m_Downloads->saveDownloads();
+    return 0;
 }
 
 void newsoul::Newsoul::LoadShares() {
@@ -151,4 +172,27 @@ void newsoul::Newsoul::sendSharedNumber() {
 
 bool newsoul::Newsoul::isEnabledPrivRoom() {
     return config()->getBool("priv_rooms", "enable_priv_room", false);
+}
+
+void newsoul::Newsoul::handleSignals(int signal) {
+    if(signal == SIGINT) {
+        NNLOG("newsoul.debug", "Got %i, stopping the reactor.", signal);
+        _instance->m_Reactor->stop();
+#ifndef _WIN32
+    } else if(signal == SIGHUP) {
+        NNLOG("newsoul.debug", "Got %i, reloading shares.", signal);
+        _instance->LoadShares();
+    } else if(signal == SIGALRM) {
+        NNLOG("newsoul.debug", "Got %i, reconnecting.", signal);
+        if(!_instance->m_Server->loggedIn()) {
+            _instance->m_Server->connect();
+        }
+#endif
+    }
+
+#ifndef _WIN32
+    ::signal(SIGHUP, &handleSignals);
+    ::signal(SIGALRM, &handleSignals);
+#endif
+    ::signal(SIGINT, &handleSignals);
 }

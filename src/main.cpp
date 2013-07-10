@@ -1,6 +1,7 @@
 /*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2013
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,9 +22,6 @@
 #include "newsoul.h"
 #include "ifacemanager.h"
 #include <signal.h>
-
-/* Global reference to the newsoul instance. */
-static NewNet::RefPtr<newsoul::Newsoul> app;
 
 /* Returns 0 if newsoul is already running, 1 otherwise. */
 int get_lock(void)
@@ -48,81 +46,14 @@ int get_lock(void)
   return 1;
 }
 
-/* Our signal handler, stop the reactor if we receive a HUP or INT signal. */
-static void newsoul_signal_handler(int signal)
-{
-    if (signal == SIGINT) {
-        NNLOG("newsoul.debug", "Trapped signal %i. Stopping the reactor.", signal);
-        app->reactor()->stop();
-    }
-#ifndef WIN32
-    else if (signal == SIGHUP) {
-        NNLOG("newsoul.debug", "Trapped signal %i. Reloading shares.", signal);
-        app->LoadShares();
-    }
-    else if (signal == SIGALRM) {
-        NNLOG("newsoul.debug", "Trapped signal %i. Trying to reconnect to server.", signal);
-        if (!app->server()->loggedIn())
-            app->server()->connect();
-    }
-#endif // WIN32
-
-
-  /* Reconnect signal handlers for HUP, ALRM and INT signals.
-     Some Unix disconnect signals after each call */
-#ifndef WIN32
-  ::signal(SIGHUP, &newsoul_signal_handler);
-  ::signal(SIGALRM, &newsoul_signal_handler);
-#endif // WIN32
-  ::signal(SIGINT, &newsoul_signal_handler);
-}
-
-/* Timeout callback to connect to the server. Not really required, could
-   call connect() directly from main() but it can be useful for debugging
-   purposes. */
-class AutoConnectCallback : public NewNet::Reactor::Timeout::Callback
-{
-public:
-  virtual void operator()(long)
-  {
-    app->server()->connect();
-  }
-};
-
-class KeySetCallback : public NewNet::Event<const newsoul::ConfigManager::ChangeNotify *>::Callback
-{
-public:
-  virtual void operator()(const newsoul::ConfigManager::ChangeNotify * notice)
-  {
-    if(notice->domain == "newsoul.debug")
-    {
-      if(app->config()->getBool(notice->domain, notice->key))
-        NNLOG.enable(notice->key);
-      else
-        NNLOG.disable(notice->key);
-    }
-  }
-};
-
-class KeyRemovedCallback : public NewNet::Event<const newsoul::ConfigManager::RemoveNotify *>::Callback
-{
-public:
-  virtual void operator()(const newsoul::ConfigManager::RemoveNotify * notice)
-  {
-    if(notice->domain == "newsoul.debug")
-      NNLOG.disable(notice->key);
-  }
-};
-
-int main(int argc, char ** argv)
-{
+int main(int argc, char *argv[]) {
   if(!get_lock())
   {
     std::cerr << "newsoul already running!" << std::endl;
     return 1;
   }
 
-  std::string version("newsoul :: Version 0.3.0 :: newsoul Daemon Plus");
+  std::string version("newsoul :: Version 0.3.0");
 
 #ifndef WIN32
   /* Load the configuration from ~/.newsoul/config.xml. */
@@ -178,39 +109,8 @@ int main(int argc, char ** argv)
   }
 
   /* Create our newsoul Daemon instance. */
-  app = new newsoul::Newsoul();
-
-  /* Connect our config watchers. */
-  app->config()->keySetEvent.connect(new KeySetCallback);
-  app->config()->keyRemovedEvent.connect(new KeyRemovedCallback);
-
-  if(!app->config()->load(configPath))
-  {
-    NNLOG("newsoul.config.warn", "Failed to load configuration, bailing out.");
-    return -1;
-  }
-
-  /* Disable the debug override. */
-  if(!app->config()->getBool("newsoul.debug", "ALL") && !fullDebug)
-    NNLOG.disable("ALL");
-
-  /* Load the shares database. */
-  app->LoadShares();
-  app->LoadDownloads();
-
-  /* Connect signal handlers for HUP, ALRM and INT signals. */
-#ifndef WIN32
-  signal(SIGHUP, &newsoul_signal_handler);
-  signal(SIGALRM, &newsoul_signal_handler);
-#endif // WIN32
-  signal(SIGINT, &newsoul_signal_handler);
-
-  /* Add a timeout callback: Wait 5 seconds, then connect to the server. */
-  app->reactor()->addTimeout(5000, new AutoConnectCallback);
-
-  /* Start the reactor. This drives the daemon. */
-  app->reactor()->run();
-  app->downloads()->saveDownloads();
-
-  return 0;
+  newsoul::Newsoul *app = new newsoul::Newsoul(configPath, fullDebug);
+  int ret = app->run(argc, argv);
+  delete app;
+  return ret;
 }
