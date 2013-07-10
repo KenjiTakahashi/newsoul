@@ -30,6 +30,7 @@
 #include "sharesdb.h"
 #include "ticketsocket.h"
 #include "util.h"
+#include "utils/os.h"
 #include "utils/string.h"
 #include "NewNet/nnobject.h"
 #include "NewNet/nnweakrefptr.h"

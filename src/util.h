@@ -35,39 +35,6 @@
 #include "utils/string.h"
 #include "NewNet/nnpath.h"
 
-/* Make sure a directory exists by creating all the pieces from the ground
-   up. Returns true if all went ok, false if things went bad. */
-static inline bool makedirs(const std::string & dir)
-{
-  // Split the path into pieces.
-  std::vector<std::string> pieces = NewNet::Path(dir).split(), pieces_;
-  // Iterate over all the pieces.
-  std::vector<std::string>::iterator it, end = pieces.end();
-  for(it = pieces.begin(); it != end; ++it)
-  {
-    // Add piece to our piece vector.
-    pieces_.push_back(*it);
-    // Join them into a full path.
-    std::string path = NewNet::Path(pieces_).path();
-    if(path.empty())
-      continue;
-    // Create the piece of the path.
-#ifndef WIN32
-    if(mkdir(path.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == -1 && errno != EEXIST)
-#else
-    if(mkdir(path.c_str()) == -1 && errno != EEXIST)
-#endif // ! WIN32
-    {
-      // Error and path didn't already exist. Issue a warning.
-      NNLOG("newsoul.user.warn", "Couldn't create directory '%s'.", path.c_str());
-      return false;
-    }
-  }
-
-  // Success.
-  return true;
-}
-
 #ifdef WIN32
 
 #include <shlobj.h>

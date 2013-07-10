@@ -16,25 +16,28 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "path.h"
+#include "os.h"
+#include <iostream>
+#include <cstring>
+#include <errno.h>
 
-std::string path::join(std::initializer_list<std::string> paths) {
-    std::string result;
-    const char sep = os::separator();
-
-    for(const std::string &path : paths) {
-        if(result.empty()) {
-            result = path;
-            continue;
-        }
-        if(result.back() != sep && path.front() != sep) {
-            result += sep + path;
-        } else if(result.back() == sep && path.front() == sep) {
-            result += std::string(path.begin() + 1, path.end());
-        } else {
-            result += path;
-        }
+bool os::mkdir(const std::string &path, bool recursive) {
+    size_t pos = path.rfind(separator());
+    if(recursive && pos != std::string::npos) {
+        const std::string piece = path.substr(0, pos);
+        mkdir(piece);
     }
+    if(::mkdir((path + separator()).c_str(), 0777) == -1 && errno != EEXIST) {
+        std::cout << strerror(errno) << std::endl;
+        return false;
+    }
+    return true;
+}
 
-    return result;
+const char os::separator() {
+#ifndef _WIN32
+    return '/';
+#else
+    return '\\';
+#endif
 }

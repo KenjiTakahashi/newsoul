@@ -27,7 +27,7 @@
 #include <vector>
 #include <zlib.h>
 #include "servermessages.h"
-#include "util.h"
+#include "utils/os.h"
 #include "utils/path.h"
 #include "utils/string.h"
 #include "efsw/include/efsw/efsw.hpp"

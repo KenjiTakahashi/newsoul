@@ -96,7 +96,7 @@ newsoul::Download::incompletePath() const
         incompletedir = ".";
 
     // Make sure the directory exists.
-    makedirs(incompletedir);
+    os::mkdir(incompletedir);
 
     // Build file path: <incompletedir>/incomplete.<filesize>.<filename>
     std::stringstream path;
@@ -126,7 +126,7 @@ newsoul::Download::destinationPath(bool create) const
         path << downloaddir;
         // Add the provided relative path.
         if(! m_LocalDir.empty())
-            path << NewNet::Path::separator() << m_LocalDir;
+            path << os::separator() << m_LocalDir;
     }
     else
         // Use the provided absolute path.
@@ -134,9 +134,9 @@ newsoul::Download::destinationPath(bool create) const
 
     // Make sure the directory exists.
     if (create)
-        makedirs(path.str());
+        os::mkdir(path.str());
 
-    path << NewNet::Path::separator();
+    path << os::separator();
 
     // Add the filename to the directory.
     path << newsoul()->codeset()->fromUtf8ToFS(filename());

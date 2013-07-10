@@ -16,25 +16,20 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "path.h"
+#ifndef __UTILS_OS_H__
+#define __UTILS_OS_H__
 
-std::string path::join(std::initializer_list<std::string> paths) {
-    std::string result;
-    const char sep = os::separator();
+#include <string>
+#ifndef _WIN32
+#include <sys/stat.h>
+#else
+#include <direct.h>
+#define mkdir(path, mode) _mkdir(path)
+#endif
 
-    for(const std::string &path : paths) {
-        if(result.empty()) {
-            result = path;
-            continue;
-        }
-        if(result.back() != sep && path.front() != sep) {
-            result += sep + path;
-        } else if(result.back() == sep && path.front() == sep) {
-            result += std::string(path.begin() + 1, path.end());
-        } else {
-            result += path;
-        }
-    }
-
-    return result;
+namespace os {
+    bool mkdir(const std::string &path, bool recursive=true);
+    const char separator();
 }
+
+#endif // __UTILS_OS_H__

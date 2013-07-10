@@ -21,6 +21,7 @@
 
 #include <initializer_list>
 #include <string>
+#include "os.h"
 
 namespace path {
     /*!
