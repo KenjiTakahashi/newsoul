@@ -55,7 +55,7 @@ function link()
     include()
     links {
         "tag", "z", "event", "nettle", "db_cxx", "xml2",
-        "newsoul-lib", "efsw", "NewNet", "utils"
+        "newsoul-lib", "efsw", "NewNet", "utils", "json-c"
     }
     if os.is("bsd") then
         libdirs {"/usr/local/lib/db5"}
