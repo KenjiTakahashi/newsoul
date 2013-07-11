@@ -180,7 +180,7 @@ newsoul::ConfigManager::updateConfigFile() {
 
         // Switching to the new server
         std::string host = get("server", "host");
-        uint port = getUint("server", "port");
+        unsigned int port = getUint("server", "port");
         if ((host == "server.slsknet.org") && (port != 2242))
             set("server", "port", 2242);
     }

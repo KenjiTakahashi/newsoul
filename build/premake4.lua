@@ -43,12 +43,24 @@ newaction {
     end
 }
 
+function include()
+    if os.is("bsd") then
+        includedirs {"/usr/local/include/libxml2", "/usr/local/include/db5"}
+    else
+        includedirs {"/usr/include/libxml2"}
+    end
+end
+
 function link()
-    includedirs {"/usr/include/libxml2"}
+    include()
     links {
         "tag", "z", "event", "nettle", "db_cxx", "xml2",
         "newsoul-lib", "efsw", "NewNet", "utils"
     }
+    if os.is("bsd") then
+        libdirs {"/usr/local/lib/db5"}
+        links {"iconv"}
+    end
 
     if args_contains("kqueue") then
         links {"kqueue"}
@@ -92,7 +104,7 @@ solution "newsoul"
         targetdir "lib"
         files {"../src/*.cpp"}
         excludes {"../src/main.cpp"}
-        includedirs {"/usr/include/libxml2"}
+        include()
 
     project "utils"
         kind "StaticLib"

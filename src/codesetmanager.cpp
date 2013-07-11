@@ -50,7 +50,11 @@ newsoul::CodesetManager::convert(const std::string & from, const std::string & t
   /* Fetch pointer to the source data. */
   size_t r, in_left, out_left;
   in_left = str.size();
-  const char * inbuf = str.data();
+#ifndef _LIBICONV_H
+  char *inbuf = const_cast<char*>(str.data());
+#else
+  const char *inbuf = str.data();
+#endif
   char * out_ptr = out_buf;
   out_left = buf_len;
 
@@ -60,7 +64,7 @@ newsoul::CodesetManager::convert(const std::string & from, const std::string & t
   while(1)
   {
     /* Try to convert the string. */
-    r = iconv(context, (ICONV_INPUT_TYPE)&inbuf, &in_left, &out_ptr, &out_left);
+    r = iconv(context, &inbuf, &in_left, &out_ptr, &out_left);
     if(r == (size_t)-1) {
         if (errno == E2BIG) { // Output buffer not large enough
             delete [] out_buf;
