@@ -1,0 +1,14 @@
+language: cpp
+compiler:
+  - gcc
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libevent-dev libtag1-dev libxml2-dev nettle-dev libdb-dev premake4
+before_script:
+  - cd build/
+  - premake4 gmake
+  - make
+script: ./bin/newsoul-tests
+branches:
+  only:
+    - master
