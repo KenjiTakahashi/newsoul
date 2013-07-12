@@ -120,7 +120,7 @@ TEST_CASE("set<string>", "[newsoul][Config]") {
         config->set({"key", "str2"}, "s2");
 
         const std::string result = config->getStr({"key", "str2"});
-        
+
         REQUIRE(result == "s2");
     }
 
