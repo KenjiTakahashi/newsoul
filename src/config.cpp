@@ -79,6 +79,40 @@ const std::string newsoul::Config::getStr(std::initializer_list<const std::strin
     return std::string(json_object_get_string(result));
 }
 
+bool newsoul::Config::getBool(std::initializer_list<const std::string> keys) {
+    struct json_object *result = this->get(keys);
+    return json_object_get_boolean(result) == 1 ? true : false;
+}
+
+std::vector<std::string> newsoul::Config::getVec(std::initializer_list<const std::string> keys) {
+    struct json_object *result = this->get(keys);
+    std::vector<std::string> out;
+    if(result == NULL || json_object_get_type(result) != json_type_array) {
+        return out;
+    }
+
+    for(int i = 0; i < json_object_array_length(result); ++i) {
+        out.push_back(json_object_get_string(json_object_array_get_idx(result, i)));
+    }
+
+    return out;
+}
+
+bool newsoul::Config::contains(std::initializer_list<const std::string> keys, const std::string &value) {
+    struct json_object *result = this->get(keys);
+    if(result == NULL || json_object_get_type(result) != json_type_array) {
+        return false;
+    }
+
+    for(int i = 0; i < json_object_array_length(result); ++i) {
+        std::string s(json_object_get_string(json_object_array_get_idx(result, i)));
+        if(s == value) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void newsoul::Config::set(std::initializer_list<const std::string> keys, struct json_object *value) {
     struct json_object *copy = this->json;
     struct json_object *part;

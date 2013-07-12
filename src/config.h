@@ -24,6 +24,7 @@
 #include <json-c/json.h>
 #include <fstream>
 #include <streambuf>
+#include <vector>
 #include "utils/path.h"
 #include "utils/os.h"
 
@@ -47,6 +48,11 @@ namespace newsoul {
 
         int getInt(std::initializer_list<const std::string> keys);
         const std::string getStr(std::initializer_list<const std::string> keys);
+        bool getBool(std::initializer_list<const std::string> keys);
+        std::vector<std::string> getVec(std::initializer_list<const std::string> keys);
+
+        bool contains(std::initializer_list<const std::string> keys, const std::string &value);
+
         void set(std::initializer_list<const std::string> keys, int value);
         void set(std::initializer_list<const std::string> keys, const std::string &value);
     };
