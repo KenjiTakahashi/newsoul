@@ -21,7 +21,7 @@
 
 #include <cstring>
 #include <initializer_list>
-#include <json/json.h>
+#include <json-c/json.h>
 #include <fstream>
 #include <streambuf>
 #include <vector>
