@@ -41,3 +41,29 @@ const char os::separator() {
     return '\\';
 #endif
 }
+
+const std::string os::config() {
+#ifndef _WIN32
+    char *xdgconfig = getenv("XDG_CONFIG_HOME");
+    if(xdgconfig != NULL) {
+        return std::string(xdgconfig);
+    }
+
+    char *home = getenv("HOME");
+    if(home != NULL) {
+        return std::string(std::string(home) + "/.config");
+    }
+    return std::string();
+#else
+    //TODO: Test this?
+    wchar_t *roaming = 0;
+    SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &roaming);
+
+    char path[wcslen(roaming) + 1];
+    wcstombs(path, roaming, sizeof(path));
+
+    CoTaskMemFree(static_cast<void*>(roaming));
+
+    return std::string(path);
+#endif
+}

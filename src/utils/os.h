@@ -19,17 +19,40 @@
 #ifndef __UTILS_OS_H__
 #define __UTILS_OS_H__
 
+#include <cstdlib>
 #include <string>
 #ifndef _WIN32
 #include <sys/stat.h>
 #else
 #include <direct.h>
+#include <shlobj.h>
+#include <string.h>
 #define mkdir(path, mode) _mkdir(path)
 #endif
 
 namespace os {
+    /*!
+     * Creates specified filesystem path, if doesn't exist.
+     * By default, tries to create all missing directories on the way.
+     * \param path Path to create.
+     * \param recursive When false, creates only last dir or fails.
+     * \return True on success, false otherwise.
+     */
     bool mkdir(const std::string &path, bool recursive=true);
+    /*!
+     * Returns filesystem path separator used by OS.
+     */
     const char separator();
+    /*!
+     * Returns OS specific config directory.
+     * On *nices, tries to get XDG_CONFIG_HOME and fallbacks
+     * to $HOME/.config.
+     * On Windows, gets FOLDERID_RoamingAppData.
+     *
+     * It does not perform any security checks, so if user has
+     * a weird $HOME, he might get his cat eaten.
+     */
+    const std::string config();
 }
 
 #endif // __UTILS_OS_H__

@@ -35,6 +35,10 @@ newsoul::Config::Config(std::istream &is, bool autosave) : autosave(autosave) {
 
 newsoul::Config::Config(const std::string &fn, bool autosave) : fn(fn), autosave(autosave) {
     std::ifstream f(this->fn);
+    if(!f.is_open() || !f.good()) {
+        this->fn = path::join({os::config(), "config.json"});
+        f.open(this->fn);
+    }
     this->init(f);
 }
 

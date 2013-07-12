@@ -23,15 +23,13 @@
 #include <initializer_list>
 #include <json-c/json.h>
 #include <fstream>
-#ifdef _WIN32
-#include <shlobj.h>
-#endif
 #include <streambuf>
+#include "utils/path.h"
 #include "utils/os.h"
 
 namespace newsoul {
     class Config {
-        const std::string fn;
+        std::string fn;
         bool autosave;
         struct json_object *json;
 
