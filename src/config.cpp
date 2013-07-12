@@ -43,17 +43,18 @@ newsoul::Config::Config(const std::string &fn, bool autosave) : fn(fn), autosave
 }
 
 newsoul::Config::~Config() {
-    this->save();
+    if(this->autosave) {
+        this->save();
+    }
+
     json_object_put(this->json);
 }
 
 void newsoul::Config::save() {
-    if(this->autosave) {
-        std::ofstream f(this->fn);
-        const char *jsonstring = json_object_to_json_string(this->json);
-        f.write(jsonstring, strlen(jsonstring));
-        f.close();
-    }
+    std::ofstream f(this->fn);
+    const char *jsonstring = json_object_to_json_string(this->json);
+    f.write(jsonstring, strlen(jsonstring));
+    f.close();
 }
 
 struct json_object *newsoul::Config::get(std::initializer_list<const std::string> keys) {
@@ -126,14 +127,16 @@ void newsoul::Config::set(std::initializer_list<const std::string> keys, struct 
         copy = part;
     }
     json_object_object_add(copy, (*(keys.end() - 1)).c_str(), value);
+
+    if(this->autosave) {
+        this->save();
+    }
 }
 
 void newsoul::Config::set(std::initializer_list<const std::string> keys, int value) {
     this->set(keys, json_object_new_int(value));
-    this->save();
 }
 
 void newsoul::Config::set(std::initializer_list<const std::string> keys, const std::string &value) {
     this->set(keys, json_object_new_string(value.c_str()));
-    this->save();
 }
