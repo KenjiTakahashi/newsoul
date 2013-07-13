@@ -84,6 +84,10 @@ namespace newsoul
          * \return True if we should finish parsing.
          */
         bool parseSet(int *i, int argc, char *argv[]);
+        /*!
+         * Parses parts and pieces belonging to database(d) command.
+         * \see newsoul::Newsoul::parseSet.
+         */
         bool parseDatabase(int *i, int argc, char *argv[]);
         /*!
          * Parses a list of argmuents given on command line

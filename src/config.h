@@ -34,26 +34,89 @@ namespace newsoul {
         bool autosave;
         struct json_object *json;
 
+        /*!
+         * Does real initialization, i.e. reads stream contents and
+         * tries to parse JSON data from them.
+         * \param is Input stream to read from.
+         */
         void init(std::istream &is);
 
+        /*!
+         * General getter method.
+         * \param keys List of keys which will be chained into JSON path.
+         */
         struct json_object *get(std::initializer_list<const std::string> keys);
+        /*!
+         * General setter method.
+         * If any key on the path does not exist, it will be created.
+         * \param keys List of keys which will be chained into JSON path.
+         * \param value Value to set at the end of the path.
+         */
         void set(std::initializer_list<const std::string> keys, struct json_object *value);
 
     public:
-        Config(std::istream &is, bool autosave=true);
+        /*!
+         * Overloaded constructor taking an input stream.
+         * Meant for testing usage and should not be used
+         * in a real application.
+         * \param is Input stream.
+         * \param autosave Whether to save on set and destruction.
+         */
+        Config(std::istream &is, bool autosave=false);
+        /*!
+         * Default constructor.
+         * If no filename is supplied, tries to read from default
+         * user config location, then falls back to /etc/newsoul
+         * (on *nices only).
+         * \param fn Filename to read from.
+         * \param autosave Whether to save on set and destruction.
+         */
         Config(const std::string &fn="", bool autosave=true);
         ~Config();
 
+        /*!
+         * Saves current JSON state to disk.
+         */
         void save();
 
+        /*!
+         * Gets a value of type integer.
+         * \param keys List of keys which will be chained into JSON path.
+         * \return Read value or 0 by default.
+         */
         int getInt(std::initializer_list<const std::string> keys);
+        /*!
+         * Gets a value of type string.
+         * \param keys List of keys which will be chained into JSON path.
+         * \return Read value or empty string by default.
+         */
         const std::string getStr(std::initializer_list<const std::string> keys);
+        /*!
+         * Gets a value of type boolean.
+         * \param keys List of keys which will be chained into JSON path.
+         * \return Read value or false by default.
+         */
         bool getBool(std::initializer_list<const std::string> keys);
         std::vector<std::string> getVec(std::initializer_list<const std::string> keys);
 
+        /*!
+         * Checks whether given value is contained within a JSON array.
+         * \param keys List of keys which will be chained into JSON path.
+         * \return True if given JSON path contains value, false otherwise.
+         */
         bool contains(std::initializer_list<const std::string> keys, const std::string &value);
 
+        /*!
+         * Sets value of type integer.
+         * \param keys List of keys which will be chained into JSON path.
+         * \param value Value to set.
+         */
         void set(std::initializer_list<const std::string> keys, int value);
+        /*!
+         * Sets value of type string.
+         * \param keys List of keys which will be chained into JSON path.
+         * \param value Value to set.
+         */
         void set(std::initializer_list<const std::string> keys, const std::string &value);
     };
 }

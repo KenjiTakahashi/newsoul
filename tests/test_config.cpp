@@ -22,7 +22,7 @@
 
 TEST_CASE("getInt", "[newsoul][Config]") {
     std::istringstream data("{\"int1\":1,\"key\":{\"int2\":2}}");
-    auto config = new newsoul::Config(data, false);
+    auto config = new newsoul::Config(data);
 
     SECTION("top level") {
         int result = config->getInt({"int1"});
@@ -47,7 +47,7 @@ TEST_CASE("getInt", "[newsoul][Config]") {
 
 TEST_CASE("getStr", "[newsoul][Config]") {
     std::istringstream data("{\"str1\":\"s1\",\"key\":{\"str2\":\"s2\"}}");
-    auto config = new newsoul::Config(data, false);
+    auto config = new newsoul::Config(data);
 
     SECTION("top level") {
         const std::string result = config->getStr({"str1"});
@@ -130,7 +130,7 @@ TEST_CASE("getVec", "[newsoul][Config]") {
 
 TEST_CASE("contains", "[newsoul][Config]") {
     std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]}, \"notvec\":1}");
-    auto config = new newsoul::Config(data, false);
+    auto config = new newsoul::Config(data);
 
     SECTION("top level") {
         bool result = config->contains({"vec1"}, "v1");
@@ -167,7 +167,7 @@ TEST_CASE("contains", "[newsoul][Config]") {
 
 TEST_CASE("set<int>", "[newsoul][Config]") {
     std::istringstream data("");
-    auto config = new newsoul::Config(data, false);
+    auto config = new newsoul::Config(data);
 
     SECTION("top level") {
         config->set({"int1"}, 1);
@@ -201,7 +201,7 @@ TEST_CASE("set<int>", "[newsoul][Config]") {
 
 TEST_CASE("set<string>", "[newsoul][Config]") {
     std::istringstream data("");
-    auto config = new newsoul::Config(data, false);
+    auto config = new newsoul::Config(data);
 
     SECTION("top level") {
         config->set({"str1"}, "s1");
