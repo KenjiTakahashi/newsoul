@@ -179,8 +179,8 @@ namespace newsoul
         bool autoClearFinishedUploads();
         bool autoRetryDownloads();
         bool privilegeBuddies();
-        int upSlots();
-        int downSlots();
+        unsigned int upSlots();
+        unsigned int downSlots();
         void addPrivilegedUser(const std::string &user);
         void setPrivilegedUsers(const std::vector<std::string> &users);
         void sendSharedNumber();

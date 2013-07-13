@@ -310,12 +310,12 @@ bool newsoul::Newsoul::privilegeBuddies() {
     return config()->getBool({"transfers", "privilege_buddies"});
 }
 
-int newsoul::Newsoul::upSlots() {
-    return config()->getInt({"transfers", "upload_slots"});
+unsigned int newsoul::Newsoul::upSlots() {
+    return (unsigned int)config()->getInt({"transfers", "upload_slots"});
 }
 
-int newsoul::Newsoul::downSlots() {
-    return config()->getInt({"transfers", "download_slots"});
+unsigned int newsoul::Newsoul::downSlots() {
+    return (unsigned int)config()->getInt({"transfers", "download_slots"});
 }
 
 // Add this user to the list of privileged ones

@@ -473,8 +473,7 @@ void newsoul::DownloadManager::addFolderContents(const std::string & user, const
     std::string downloadDir = newsoul()->config()->getStr({"downloads", "complete"});
 
     // Don't download files matching a blacklist item
-    std::string blacklist = newsoul()->config()->getStr({"downloads", "blacklist"});
-    std::vector<std::string> blacklistItems = string::split(blacklist, ";");
+    std::vector<std::string> blacklistItems = newsoul()->config()->getVec({"downloads", "blacklist"});
 
     for (fit = folders.begin(); fit != folders.end(); fit++) {
         // Folder we have asked the contents
@@ -1073,7 +1072,7 @@ bool newsoul::DownloadManager::hasFreeSlots() {
 void newsoul::DownloadManager::loadDownloads() {
     m_AllowUpdate = false; // We don't want downloads to be saved until we have finished to load them
     // Open config file
-    std::string path = newsoul()->config()->getStr({"downloads", "db"});
+    std::string path = newsoul()->config()->getStr({"downloads", "queue"});
     std::ifstream file(path.c_str(), std::fstream::in | std::fstream::binary);
 
 	if(file.fail() || !file.is_open()) {
