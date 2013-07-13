@@ -35,6 +35,9 @@ newaction {
             syspath = path.join(prefix, "lib/systemd/system")
             os.mkdir(syspath)
             os.copyfile("../scripts/newsoul@.service", syspath)
+            print("Installing default configuration")
+            os.mkdir("/etc/newsoul")
+            os.copyfile("../scripts/config.json", "/etc/newsoul")
         end
     end
 }

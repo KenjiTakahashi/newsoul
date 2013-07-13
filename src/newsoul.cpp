@@ -263,19 +263,19 @@ void newsoul::Newsoul::LoadDownloads() {
 }
 
 bool newsoul::Newsoul::isBanned(const std::string u) {
-    return config()->contains({"banned"}, u);
+    return config()->contains({"users", "banned"}, u);
 }
 
 bool newsoul::Newsoul::isIgnored(const std::string u) {
-    return config()->contains({"ignored"}, u);
+    return config()->contains({"users", "ignored"}, u);
 }
 
 bool newsoul::Newsoul::isTrusted(const std::string u) {
-    return config()->contains({"trusted"}, u);
+    return config()->contains({"users", "trusted"}, u);
 }
 
 bool newsoul::Newsoul::isBuddied(const std::string u) {
-    return config()->contains({"buddies"}, u);
+    return config()->contains({"users", "buddies"}, u);
 }
 
 bool newsoul::Newsoul::isPrivileged(const std::string u) {
@@ -283,39 +283,39 @@ bool newsoul::Newsoul::isPrivileged(const std::string u) {
 }
 
 bool newsoul::Newsoul::toBuddiesOnly() {
-    return config()->getBool({"transfers", "only_buddies"});
+    return config()->getBool({"uploads", "buddiesOnly"});
 }
 
 bool newsoul::Newsoul::haveBuddyShares() {
-    return config()->getBool({"transfers", "have_buddy_shares"});
+    return config()->getBool({"database", "buddy", "enabled"});
 }
 
 bool newsoul::Newsoul::trustingUploads() {
-    return config()->getBool({"transfers", "trusting_uploads"});
+    return config()->getBool({"uploads", "allowTrusted"});
 }
 
 bool newsoul::Newsoul::autoClearFinishedDownloads() {
-    return config()->getBool({"transfers", "autoclear_finished_downloads"});
+    return config()->getBool({"downloads", "autoclear"});
 }
 
 bool newsoul::Newsoul::autoRetryDownloads() {
-    return config()->getBool({"transfers", "autoretry_downloads"});
+    return config()->getBool({"downloads", "autoretry"});
 }
 
 bool newsoul::Newsoul::autoClearFinishedUploads() {
-    return config()->getBool({"transfers", "autoclear_finished_uploads"});
+    return config()->getBool({"uploads", "autoclear"});
 }
 
 bool newsoul::Newsoul::privilegeBuddies() {
-    return config()->getBool({"transfers", "privilege_buddies"});
+    return config()->getBool({"uploads", "buddiesFirst"});
 }
 
 unsigned int newsoul::Newsoul::upSlots() {
-    return (unsigned int)config()->getInt({"transfers", "upload_slots"});
+    return (unsigned int)config()->getInt({"uploads", "slots"});
 }
 
 unsigned int newsoul::Newsoul::downSlots() {
-    return (unsigned int)config()->getInt({"transfers", "download_slots"});
+    return (unsigned int)config()->getInt({"downloads", "slots"});
 }
 
 // Add this user to the list of privileged ones
@@ -346,7 +346,7 @@ void newsoul::Newsoul::sendSharedNumber() {
 }
 
 bool newsoul::Newsoul::isEnabledPrivRoom() {
-    return config()->getBool({"priv_rooms", "enable_priv_room"});
+    return config()->getBool({"privateRooms", "enabled"});
 }
 
 void newsoul::Newsoul::handleSignals(int signal) {

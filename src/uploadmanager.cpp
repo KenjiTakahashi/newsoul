@@ -544,7 +544,7 @@ void newsoul::UploadManager::checkUploads() {
   */
 void newsoul::UploadManager::updateRates() {
     std::map<std::string, NewNet::WeakRefPtr<Upload> >::iterator it;
-    int globalRate = newsoul()->config()->getInt({"transfers", "upload_rate"});
+    int globalRate = newsoul()->config()->getInt({"uploads", "maxspeed"});
     if (globalRate > 0) {
         // There's a limit, update the rate limiter
         m_Limiter->setLimit(globalRate*1000);

@@ -1,0 +1,72 @@
+{
+    "server": {
+        "host": "server.slsknet.org",
+        "port": "2242",
+        "username": "anonymous",
+        "password": "",
+        "join": []
+    },
+    "p2p": {
+        "ports": {
+            "first": 2235,
+            "last": 2236
+        },
+        "mode": "passive"
+    },
+    "listeners": {
+        "localhost:2240": "",
+        "/tmp/newsoul.kenji": ""
+    },
+    "encoding": {
+        "network": "UTF-8",
+        "local": "UTF-8",
+        "rooms": {},
+        "users": {}
+    },
+    "downloads": {
+        "queue": "~/.newsoul/downloads",
+        "complete": "~/.newsoul/complete",
+        "incomplete": "",
+        "wishes": {},
+        "blacklist": [],
+        "autoclear": true,
+        "autoretry": true,
+        "maxspeed": 0,
+        "slots": 0
+    },
+    "uploads": {
+        "buddiesOnly": false,
+        "buddiesFirst": false,
+        "allowTrusted": false,
+        "autoclear": true,
+        "maxspeed": 0,
+        "slots": 2
+    },
+    "database": {
+        "global": {
+            "paths": []
+        },
+        "buddy": {
+            "paths": [],
+            "enabled": false
+        }
+    },
+    "info": {
+        "image": "",
+        "text": "",
+        "interests": {
+            "hate": [],
+            "like": []
+        },
+        "tickers": {}
+    },
+    "users": {
+        "buddies": [],
+        "trusted": [],
+        "banned": [],
+        "ignored": []
+    },
+    "privateRooms": {
+        "enabled": false
+    }
+}
