@@ -121,6 +121,21 @@ bool newsoul::Newsoul::parseSet(int *i, int argc, char *argv[]) {
     return false;
 }
 
+bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
+    if(++*i == argc) {
+        std::cout << "No config arguments supplied, command ignored" << std::endl;
+        return false;
+    }
+    for(; *i < argc; ++*i) {
+        std::string carg(argv[*i]);
+        if(carg == "rescan") {
+        } else if(carg == "global") {
+        } else if(carg == "buddy") {
+        }
+    }
+    return false;
+}
+
 bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
     bool debug = false;
     for(int i = 1; i < argc; ++i) {
@@ -137,17 +152,7 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
                 return true;
             }
         } else if(arg == "database" || arg == "d") {
-            if(++i == argc) {
-                std::cout << "No config arguments supplied, command ignored" << std::endl;
-                continue;
-            }
-            for(; i < argc; ++i) {
-                std::string carg(argv[i]);
-                if(carg == "rescan") {
-                } else if(carg == "global") {
-                } else if(carg == "buddy") {
-                }
-            }
+            this->parseDatabase(&i, argc, argv);
         } else if(arg == "help" || arg == "h") {
             if(++i == argc) {
                 std::cout << "Usage: newsoul [--debug(-d)] [version(v)|help(h)|set(s)|database(d)] [<args>]" << std::endl << std::endl;
@@ -183,7 +188,7 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
                     std::cout << "  local <encoding>\t\t\tsets encoding used in filesystem [default: UTF-8]" << std::endl;
                     std::cout << "downloads <arg>, where <arg> is one of:" << std::endl;
                     std::cout << "  complete <dir>\t\t\tsets directory for complete downloads [default: ~/.newsoul/complete]" << std::endl;
-                    std::cout << "  incomplete [dir]\t\t\tsets directory for incomplete downloads [default: <empty>]" << std::endl;
+                    std::cout << "  incomplete <dir>\t\t\tsets directory for incomplete downloads [default: <empty>]" << std::endl;
                 } else if(carg == "database") {
                     std::cout << "Usage: newsoul [--debug(-d)] database(d) [<args>], where <args> are:" << std::endl << std::endl;
                     std::cout << "rescan\t\t\t\t\tupdates database NOW" << std::endl;

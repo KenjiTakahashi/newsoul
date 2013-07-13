@@ -22,11 +22,6 @@ void newsoul::Config::init(std::istream &is) {
     std::string j((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
 
     this->json = json_tokener_parse(j.c_str());
-
-    if(this->json == NULL) {
-        //TODO: load defaults
-        this->json = json_tokener_parse("{}");
-    }
 }
 
 newsoul::Config::Config(std::istream &is, bool autosave) : autosave(autosave) {
@@ -39,6 +34,12 @@ newsoul::Config::Config(const std::string &fn, bool autosave) : fn(fn), autosave
         this->fn = path::join({os::config(), "config.json"});
         f.open(this->fn);
     }
+#ifndef _WIN32
+    if(!f.is_open() || !f.good()) {
+        this->fn = path::join({"/etc", "newsoul", "config.json"});
+        f.open(this->fn);
+    }
+#endif
     this->init(f);
 }
 

@@ -34,7 +34,7 @@ bool os::mkdir(const std::string &path, bool recursive) {
     return true;
 }
 
-const char os::separator() {
+char os::separator() {
 #ifndef _WIN32
     return '/';
 #else

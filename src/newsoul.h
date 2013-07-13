@@ -84,6 +84,7 @@ namespace newsoul
          * \return True if we should finish parsing.
          */
         bool parseSet(int *i, int argc, char *argv[]);
+        bool parseDatabase(int *i, int argc, char *argv[]);
         /*!
          * Parses a list of argmuents given on command line
          * and performs necessary actions, like setting config options, etc.

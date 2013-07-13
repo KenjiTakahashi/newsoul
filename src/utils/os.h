@@ -42,7 +42,7 @@ namespace os {
     /*!
      * Returns filesystem path separator used by OS.
      */
-    const char separator();
+    char separator();
     /*!
      * Returns OS specific config directory.
      * On *nices, tries to get XDG_CONFIG_HOME and fallbacks
