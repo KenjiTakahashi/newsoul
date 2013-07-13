@@ -31,10 +31,6 @@ newaction {
             manpath = path.join(prefix, "share/man/man1")
             os.mkdir(manpath)
             os.copyfile("../src/newsoul.1", manpath)
-            print("Installing config template")
-            tmplpath = path.join(prefix, "share/newsoul")
-            os.mkdir(tmplpath)
-            os.copyfile("../src/config.xml.tmpl", tmplpath)
             print("Installing systemd service file")
             syspath = path.join(prefix, "lib/systemd/system")
             os.mkdir(syspath)
@@ -45,17 +41,15 @@ newaction {
 
 function include()
     if os.is("bsd") then
-        includedirs {"/usr/local/include/libxml2", "/usr/local/include/db5"}
-    else
-        includedirs {"/usr/include/libxml2"}
+        includedirs {"/usr/local/include/db5"}
     end
 end
 
 function link()
     include()
     links {
-        "tag", "z", "event", "nettle", "db_cxx", "xml2",
-        "newsoul-lib", "efsw", "NewNet", "utils", "json-c"
+        "tag", "z", "event", "nettle", "db_cxx", "json-c",
+        "newsoul-lib", "efsw", "NewNet", "utils"
     }
     if os.is("bsd") then
         libdirs {"/usr/local/lib/db5"}

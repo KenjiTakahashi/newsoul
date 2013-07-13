@@ -6,7 +6,7 @@ This is *only* the daemon/server part, no clients (besides CLI) are developed he
 
 ## requirements
 
-* libxml2
+* json-c
 * libevent
 * taglib
 * nettle
