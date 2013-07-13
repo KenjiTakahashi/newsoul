@@ -137,8 +137,8 @@ newsoul::PeerSocket::onMessageReceived(const MessageData * data)
 void
 newsoul::PeerSocket::onInfoRequested(const PInfoRequest *)
 {
-  std::string text = newsoul()->config()->getStr({"userinfo", "text"});
-  std::string path = newsoul()->config()->getStr({"userinfo", "image"});
+  std::string text = newsoul()->config()->getStr({"info", "text"});
+  std::string path = newsoul()->config()->getStr({"info", "image"});
   std::vector<uchar> imgdata;
   if(path != "")
   {
@@ -195,7 +195,7 @@ void
 newsoul::PeerSocket::onUploadQueueNotificationReceived(const PUploadQueueNotification *)
 {
   std::string state = " is not a buddy";
-  if (newsoul()->config()->contains({"userinfo", "buddies"}, user()))
+  if (newsoul()->config()->contains({"buddies"}, user()))
     state = " is a buddy";
 
   std::string isbuddy = user() + state;

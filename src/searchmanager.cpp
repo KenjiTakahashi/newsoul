@@ -318,7 +318,7 @@ void newsoul::SearchManager::onWishlistTimeout(long) {
         SWishlistSearch msg(token, newsoul()->codeset()->toNet(oldest->first));
         newsoul()->server()->sendMessage(msg.make_network_packet());
         // Update item's last query date
-        newsoul()->config()->set({"wishlist", oldest->first}, static_cast<int>(time(NULL)));
+        newsoul()->config()->set({"downloads", "wishes", oldest->first}, static_cast<int>(time(NULL)));
     }
 
     // Prepare next wishlist timeout
@@ -408,7 +408,7 @@ void newsoul::SearchManager::wishlistAdd(const std::string & query) {
         newsoul()->server()->sendMessage(msg.make_network_packet());
     }
     // Update item's last query date
-    newsoul()->config()->set({"wishlist", query}, static_cast<int>(time(NULL)));
+    newsoul()->config()->set({"downloads", "wishes", query}, static_cast<int>(time(NULL)));
 }
 
 /**
