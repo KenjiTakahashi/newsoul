@@ -20,7 +20,7 @@
 
 std::string path::join(std::initializer_list<std::string> paths) {
     std::string result;
-    const char sep = os::separator();
+    char sep = os::separator();
 
     for(const std::string &path : paths) {
         if(result.empty()) {

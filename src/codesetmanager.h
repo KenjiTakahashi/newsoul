@@ -98,7 +98,7 @@ namespace newsoul
 
   private:
     /* Get the character set for an object from the configuration */
-    std::string getNetworkCodeset(const std::string & domain, const std::string & key) const;
+    std::string getNetworkCodeset(std::initializer_list<const std::string> key) const;
     /* Get an iconv conversion context from character set 'from' to 'to'. */
     iconv_t getContext(const std::string & from, const std::string & to);
 

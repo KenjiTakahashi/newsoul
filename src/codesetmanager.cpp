@@ -101,10 +101,10 @@ newsoul::CodesetManager::convert(const std::string & from, const std::string & t
 }
 
 std::string
-newsoul::CodesetManager::getNetworkCodeset(const std::string & domain, const std::string & key) const
+newsoul::CodesetManager::getNetworkCodeset(std::initializer_list<const std::string> key) const
 {
   // Try to get the requested character set
-  std::string codeset = newsoul()->config()->getStr({domain, key});
+  std::string codeset = newsoul()->config()->getStr(key);
   if(codeset.empty()) // Get the default network encoding
     codeset = newsoul()->config()->getStr({"encoding", "network"});
   if(codeset.empty()) // Fall back to UTF-8
@@ -115,14 +115,14 @@ newsoul::CodesetManager::getNetworkCodeset(const std::string & domain, const std
 std::string
 newsoul::CodesetManager::fromRoom(const std::string & room, const std::string & str)
 {
-  return convert(getNetworkCodeset("encoding.rooms", room), "UTF-8", str);
+  return convert(getNetworkCodeset({"encoding", "rooms", room}), "UTF-8", str);
 }
 
 std::map<std::string, std::string>
 newsoul::CodesetManager::fromRoomMap(const std::string & room, const std::map<std::string, std::string> & map)
 {
   // Get the character set for the room.
-  std::string codeset = getNetworkCodeset("encoding.rooms", room);
+  std::string codeset = getNetworkCodeset({"encoding", "rooms", room});
 
   std::map<std::string, std::string> result;
 
@@ -137,19 +137,19 @@ newsoul::CodesetManager::fromRoomMap(const std::string & room, const std::map<st
 std::string
 newsoul::CodesetManager::toRoom(const std::string & room, const std::string & str)
 {
-    return convert("UTF-8", getNetworkCodeset("encoding.rooms", room), str);
+    return convert("UTF-8", getNetworkCodeset({"encoding", "rooms", room}), str);
 }
 
 std::string
 newsoul::CodesetManager::fromPeer(const std::string & peer, const std::string & str)
 {
-  return convert(getNetworkCodeset("encoding.users", peer), "UTF-8", str);
+  return convert(getNetworkCodeset({"encoding", "users", peer}), "UTF-8", str);
 }
 
 std::string
 newsoul::CodesetManager::toPeer(const std::string & peer, const std::string & str)
 {
-    return convert("UTF-8", getNetworkCodeset("encoding.users", peer), str);
+    return convert("UTF-8", getNetworkCodeset({"encoding", "users", peer}), str);
 }
 
 std::string
@@ -158,7 +158,7 @@ newsoul::CodesetManager::fromFSToNet(const std::string & str, bool slashes)
     std::string strToConvert = str;
     if (slashes)
         strToConvert = string::replace(str, NewNet::Path::separator(), '\\');
-    return convert(getNetworkCodeset("encoding", "filesystem"), getNetworkCodeset("encoding", "network"), strToConvert);
+    return convert(getNetworkCodeset({"encoding", "local"}), getNetworkCodeset({"encoding", "network"}), strToConvert);
 }
 
 std::string
@@ -167,7 +167,7 @@ newsoul::CodesetManager::fromNetToFS(const std::string & str, bool slashes)
     std::string strToConvert = str;
     if (slashes)
         strToConvert = string::replace(str, '\\', NewNet::Path::separator());
-    return convert(getNetworkCodeset("encoding", "network"), getNetworkCodeset("encoding", "filesystem"), strToConvert);
+    return convert(getNetworkCodeset({"encoding", "network"}), getNetworkCodeset({"encoding", "local"}), strToConvert);
 }
 
 std::string
@@ -176,7 +176,7 @@ newsoul::CodesetManager::fromFSToPeer(const std::string & peer, const std::strin
     std::string strToConvert = str;
     if (slashes)
         strToConvert = string::replace(str, NewNet::Path::separator(), '\\');
-    return convert(getNetworkCodeset("encoding", "filesystem"), getNetworkCodeset("encoding.users", peer), strToConvert);
+    return convert(getNetworkCodeset({"encoding", "local"}), getNetworkCodeset({"encoding", "users", peer}), strToConvert);
 }
 
 std::string
@@ -185,7 +185,7 @@ newsoul::CodesetManager::fromPeerToFS(const std::string & peer, const std::strin
     std::string strToConvert = str;
     if (slashes)
         strToConvert = string::replace(str, '\\', NewNet::Path::separator());
-    return convert(getNetworkCodeset("encoding", "network"), getNetworkCodeset("encoding.users", peer), strToConvert);
+    return convert(getNetworkCodeset({"encoding", "network"}), getNetworkCodeset({"encoding", "users", peer}), strToConvert);
 }
 
 std::string
@@ -194,7 +194,7 @@ newsoul::CodesetManager::fromUtf8ToFS(const std::string & str, bool slashes)
     std::string strToConvert = str;
     if (slashes)
         strToConvert = string::replace(str, '\\', NewNet::Path::separator());
-    return fromUtf8(getNetworkCodeset("encoding", "filesystem"), strToConvert);
+    return fromUtf8(getNetworkCodeset({"encoding", "local"}), strToConvert);
 }
 
 std::string
@@ -203,31 +203,31 @@ newsoul::CodesetManager::fromFsToUtf8(const std::string & str, bool slashes)
     std::string strToConvert = str;
     if (slashes)
         strToConvert = string::replace(str, NewNet::Path::separator(), '\\');
-    return toUtf8(getNetworkCodeset("encoding", "filesystem"), strToConvert);
+    return toUtf8(getNetworkCodeset({"encoding", "local"}), strToConvert);
 }
 
 std::string
 newsoul::CodesetManager::fromNet(const std::string & str)
 {
-    return convert(getNetworkCodeset("encoding", "network"), "UTF-8", str);
+    return convert(getNetworkCodeset({"encoding", "network"}), "UTF-8", str);
 }
 
 std::string
 newsoul::CodesetManager::toNet(const std::string & str)
 {
-    return convert("UTF-8", getNetworkCodeset("encoding", "network"), str);
+    return convert("UTF-8", getNetworkCodeset({"encoding", "network"}), str);
 }
 
 std::string
 newsoul::CodesetManager::fromUtf8ToNet(const std::string & str)
 {
-    return fromUtf8(getNetworkCodeset("encoding", "network"), str);
+    return fromUtf8(getNetworkCodeset({"encoding", "network"}), str);
 }
 
 std::string
 newsoul::CodesetManager::fromNetToUtf8(const std::string & str)
 {
-    return toUtf8(getNetworkCodeset("encoding", "network"), str);
+    return toUtf8(getNetworkCodeset({"encoding", "network"}), str);
 }
 
 iconv_t
