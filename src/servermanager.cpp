@@ -82,7 +82,7 @@ newsoul::ServerManager::connect()
   }
 
   // Set up auto-join
-  m_JoinedRooms = newsoul()->config()->getVec({"autojoin"});
+  m_JoinedRooms = newsoul()->config()->getVec({"server", "join"});
 
   // Create the TcpMessageSocket
   m_Socket = new TcpMessageSocket();
@@ -270,22 +270,21 @@ newsoul::ServerManager::onLoggedIn(const SLogin * message)
       SEND_MESSAGE(SJoinRoom(*it));
     m_JoinedRooms.clear();
 
-    std::vector<std::string> interests = newsoul()->config()->getVec({"interests", "like"});
+    std::vector<std::string> interests = newsoul()->config()->getVec({"info", "interests", "like"});
     end = interests.end();
     for(it = interests.begin(); it != end; ++it)
       SEND_MESSAGE(SInterestAdd(*it));
-    interests = newsoul()->config()->getVec({"interests", "hate"});
+    interests = newsoul()->config()->getVec({"info", "interests", "hate"});
     end = interests.end();
     for(it = interests.begin(); it != end; ++it)
       SEND_MESSAGE(SInterestHatedAdd(*it));
 
     // Get status and stats for every users we have in our lists
     std::vector<std::string> users, trusted, banned, ignored;
-    //FIXME
-    users = newsoul()->config()->getVec({"buddies"});
-    trusted = newsoul()->config()->getVec({"trusted"});
-    banned = newsoul()->config()->getVec({"banned"});
-    ignored = newsoul()->config()->getVec({"ignored"});
+    users = newsoul()->config()->getVec({"users", "buddies"});
+    trusted = newsoul()->config()->getVec({"users", "trusted"});
+    banned = newsoul()->config()->getVec({"users", "banned"});
+    ignored = newsoul()->config()->getVec({"users", "ignored"});
     users.insert(users.begin(), trusted.begin(), trusted.end());
     users.insert(users.begin(), banned.begin(), banned.end());
     users.insert(users.begin(), ignored.begin(), ignored.end());
@@ -366,10 +365,7 @@ newsoul::ServerManager::onRoomJoined(const SJoinRoom * message)
 {
   m_JoinedRooms.push_back(message->room);
 
-  //FIXME
-  std::string ticker(newsoul()->config()->getStr({"tickers", message->room}));
-  if(ticker.empty())
-    ticker = newsoul()->config()->getStr({"default-ticker", "ticker"});
+  std::string ticker(newsoul()->config()->getStr({"info", "tickers", message->room}));
   if(! ticker.empty())
   {
     ticker = newsoul()->codeset()->toRoom(message->room, ticker);
