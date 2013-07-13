@@ -104,9 +104,9 @@ std::string
 newsoul::CodesetManager::getNetworkCodeset(const std::string & domain, const std::string & key) const
 {
   // Try to get the requested character set
-  std::string codeset = newsoul()->config()->get(domain, key);
+  std::string codeset = newsoul()->config()->getStr({domain, key});
   if(codeset.empty()) // Get the default network encoding
-    codeset = newsoul()->config()->get("encoding", "network");
+    codeset = newsoul()->config()->getStr({"encoding", "network"});
   if(codeset.empty()) // Fall back to UTF-8
     codeset = "UTF-8";
   return codeset;

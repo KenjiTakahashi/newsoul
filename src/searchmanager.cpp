@@ -32,8 +32,8 @@ newsoul::SearchManager::SearchManager(Newsoul * newsoul) : m_Newsoul(newsoul)
     newsoul->peers()->peerSocketUnavailableEvent.connect(this, &SearchManager::onPeerSocketUnavailable);
     newsoul->server()->addUserReceivedEvent.connect(this, &SearchManager::onAddUserReceived);
     newsoul->server()->wishlistIntervalReceivedEvent.connect(this, &SearchManager::onWishlistIntervalReceived);
-    newsoul->config()->keySetEvent.connect(this, &SearchManager::onConfigKeySet);
-    newsoul->config()->keyRemovedEvent.connect(this, &SearchManager::onConfigKeyRemoved);
+    //newsoul->config()->keySetEvent.connect(this, &SearchManager::onConfigKeySet);
+    //newsoul->config()->keyRemovedEvent.connect(this, &SearchManager::onConfigKeyRemoved);
 
     m_Parent = 0;
     m_ParentIp = std::string();
@@ -318,7 +318,7 @@ void newsoul::SearchManager::onWishlistTimeout(long) {
         SWishlistSearch msg(token, newsoul()->codeset()->toNet(oldest->first));
         newsoul()->server()->sendMessage(msg.make_network_packet());
         // Update item's last query date
-        newsoul()->config()->set("wishlist", oldest->first, static_cast<uint>(time(NULL)));
+        newsoul()->config()->set({"wishlist", oldest->first}, static_cast<int>(time(NULL)));
     }
 
     // Prepare next wishlist timeout
@@ -366,7 +366,7 @@ void newsoul::SearchManager::sendSearchResults(const std::string & username, con
   * Initiate a search in our buddy list
   */
 void newsoul::SearchManager::buddySearch(uint token, const std::string & query) {
-    std::vector<std::string> buddies = newsoul()->config()->keys("buddies");
+    std::vector<std::string> buddies = newsoul()->config()->getVec({"buddies"});
     std::vector<std::string>::const_iterator it;
     std::string q = newsoul()->codeset()->toNet(query);
     for(it = buddies.begin(); it != buddies.end(); ++it) {
@@ -408,7 +408,7 @@ void newsoul::SearchManager::wishlistAdd(const std::string & query) {
         newsoul()->server()->sendMessage(msg.make_network_packet());
     }
     // Update item's last query date
-    newsoul()->config()->set("wishlist", query, static_cast<uint>(time(NULL)));
+    newsoul()->config()->set({"wishlist", query}, static_cast<int>(time(NULL)));
 }
 
 /**
@@ -533,17 +533,17 @@ newsoul::SearchManager::searchReplyReceived(uint ticket, const std::string & use
     newsoul()->ifaces()->onSearchReply(ticket, user, slotfree, avgspeed, (uint) queuelen, folders);
 }
 
-void
-newsoul::SearchManager::onConfigKeySet(const ConfigManager::ChangeNotify * data) {
-    if ((data->domain == "wishlist") && (!data->key.empty()))
-        m_Wishlist[data->key] = newsoul()->config()->getInt(data->domain, data->key);
-}
+//void
+//newsoul::SearchManager::onConfigKeySet(const ConfigManager::ChangeNotify * data) {
+    //if ((data->domain == "wishlist") && (!data->key.empty()))
+        //m_Wishlist[data->key] = newsoul()->config()->getInt({data->domain, data->key});
+//}
 
-void
-newsoul::SearchManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data) {
-    if (data->domain == "wishlist") {
-        std::map<std::string, time_t>::iterator it = m_Wishlist.find(data->key);
-        if (it != m_Wishlist.end())
-            m_Wishlist.erase(it);
-    }
-}
+//void
+//newsoul::SearchManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data) {
+    //if (data->domain == "wishlist") {
+        //std::map<std::string, time_t>::iterator it = m_Wishlist.find(data->key);
+        //if (it != m_Wishlist.end())
+            //m_Wishlist.erase(it);
+    //}
+//}

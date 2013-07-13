@@ -23,8 +23,8 @@
 newsoul::ServerManager::ServerManager(Newsoul * newsoul) : m_Newsoul(newsoul), m_LoggedIn(false)
 {
     // Connect config event handlers
-    newsoul->config()->keySetEvent.connect(this, &ServerManager::onConfigKeySet);
-    newsoul->config()->keyRemovedEvent.connect(this, &ServerManager::onConfigKeyRemoved);
+    //newsoul->config()->keySetEvent.connect(this, &ServerManager::onConfigKeySet);
+    //newsoul->config()->keyRemovedEvent.connect(this, &ServerManager::onConfigKeyRemoved);
 
     // Connect local event handlers
     loggedInEvent.connect(this, &ServerManager::onLoggedIn);
@@ -58,8 +58,8 @@ newsoul::ServerManager::connect()
 
   m_LoggedIn = false;
 
-  std::string host = newsoul()->config()->get("server", "host", "server.slsknet.org");
-  unsigned int port = newsoul()->config()->getUint("server", "port", 2242);
+  std::string host = newsoul()->config()->getStr({"server", "host"});
+  int port = newsoul()->config()->getInt({"server", "port"});
 
   if(host.empty())
   {
@@ -73,8 +73,8 @@ newsoul::ServerManager::connect()
     return;
   }
 
-  m_Username = newsoul()->config()->get("server", "username");
-  m_Password = newsoul()->config()->get("server", "password");
+  m_Username = newsoul()->config()->getStr({"server", "username"});
+  m_Password = newsoul()->config()->getStr({"server", "password"});
   if(m_Username.empty())
   {
     NNLOG("newsoul.server.warn", "No username for server specified.");
@@ -82,7 +82,7 @@ newsoul::ServerManager::connect()
   }
 
   // Set up auto-join
-  m_JoinedRooms = newsoul()->config()->keys("autojoin");
+  m_JoinedRooms = newsoul()->config()->getVec({"autojoin"});
 
   // Create the TcpMessageSocket
   m_Socket = new TcpMessageSocket();
@@ -223,31 +223,31 @@ newsoul::ServerManager::onMessageReceived(const TcpMessageSocket::MessageData * 
   }
 }
 
-void
-newsoul::ServerManager::onConfigKeySet(const ConfigManager::ChangeNotify * data)
-{
-  if(loggedIn())
-  {
-    if(data->domain == "interests.like")
-      SEND_MESSAGE(SInterestAdd(data->key));
-    else if(data->domain == "interests.hate")
-      SEND_MESSAGE(SInterestHatedAdd(data->key));
-    else if(data->domain == "buddies" || data->domain == "trusted" || data->domain == "ignored" || data->domain == "banned")
-      newsoul()->peers()->requestUserData(data->key);
-  }
-}
+//void
+//newsoul::ServerManager::onConfigKeySet(const ConfigManager::ChangeNotify * data)
+//{
+  //if(loggedIn())
+  //{
+    //if(data->domain == "interests.like")
+      //SEND_MESSAGE(SInterestAdd(data->key));
+    //else if(data->domain == "interests.hate")
+      //SEND_MESSAGE(SInterestHatedAdd(data->key));
+    //else if(data->domain == "buddies" || data->domain == "trusted" || data->domain == "ignored" || data->domain == "banned")
+      //newsoul()->peers()->requestUserData(data->key);
+  //}
+//}
 
-void
-newsoul::ServerManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data)
-{
-  if(loggedIn())
-  {
-    if(data->domain == "interests.like")
-      SEND_MESSAGE(SInterestRemove(data->key));
-    else if(data->domain == "interests.hate")
-      SEND_MESSAGE(SInterestHatedRemove(data->key));
-  }
-}
+//void
+//newsoul::ServerManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data)
+//{
+  //if(loggedIn())
+  //{
+    //if(data->domain == "interests.like")
+      //SEND_MESSAGE(SInterestRemove(data->key));
+    //else if(data->domain == "interests.hate")
+      //SEND_MESSAGE(SInterestHatedRemove(data->key));
+  //}
+//}
 
 void
 newsoul::ServerManager::onLoggedIn(const SLogin * message)
@@ -270,22 +270,22 @@ newsoul::ServerManager::onLoggedIn(const SLogin * message)
       SEND_MESSAGE(SJoinRoom(*it));
     m_JoinedRooms.clear();
 
-    std::vector<std::string> interests;
-    interests = newsoul()->config()->keys("interests.like");
+    std::vector<std::string> interests = newsoul()->config()->getVec({"interests", "like"});
     end = interests.end();
     for(it = interests.begin(); it != end; ++it)
       SEND_MESSAGE(SInterestAdd(*it));
-    interests = newsoul()->config()->keys("interests.hate");
+    interests = newsoul()->config()->getVec({"interests", "hate"});
     end = interests.end();
     for(it = interests.begin(); it != end; ++it)
       SEND_MESSAGE(SInterestHatedAdd(*it));
 
     // Get status and stats for every users we have in our lists
     std::vector<std::string> users, trusted, banned, ignored;
-    users = newsoul()->config()->keys("buddies");
-    trusted = newsoul()->config()->keys("trusted");
-    banned = newsoul()->config()->keys("banned");
-    ignored = newsoul()->config()->keys("ignored");
+    //FIXME
+    users = newsoul()->config()->getVec({"buddies"});
+    trusted = newsoul()->config()->getVec({"trusted"});
+    banned = newsoul()->config()->getVec({"banned"});
+    ignored = newsoul()->config()->getVec({"ignored"});
     users.insert(users.begin(), trusted.begin(), trusted.end());
     users.insert(users.begin(), banned.begin(), banned.end());
     users.insert(users.begin(), ignored.begin(), ignored.end());
@@ -366,9 +366,10 @@ newsoul::ServerManager::onRoomJoined(const SJoinRoom * message)
 {
   m_JoinedRooms.push_back(message->room);
 
-  std::string ticker(newsoul()->config()->get("tickers", message->room));
+  //FIXME
+  std::string ticker(newsoul()->config()->getStr({"tickers", message->room}));
   if(ticker.empty())
-    ticker = newsoul()->config()->get("default-ticker", "ticker");
+    ticker = newsoul()->config()->getStr({"default-ticker", "ticker"});
   if(! ticker.empty())
   {
     ticker = newsoul()->codeset()->toRoom(message->room, ticker);

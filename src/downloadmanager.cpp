@@ -87,10 +87,10 @@ newsoul::Download::incompletePath() const
         return m_IncompletePath;
 
     // Get the incomplete directory
-    std::string incompletedir = m_Newsoul->config()->get("transfers", "incomplete-dir");
+    std::string incompletedir = m_Newsoul->config()->getStr({"downloads", "incomplete"});
     // Fall back to download directory.
     if(incompletedir.empty())
-        incompletedir = m_Newsoul->config()->get("transfers", "download-dir");
+        incompletedir = m_Newsoul->config()->getStr({"downloads", "complete"});
     // Fall back to current directory.
     if(incompletedir.empty())
         incompletedir = ".";
@@ -119,7 +119,7 @@ newsoul::Download::destinationPath(bool create) const
     // Was an absolute path provided with the download?
     if(! NewNet::Path(m_LocalDir).isAbsolute()) {
         // Nope, use the download directory
-        std::string downloaddir = newsoul()->codeset()->fromUtf8ToFS(m_Newsoul->config()->get("transfers", "download-dir"));
+        std::string downloaddir = newsoul()->codeset()->fromUtf8ToFS(m_Newsoul->config()->getStr({"downloads", "complete"}));
         // Fallback to current directory.
         if(downloaddir.empty())
             downloaddir = ".";
@@ -384,8 +384,8 @@ newsoul::DownloadManager::DownloadManager(Newsoul * newsoul) : m_Newsoul(newsoul
     newsoul->peers()->peerOfflineEvent.connect(this, &DownloadManager::onPeerOffline);
     downloadAddedEvent.connect(this, &DownloadManager::onDownloadAdded);
     downloadUpdatedEvent.connect(this, &DownloadManager::onDownloadUpdated);
-    newsoul->config()->keySetEvent.connect(this, &DownloadManager::onConfigKeySet);
-    newsoul->config()->keyRemovedEvent.connect(this, &DownloadManager::onConfigKeyRemoved);
+    //newsoul->config()->keySetEvent.connect(this, &DownloadManager::onConfigKeySet);
+    //newsoul->config()->keyRemovedEvent.connect(this, &DownloadManager::onConfigKeyRemoved);
 
     m_AllowUpdate = false;
     m_AllowSave = true;
@@ -470,10 +470,10 @@ void newsoul::DownloadManager::addFolderContents(const std::string & user, const
     }
 
     Folders::const_iterator fit;
-    std::string downloadDir = newsoul()->config()->get("transfers", "download-dir");
+    std::string downloadDir = newsoul()->config()->getStr({"downloads", "complete"});
 
     // Don't download files matching a blacklist item
-    std::string blacklist = newsoul()->config()->get("transfers", "download_blacklist");
+    std::string blacklist = newsoul()->config()->getStr({"downloads", "blacklist"});
     std::vector<std::string> blacklistItems = string::split(blacklist, ";");
 
     for (fit = folders.begin(); fit != folders.end(); fit++) {
@@ -688,7 +688,7 @@ void newsoul::DownloadManager::checkDownloads() {
   */
 void newsoul::DownloadManager::updateRates() {
     std::map<std::string, NewNet::WeakRefPtr<Download> >::iterator it;
-    uint globalRate = newsoul()->config()->getUint("transfers", "download_rate", 0);
+    int globalRate = newsoul()->config()->getInt({"downloads", "maxspeed"});
     if (globalRate > 0) {
         // There's a limit, update the rate limiter
         m_Limiter->setLimit(globalRate*1000);
@@ -1046,26 +1046,26 @@ bool newsoul::DownloadManager::hasFreeSlots() {
 /**
   * Called when some key of the config has been changed
   */
-void
-newsoul::DownloadManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
-{
-    if(data->domain == "transfers" && data->key == "download_slots")
-        checkDownloads();
-    if(data->domain == "transfers" && data->key == "download_rate")
-        updateRates();
-}
+//void
+//newsoul::DownloadManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
+//{
+    //if(data->domain == "transfers" && data->key == "download_slots")
+        //checkDownloads();
+    //if(data->domain == "transfers" && data->key == "download_rate")
+        //updateRates();
+//}
 
 /**
   * Called when some key of the config has been deleted
   */
-void
-newsoul::DownloadManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
-{
-    if(data->domain == "transfers" && data->key == "download_slots")
-        checkDownloads();
-    if(data->domain == "transfers" && data->key == "download_rate")
-        updateRates();
-}
+//void
+//newsoul::DownloadManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
+//{
+    //if(data->domain == "transfers" && data->key == "download_slots")
+        //checkDownloads();
+    //if(data->domain == "transfers" && data->key == "download_rate")
+        //updateRates();
+//}
 
 /**
   * Loads the downloads stored in the config file
@@ -1073,7 +1073,7 @@ newsoul::DownloadManager::onConfigKeyRemoved(const newsoul::ConfigManager::Remov
 void newsoul::DownloadManager::loadDownloads() {
     m_AllowUpdate = false; // We don't want downloads to be saved until we have finished to load them
     // Open config file
-    std::string path = newsoul()->config()->get("transfers", "downloads");
+    std::string path = newsoul()->config()->getStr({"downloads", "db"});
     std::ifstream file(path.c_str(), std::fstream::in | std::fstream::binary);
 
 	if(file.fail() || !file.is_open()) {
@@ -1138,7 +1138,7 @@ void newsoul::DownloadManager::saveDownloads() {
     if (m_AllowSave) {
         m_AllowSave = false;
         // Open config file
-        std::string path = newsoul()->config()->get("transfers", "downloads");
+        std::string path = newsoul()->config()->getStr({"downloads", "complete"});
         std::string pathTemp(path + ".tmp");
         std::remove(pathTemp.c_str()); // Remove the temp file if it already exists
 

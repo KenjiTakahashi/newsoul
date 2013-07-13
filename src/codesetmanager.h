@@ -24,7 +24,6 @@
 
 #include <iconv.h>
 #include <map>
-#include "configmanager.h"
 #include "newsoul.h"
 #include "utils/string.h"
 #include "NewNet/nnobject.h"

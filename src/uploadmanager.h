@@ -21,7 +21,6 @@
 #ifndef NEWSOUL_UPLOADMANAGER_H
 #define NEWSOUL_UPLOADMANAGER_H
 
-#include "configmanager.h"
 #include "peersocket.h"
 #include "servermessages.h"
 #include "uploadsocket.h"
@@ -192,8 +191,8 @@ namespace newsoul
     void onPeerSocketUnavailable(std::string user);
     void onPeerSocketReady(PeerSocket * socket);
     void onPeerOffline(std::string user);
-    void onConfigKeySet(const ConfigManager::ChangeNotify * data);
-    void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
+    //void onConfigKeySet(const ConfigManager::ChangeNotify * data);
+    //void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
 
     NewNet::WeakRefPtr<Newsoul>                             m_Newsoul;      // Ref to the newsoul
     std::vector<NewNet::RefPtr<Upload> >                    m_Uploads;      // List of all the uploads

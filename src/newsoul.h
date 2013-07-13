@@ -24,6 +24,7 @@
 
 #include <signal.h>
 #include <string>
+#include "config.h"
 #include "sharesdb.h"
 #include "servermessages.h"
 #include "NewNet/nnreactor.h"
@@ -32,7 +33,6 @@
 namespace newsoul
 {
     /* Forward definitions for classes we use for the class definition. */
-    class ConfigManager;
     class CodesetManager;
     class ServerManager;
     class PeerManager;
@@ -42,27 +42,59 @@ namespace newsoul
     class IfaceManager;
 
     class Newsoul : public NewNet::Object {
+        const std::string version = "0.2.NewI";
+
         /* Our strong references to the various components. */
         NewNet::RefPtr<NewNet::Reactor> m_Reactor;
-        NewNet::RefPtr<ConfigManager> m_Config;
         NewNet::RefPtr<CodesetManager> m_Codeset;
         NewNet::RefPtr<ServerManager> m_Server;
         NewNet::RefPtr<PeerManager> m_Peers;
         NewNet::RefPtr<DownloadManager> m_Downloads;
         NewNet::RefPtr<UploadManager> m_Uploads;
         NewNet::RefPtr<IfaceManager> m_Ifaces;
-        SharesDB *m_Shares, *m_BuddyShares;
+        Config *_config;
+        SharesDB *_globalShares;
+        SharesDB *_buddyShares;
         NewNet::RefPtr<SearchManager> m_Searches;
-        static Newsoul *_instance;
-
         int m_Token;
-
         std::vector<std::string> mPrivilegedUsers;
 
+        static Newsoul *_instance;
         static void handleSignals(int signal);
 
+        /*!
+         * Parses a single piece of CLI interface chain.
+         * It also increments the iterator.
+         * It is implemented that way in order to allow some error checks.
+         * \param keys Config keys of the piece.
+         * \param i Pointer to the main parser iterator.
+         * \param argc CLI arguments number.
+         * \param argv CLI arguments array.
+         * \param n Number of arguments to chop.
+         */
+        void parsePiece(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]);
+        /*!
+         */
+        void parsePart(std::map<const std::string, std::function<void(const std::string sarg)>> func, const std::string carg, int *i, int argc, char *argv[]);
+        /*!
+         * Parses parts and pieces belonging to set(s) command.
+         * \param i Pointer to the main parser iterator.
+         * \param argc CLI arguments number.
+         * \param argv CLI arguments array.
+         * \return True if we should finish parsing.
+         */
+        bool parseSet(int *i, int argc, char *argv[]);
+        /*!
+         * Parses a list of argmuents given on command line
+         * and performs necessary actions, like setting config options, etc.
+         * \param argc Number of arguments.
+         * \param argv List of argument strings.
+         * \return True if we should proceed with event loop.
+         */
+        bool parseArgs(int argc, char *argv[]);
+
     public:
-        Newsoul(const std::string &configPath="", bool debug=false);
+        Newsoul();
         ~Newsoul();
 
         int run(int argc, char *argv[]);
@@ -79,8 +111,8 @@ namespace newsoul
         }
 
         /* Return a pointer to the config manager. */
-        ConfigManager *config() const {
-            return m_Config;
+        Config *config() const {
+            return this->_config;
         }
 
         /* Return a pointer to the codeset manager (codeset translator). */
@@ -116,11 +148,11 @@ namespace newsoul
         }
 
         SharesDB *shares() const {
-            return m_Shares;
+            return this->_globalShares;
         }
 
         SharesDB *buddyshares() const {
-            return m_BuddyShares;
+            return this->_buddyShares;
         }
 
         SearchManager *searches() const {
@@ -142,8 +174,8 @@ namespace newsoul
         bool autoClearFinishedUploads();
         bool autoRetryDownloads();
         bool privilegeBuddies();
-        uint upSlots();
-        uint downSlots();
+        int upSlots();
+        int downSlots();
         void addPrivilegedUser(const std::string &user);
         void setPrivilegedUsers(const std::vector<std::string> &users);
         void sendSharedNumber();

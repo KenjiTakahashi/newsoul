@@ -23,8 +23,8 @@
 
 newsoul::PeerManager::PeerManager(Newsoul * newsoul) : m_Newsoul(newsoul)
 {
-  newsoul->config()->keySetEvent.connect(this, &PeerManager::onConfigKeySet);
-  newsoul->config()->keyRemovedEvent.connect(this, &PeerManager::onConfigKeyRemoved);
+  //newsoul->config()->keySetEvent.connect(this, &PeerManager::onConfigKeySet);
+  //newsoul->config()->keyRemovedEvent.connect(this, &PeerManager::onConfigKeyRemoved);
   newsoul->server()->loggedInStateChangedEvent.connect(this, &PeerManager::onServerLoggedInStateChanged);
   newsoul->server()->cannotConnectNotifyReceivedEvent.connect(this, &PeerManager::onCannotConnectNotify);
   newsoul->server()->connectToPeerRequestedEvent.connect(this, &PeerManager::onServerConnectToPeerRequested);
@@ -54,8 +54,8 @@ newsoul::PeerManager::unlisten()
 void
 newsoul::PeerManager::listen()
 {
-  uint first = m_Newsoul->config()->getUint("clients.bind", "first"),
-       last =  m_Newsoul->config()->getUint("clients.bind", "last");
+  int first = m_Newsoul->config()->getInt({"p2p", "ports", "first"});
+  int last = m_Newsoul->config()->getInt({"p2p", "ports", "last"});
 
   if((first == 0) || (first > last))
   {
@@ -370,23 +370,23 @@ newsoul::PeerManager::onClientAccepted(newsoul::HandshakeSocket * socket)
   socket->setNewsoul(m_Newsoul);
 }
 
-void
-newsoul::PeerManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
-{
-  if(data->domain == "clients.bind")
-  {
-    listen();
-  }
-}
+//void
+//newsoul::PeerManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
+//{
+  //if(data->domain == "clients.bind")
+  //{
+    //listen();
+  //}
+//}
 
-void
-newsoul::PeerManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
-{
-  if(data->domain == "clients.bind")
-  {
-    listen();
-  }
-}
+//void
+//newsoul::PeerManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
+//{
+  //if(data->domain == "clients.bind")
+  //{
+    //listen();
+  //}
+//}
 
 void
 newsoul::PeerManager::onServerLoggedInStateChanged(bool loggedIn)

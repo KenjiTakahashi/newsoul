@@ -372,8 +372,8 @@ newsoul::UploadManager::UploadManager(Newsoul * newsoul) : m_Newsoul(newsoul)
     newsoul->peers()->peerOfflineEvent.connect(this, &UploadManager::onPeerOffline);
     uploadAddedEvent.connect(this, &UploadManager::onUploadAdded);
     uploadUpdatedEvent.connect(this, &UploadManager::onUploadUpdated);
-    newsoul->config()->keySetEvent.connect(this, &UploadManager::onConfigKeySet);
-    newsoul->config()->keyRemovedEvent.connect(this, &UploadManager::onConfigKeyRemoved);
+    //newsoul->config()->keySetEvent.connect(this, &UploadManager::onConfigKeySet);
+    //newsoul->config()->keyRemovedEvent.connect(this, &UploadManager::onConfigKeyRemoved);
 
     m_Limiter = new NewNet::RateLimiter();
     m_Limiter->setLimit(-1);
@@ -544,7 +544,7 @@ void newsoul::UploadManager::checkUploads() {
   */
 void newsoul::UploadManager::updateRates() {
     std::map<std::string, NewNet::WeakRefPtr<Upload> >::iterator it;
-    uint globalRate = newsoul()->config()->getUint("transfers", "upload_rate", 0);
+    int globalRate = newsoul()->config()->getInt({"transfers", "upload_rate"});
     if (globalRate > 0) {
         // There's a limit, update the rate limiter
         m_Limiter->setLimit(globalRate*1000);
@@ -868,32 +868,32 @@ bool newsoul::UploadManager::hasFreeSlots() {
 /**
   * Called when some key of the config has been changed
   */
-void
-newsoul::UploadManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
-{
-    if(data->domain == "transfers" && data->key == "upload_slots")
-        checkUploads();
-    if(data->domain == "transfers" && data->key == "upload_rate")
-        updateRates();
-    if(data->domain == "banned") {
-        Upload * current = isUploadingTo(data->key);
-        if (current)
-            current->setLocalError("Banned");
-        checkUploads();
-    }
-}
+//void
+//newsoul::UploadManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
+//{
+    //if(data->domain == "transfers" && data->key == "upload_slots")
+        //checkUploads();
+    //if(data->domain == "transfers" && data->key == "upload_rate")
+        //updateRates();
+    //if(data->domain == "banned") {
+        //Upload * current = isUploadingTo(data->key);
+        //if (current)
+            //current->setLocalError("Banned");
+        //checkUploads();
+    //}
+//}
 
 /**
   * Called when some key of the config has been deleted
   */
-void
-newsoul::UploadManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
-{
-    if(data->domain == "transfers" && data->key == "upload_slots")
-        checkUploads();
-    if(data->domain == "transfers" && data->key == "upload_rate")
-        updateRates();
-}
+//void
+//newsoul::UploadManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
+//{
+    //if(data->domain == "transfers" && data->key == "upload_slots")
+        //checkUploads();
+    //if(data->domain == "transfers" && data->key == "upload_rate")
+        //updateRates();
+//}
 
 /**
   * Return true if the given user can download the given file. Otherwise, returns false and put the error message in 'error'.

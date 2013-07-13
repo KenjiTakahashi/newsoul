@@ -62,7 +62,7 @@ newsoul::UserSocket::initiate(const std::string & user)
   m_User = user;
   m_Token = m_Newsoul->token();
 
-  if(m_Newsoul->config()->get("clients", "connectmode", "active") == "passive")
+  if(m_Newsoul->config()->getStr({"p2p", "mode"}) == "passive")
     initiatePassive();
   else
     initiateActive();

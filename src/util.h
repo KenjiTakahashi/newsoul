@@ -35,34 +35,6 @@
 #include "utils/string.h"
 #include "NewNet/nnpath.h"
 
-#ifdef WIN32
-
-#include <shlobj.h>
-#include <string>
-
-static inline
-std::string getConfigPath(const std::string & appName)
-{
-  LPITEMIDLIST pidl;
-  if(SUCCEEDED(SHGetSpecialFolderLocation(0, CSIDL_APPDATA, &pidl)))
-  {
-    char path[MAX_PATH];
-    if(SUCCEEDED(SHGetPathFromIDList(pidl, path)))
-    {
-      CoTaskMemFree(pidl);
-      return std::string(path) + "\\" + appName;
-    }
-    CoTaskMemFree(pidl);
-  }
-
-  char path[MAX_PATH];
-  GetModuleFileName(0, path, sizeof(path) - 1);
-  std::string strPath(path);
-  return strPath.substr(0, strPath.rfind('\\')) + "\\config";
-}
-
-#endif // WIN32
-
 static inline int write_int(std::ofstream * ofs, uint32 i) {
 	if(ofs->fail() || !ofs->is_open())
 		return -1;

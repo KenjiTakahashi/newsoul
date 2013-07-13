@@ -137,8 +137,8 @@ newsoul::PeerSocket::onMessageReceived(const MessageData * data)
 void
 newsoul::PeerSocket::onInfoRequested(const PInfoRequest *)
 {
-  std::string text = newsoul()->config()->get("userinfo", "text");
-  std::string path = newsoul()->config()->get("userinfo", "image");
+  std::string text = newsoul()->config()->getStr({"userinfo", "text"});
+  std::string path = newsoul()->config()->getStr({"userinfo", "image"});
   std::vector<uchar> imgdata;
   if(path != "")
   {
@@ -195,7 +195,7 @@ void
 newsoul::PeerSocket::onUploadQueueNotificationReceived(const PUploadQueueNotification *)
 {
   std::string state = " is not a buddy";
-  if (newsoul()->config()->hasKey("buddies", user()))
+  if (newsoul()->config()->contains({"buddies"}, user()))
     state = " is a buddy";
 
   std::string isbuddy = user() + state;
@@ -318,7 +318,7 @@ newsoul::PeerSocket::onTransferRequested(const PTransferRequest * request)
         // Prepare the download
         std::stringstream localPath;
         // Construct the destination path
-        localPath << newsoul()->config()->get("transfers", "download-dir") << NewNet::Path::separator() << "upload" << NewNet::Path::separator()  << newsoul()->codeset()->fromNetToFS(user());
+        localPath << newsoul()->config()->getStr({"downloads", "complete"}) << NewNet::Path::separator() << "upload" << NewNet::Path::separator()  << newsoul()->codeset()->fromNetToFS(user());
         // Create the download and prepare it
         newsoul()->downloads()->add(user(), path, localPath.str());
         Download * newDownload = newsoul()->downloads()->findDownload(user(), path);

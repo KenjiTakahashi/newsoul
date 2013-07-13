@@ -22,7 +22,6 @@
 #define NEWSOUL_SERVERMANAGER_H
 
 #include "codesetmanager.h"
-#include "configmanager.h"
 #include "newsoul.h"
 #include "peermanager.h"
 #include "servermessages.h"
@@ -92,8 +91,8 @@ namespace newsoul
       }
     }
 
-    void onConfigKeySet(const ConfigManager::ChangeNotify * data);
-    void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
+    //void onConfigKeySet(const ConfigManager::ChangeNotify * data);
+    //void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
 
     void onCannotConnect(NewNet::ClientSocket * socket);
     void onConnected(NewNet::ClientSocket *);

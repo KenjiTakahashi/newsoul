@@ -72,8 +72,8 @@ namespace newsoul
     void onLog(const NewNet::Log::LogNotify * notice);
 
     // Config changed listener events:
-    void onConfigKeySet(const ConfigManager::ChangeNotify * data);
-    void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
+    //void onConfigKeySet(const ConfigManager::ChangeNotify * data);
+    //void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
 
     // Interface event handlers:
     void onIfaceAccepted(IfaceSocket * socket);

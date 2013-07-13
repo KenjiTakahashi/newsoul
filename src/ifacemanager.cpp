@@ -62,8 +62,8 @@ newsoul::IfaceManager::IfaceManager(Newsoul * newsoul) : m_Newsoul(newsoul)
 
   NNLOG.logEvent.connect(this, &IfaceManager::onLog);
 
-  newsoul->config()->keySetEvent.connect(this, &IfaceManager::onConfigKeySet);
-  newsoul->config()->keyRemovedEvent.connect(this, &IfaceManager::onConfigKeyRemoved);
+  //newsoul->config()->keySetEvent.connect(this, &IfaceManager::onConfigKeySet);
+  //newsoul->config()->keyRemovedEvent.connect(this, &IfaceManager::onConfigKeyRemoved);
 
   newsoul->server()->loggedInStateChangedEvent.connect(this, &IfaceManager::onServerLoggedInStateChanged);
   newsoul->server()->receivedServerTimeDiff.connect(this, &IfaceManager::onServerTimeDiffReceived);
@@ -184,29 +184,29 @@ newsoul::IfaceManager::onLog(const NewNet::Log::LogNotify * log)
   SEND_MASK(EM_DEBUG, IDebugMessage(log->domain, log->message));
 }
 
-void
-newsoul::IfaceManager::onConfigKeySet(const ConfigManager::ChangeNotify * data)
-{
-  if(data->domain == "interfaces.bind")
-  {
-    if(m_Factories.find(data->key) != m_Factories.end())
-      return;
-    addListener(data->key);
-  }
-  SEND_C_MASK(EM_CONFIG, IConfigSet((*it)->cipherContext(), data->domain, data->key, data->value));
-}
+//void
+//newsoul::IfaceManager::onConfigKeySet(const ConfigManager::ChangeNotify * data)
+//{
+  //if(data->domain == "interfaces.bind")
+  //{
+    //if(m_Factories.find(data->key) != m_Factories.end())
+      //return;
+    //addListener(data->key);
+  //}
+  //SEND_C_MASK(EM_CONFIG, IConfigSet((*it)->cipherContext(), data->domain, data->key, data->value));
+//}
 
-void
-newsoul::IfaceManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data)
-{
-  if(data->domain == "interfaces.bind")
-  {
-    if(m_Factories.find(data->key) == m_Factories.end())
-      return;
-    removeListener(data->key);
-  }
-  SEND_C_MASK(EM_CONFIG, IConfigRemove((*it)->cipherContext(), data->domain, data->key));
-}
+//void
+//newsoul::IfaceManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data)
+//{
+  //if(data->domain == "interfaces.bind")
+  //{
+    //if(m_Factories.find(data->key) == m_Factories.end())
+      //return;
+    //removeListener(data->key);
+  //}
+  //SEND_C_MASK(EM_CONFIG, IConfigRemove((*it)->cipherContext(), data->domain, data->key));
+//}
 
 void
 newsoul::IfaceManager::flushPrivateMessages()
@@ -350,7 +350,7 @@ newsoul::IfaceManager::onIfacePing(const IPing * message)
 void
 newsoul::IfaceManager::onIfaceLogin(const ILogin * message)
 {
-  std::string password = newsoul()->config()->get("interfaces", "password");
+  std::string password = newsoul()->config()->getStr({"interfaces", "password"}); //FIXME: we have separate passes for each iface
   if(password.empty())
   {
     NNLOG("newsoul.iface.warn", "Rejecting login attempt because of empty password.");
@@ -428,7 +428,7 @@ newsoul::IfaceManager::onIfaceLogin(const ILogin * message)
     if(socket->mask() & EM_PRIVATE)
       flushPrivateMessages();
     if(socket->mask() & EM_CONFIG)
-      SEND_MESSAGE(socket, IConfigState(socket->cipherContext(), newsoul()->config()->data()));
+      //SEND_MESSAGE(socket, IConfigState(socket->cipherContext(), newsoul()->config()->data())); //FIXME:FIXME
     if(newsoul()->server()->loggedIn())
       SEND_MESSAGE(message->ifaceSocket(), ISetStatus(m_AwayState));
 
@@ -478,18 +478,18 @@ newsoul::IfaceManager::onIfaceNewPassword(const INewPassword * message)
 void
 newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet * message)
 {
-  newsoul()->config()->set(message->domain, message->key, message->value);
+  newsoul()->config()->set({message->domain, message->key}, message->value);
 }
 
 void
 newsoul::IfaceManager::onIfaceRemoveConfig(const IConfigRemove * message)
 {
-  newsoul()->config()->removeKey(message->domain, message->key);
+  //newsoul()->config()->removeKey({message->domain}, message->key); //FIXME:FIXME
 }
 
 void
 newsoul::IfaceManager::onIfaceSetUserImage(const IConfigSetUserImage * message) {
-    std::string path = newsoul()->config()->get("userinfo", "image");
+    std::string path = newsoul()->config()->getStr({"userinfo", "image"});
 
     std::ofstream ofs(path.c_str(), std::ofstream::binary | std::ofstream::trunc);
     if (!ofs.good())
@@ -660,7 +660,7 @@ newsoul::IfaceManager::onIfaceMessageUsers(const IMessageUsers * message)
 void
 newsoul::IfaceManager::onIfaceMessageBuddies(const IMessageBuddies * message)
 {
-    std::vector<std::string> buddies = newsoul()->config()->keys("buddies");
+    std::vector<std::string> buddies = newsoul()->config()->getVec({"buddies"});
     SEND_MESSAGE(newsoul()->server(), SMessageUsers(buddies, message->msg));
     sendStatusMessage(true, std::string("Sent message '") + message->msg + std::string("' to buddies."));
 }
@@ -694,7 +694,7 @@ newsoul::IfaceManager::onIfacePrivRoomToggle(const IPrivRoomToggle * message)
     if (oldConfig == message->enabled)
         return;
 
-    newsoul()->config()->set("priv_rooms", "enable_priv_room", message->enabled);
+    newsoul()->config()->set({"priv_rooms", "enable_priv_room"}, message->enabled);
     SEND_MASK(EM_CHAT, IPrivRoomToggle(message->enabled)); // Needed as the server doesn't always confirm
     SEND_MESSAGE(newsoul()->server(), SPrivRoomToggle(message->enabled));
 }
@@ -796,37 +796,37 @@ newsoul::IfaceManager::onIfaceGetItemSimilarUsers(const IGetItemSimilarUsers * m
 void
 newsoul::IfaceManager::onIfaceAddInterest(const IAddInterest * message)
 {
-  newsoul()->config()->set("interests.like", message->interest, "");
+  newsoul()->config()->set({"interests.like", message->interest}, "");
 }
 
 void
 newsoul::IfaceManager::onIfaceRemoveInterest(const IRemoveInterest * message)
 {
-  newsoul()->config()->removeKey("interests.like", message->interest);
+  //newsoul()->config()->removeKey("interests.like", message->interest); //FIXME:FIXME
 }
 
 void
 newsoul::IfaceManager::onIfaceAddHatedInterest(const IAddHatedInterest * message)
 {
-  newsoul()->config()->set("interests.hate", message->interest, "");
+  newsoul()->config()->set({"interests.hate", message->interest}, "");
 }
 
 void
 newsoul::IfaceManager::onIfaceRemoveHatedInterest(const IRemoveHatedInterest * message)
 {
-  newsoul()->config()->removeKey("interests.hate", message->interest);
+  //newsoul()->config()->removeKey("interests.hate", message->interest); //FIXME:FIXME
 }
 
 void
 newsoul::IfaceManager::onIfaceAddWishItem(const IAddWishItem * message)
 {
-  newsoul()->config()->set("wishlist", message->query, 0);
+  newsoul()->config()->set({"wishlist", message->query}, 0);
 }
 
 void
 newsoul::IfaceManager::onIfaceRemoveWishItem(const IRemoveWishItem * message)
 {
-  newsoul()->config()->removeKey("wishlist", message->query);
+  //newsoul()->config()->removeKey("wishlist", message->query); //FIXME:FIXME
 }
 
 void
@@ -1144,7 +1144,7 @@ newsoul::IfaceManager::onServerPrivRoomToggled(const SPrivRoomToggle * message)
     if (oldConfig == message->enabled)
         return;
 
-    newsoul()->config()->set("priv_rooms", "enable_priv_room", message->enabled);
+    newsoul()->config()->set({"priv_rooms", "enable_priv_room"}, message->enabled);
 }
 
 void
