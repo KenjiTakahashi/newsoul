@@ -54,8 +54,8 @@ newsoul::PeerManager::unlisten()
 void
 newsoul::PeerManager::listen()
 {
-  int first = m_Newsoul->config()->getInt({"p2p", "ports", "first"});
-  int last = m_Newsoul->config()->getInt({"p2p", "ports", "last"});
+  unsigned int first = (unsigned int)m_Newsoul->config()->getInt({"p2p", "ports", "first"});
+  unsigned int last = (unsigned int)m_Newsoul->config()->getInt({"p2p", "ports", "last"});
 
   if((first == 0) || (first > last))
   {

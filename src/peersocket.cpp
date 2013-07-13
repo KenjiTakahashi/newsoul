@@ -195,7 +195,7 @@ void
 newsoul::PeerSocket::onUploadQueueNotificationReceived(const PUploadQueueNotification *)
 {
   std::string state = " is not a buddy";
-  if (newsoul()->config()->contains({"buddies"}, user()))
+  if (newsoul()->config()->contains({"userinfo", "buddies"}, user()))
     state = " is a buddy";
 
   std::string isbuddy = user() + state;
