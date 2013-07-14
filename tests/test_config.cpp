@@ -166,7 +166,7 @@ TEST_CASE("contains", "[newsoul][Config]") {
 }
 
 TEST_CASE("set<int>", "[newsoul][Config]") {
-    std::istringstream data("");
+    std::istringstream data("{}");
     auto config = new newsoul::Config(data);
 
     SECTION("top level") {
@@ -200,7 +200,7 @@ TEST_CASE("set<int>", "[newsoul][Config]") {
 }
 
 TEST_CASE("set<string>", "[newsoul][Config]") {
-    std::istringstream data("");
+    std::istringstream data("{}");
     auto config = new newsoul::Config(data);
 
     SECTION("top level") {
