@@ -15,7 +15,7 @@
     },
     "listeners": {
         "paths": [
-            "localhost:2240"
+            "localhost:2240",
             "/tmp/newsoul.kenji"
         ],
         "password": ""

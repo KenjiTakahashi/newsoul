@@ -100,13 +100,6 @@ namespace newsoul {
         std::vector<std::string> getVec(std::initializer_list<const std::string> keys);
 
         /*!
-         * Checks whether given value is contained within a JSON array.
-         * \param keys List of keys which will be chained into JSON path.
-         * \return True if given JSON path contains value, false otherwise.
-         */
-        bool contains(std::initializer_list<const std::string> keys, const std::string &value);
-
-        /*!
          * Sets value of type integer.
          * \param keys List of keys which will be chained into JSON path.
          * \param value Value to set.
@@ -118,6 +111,21 @@ namespace newsoul {
          * \param value Value to set.
          */
         void set(std::initializer_list<const std::string> keys, const std::string &value);
+
+        /*!
+         * Checks whether given value is contained within a JSON array.
+         * \param keys List of keys which will be chained into JSON path.
+         * \return True if given JSON path contains value, false otherwise.
+         */
+        bool contains(std::initializer_list<const std::string> keys, const std::string &value);
+
+        /*!
+         * Adds an item to array. If key path exists, last pieces' value
+         * will be overwritten by new array with value provided as parameter.
+         * \param keys List of keys which will be chained into JSON path.
+         * \param value Value to add to array pointed to by key path.
+         */
+        void add(std::initializer_list<const std::string> keys, const std::string &value);
     };
 }
 

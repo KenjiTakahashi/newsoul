@@ -31,7 +31,7 @@ newsoul::Config::Config(std::istream &is, bool autosave) : autosave(autosave) {
 newsoul::Config::Config(const std::string &fn, bool autosave) : fn(fn), autosave(autosave) {
     std::ifstream f(this->fn);
     if(!f.is_open() || !f.good()) {
-        this->fn = path::join({os::config(), "config.json"});
+        this->fn = path::join({os::config(), "newsoul", "config.json"});
         f.open(this->fn);
     }
 #ifndef _WIN32
@@ -100,21 +100,6 @@ std::vector<std::string> newsoul::Config::getVec(std::initializer_list<const std
     return out;
 }
 
-bool newsoul::Config::contains(std::initializer_list<const std::string> keys, const std::string &value) {
-    struct json_object *result = this->get(keys);
-    if(result == NULL || json_object_get_type(result) != json_type_array) {
-        return false;
-    }
-
-    for(int i = 0; i < json_object_array_length(result); ++i) {
-        std::string s(json_object_get_string(json_object_array_get_idx(result, i)));
-        if(s == value) {
-            return true;
-        }
-    }
-    return false;
-}
-
 void newsoul::Config::set(std::initializer_list<const std::string> keys, struct json_object *value) {
     struct json_object *copy = this->json;
     struct json_object *part;
@@ -140,4 +125,29 @@ void newsoul::Config::set(std::initializer_list<const std::string> keys, int val
 
 void newsoul::Config::set(std::initializer_list<const std::string> keys, const std::string &value) {
     this->set(keys, json_object_new_string(value.c_str()));
+}
+
+bool newsoul::Config::contains(std::initializer_list<const std::string> keys, const std::string &value) {
+    struct json_object *result = this->get(keys);
+    if(result == NULL || json_object_get_type(result) != json_type_array) {
+        return false;
+    }
+
+    for(int i = 0; i < json_object_array_length(result); ++i) {
+        std::string s(json_object_get_string(json_object_array_get_idx(result, i)));
+        if(s == value) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void newsoul::Config::add(std::initializer_list<const std::string> keys, const std::string &value) {
+    struct json_object *result = this->get(keys);
+    if(result == NULL || json_object_get_type(result) != json_type_array) {
+        result = json_object_new_array();
+        this->set(keys, result);
+    }
+
+    json_object_array_add(result, json_object_new_string(value.c_str()));
 }

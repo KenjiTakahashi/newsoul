@@ -128,43 +128,6 @@ TEST_CASE("getVec", "[newsoul][Config]") {
     delete config;
 }
 
-TEST_CASE("contains", "[newsoul][Config]") {
-    std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]}, \"notvec\":1}");
-    auto config = new newsoul::Config(data);
-
-    SECTION("top level") {
-        bool result = config->contains({"vec1"}, "v1");
-
-        REQUIRE(result == true);
-    }
-
-    SECTION("nested") {
-        bool result = config->contains({"key", "vec2"}, "v3");
-
-        REQUIRE(result == true);
-    }
-
-    SECTION("not found value") {
-        bool result = config->contains({"vec1"}, "v3");
-
-        REQUIRE(result == false);
-    }
-
-    SECTION("not found key") {
-        bool result = config->contains({"notfound"}, "");
-
-        REQUIRE(result == false);
-    }
-
-    SECTION("not array") {
-        bool result = config->contains({"notvec"}, "v5");
-
-        REQUIRE(result == false);
-    }
-
-    delete config;
-}
-
 TEST_CASE("set<int>", "[newsoul][Config]") {
     std::istringstream data("{}");
     auto config = new newsoul::Config(data);
@@ -228,6 +191,86 @@ TEST_CASE("set<string>", "[newsoul][Config]") {
 
         REQUIRE(result1 == "s1");
         REQUIRE(result2 == "s2");
+    }
+
+    delete config;
+}
+
+TEST_CASE("contains", "[newsoul][Config]") {
+    std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]}, \"notvec\":1}");
+    auto config = new newsoul::Config(data);
+
+    SECTION("top level") {
+        bool result = config->contains({"vec1"}, "v1");
+
+        REQUIRE(result == true);
+    }
+
+    SECTION("nested") {
+        bool result = config->contains({"key", "vec2"}, "v3");
+
+        REQUIRE(result == true);
+    }
+
+    SECTION("not found value") {
+        bool result = config->contains({"vec1"}, "v3");
+
+        REQUIRE(result == false);
+    }
+
+    SECTION("not found key") {
+        bool result = config->contains({"notfound"}, "");
+
+        REQUIRE(result == false);
+    }
+
+    SECTION("not array") {
+        bool result = config->contains({"notvec"}, "v5");
+
+        REQUIRE(result == false);
+    }
+
+    delete config;
+}
+
+TEST_CASE("add", "[newsoul][Config]") {
+    std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]},\"notvec\":1}");
+    auto config = new newsoul::Config(data);
+
+    SECTION("top level") {
+        config->add({"vec1"}, "v5");
+
+        std::vector<std::string> result = config->getVec({"vec1"});
+
+        REQUIRE(result[0] == "v1");
+        REQUIRE(result[1] == "v2");
+        REQUIRE(result[2] == "v5");
+    }
+
+    SECTION("nested") {
+        config->add({"key", "vec2"}, "v6");
+
+        std::vector<std::string> result = config->getVec({"key", "vec2"});
+
+        REQUIRE(result[0] == "v3");
+        REQUIRE(result[1] == "v4");
+        REQUIRE(result[2] == "v6");
+    }
+
+    SECTION("not array") {
+        config->add({"notvec"}, "v7");
+
+        std::vector<std::string> result = config->getVec({"notvec"});
+
+        REQUIRE(result[0] == "v7");
+    }
+
+    SECTION("non existing top level key") {
+        config->add({"notfound"}, "v8");
+
+        std::vector<std::string> result = config->getVec({"notfound"});
+
+        REQUIRE(result[0] == "v8");
     }
 
     delete config;
