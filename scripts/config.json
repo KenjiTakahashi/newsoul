@@ -14,8 +14,11 @@
         "mode": "passive"
     },
     "listeners": {
-        "localhost:2240": "",
-        "/tmp/newsoul.kenji": ""
+        "paths": [
+            "localhost:2240"
+            "/tmp/newsoul.kenji"
+        ],
+        "password": ""
     },
     "encoding": {
         "network": "UTF-8",

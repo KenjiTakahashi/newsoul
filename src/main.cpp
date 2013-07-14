@@ -19,7 +19,6 @@
 
  */
 
-#include <memory>
 #include "newsoul.h"
 
 /* Returns 0 if newsoul is already running, 1 otherwise. */
@@ -63,6 +62,6 @@ int main(int argc, char *argv[]) {
   }
 
   /* Create our newsoul Daemon instance. */
-  std::unique_ptr<newsoul::Newsoul> app;
-  return app->run(argc, argv);
+  newsoul::Newsoul app;
+  return app.run(argc, argv);
 }
