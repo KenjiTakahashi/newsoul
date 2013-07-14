@@ -18,7 +18,7 @@
 
 #include "path.h"
 
-std::string path::join(std::initializer_list<std::string> paths) {
+std::string path::join(std::initializer_list<const std::string> paths) {
     std::string result;
     char sep = os::separator();
 
@@ -37,4 +37,18 @@ std::string path::join(std::initializer_list<std::string> paths) {
     }
 
     return result;
+}
+
+std::string path::expand(const std::string &path) {
+#ifndef _WIN32
+    wordexp_t ep;
+    if(wordexp(path.c_str(), &ep, WRDE_NOCMD) != 0) {
+        return path;
+    }
+    std::string result(ep.we_wordv[0]);
+    wordfree(&ep);
+    return result;
+#else
+    return path; //TODO: Real implementation (using ExpandEnvironmentStrings?)
+#endif
 }

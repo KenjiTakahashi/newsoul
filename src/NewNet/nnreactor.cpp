@@ -188,6 +188,7 @@ void NewNet::Reactor::run()
 bool
 NewNet::Reactor::prepareReactorData() {
     /* No timeout set yet */
+    static bool first_run = true; //let's abuse it a bit
     bool timeout_set = false;
     struct timeval timeout;
 
@@ -218,7 +219,10 @@ NewNet::Reactor::prepareReactorData() {
         timeout.tv_usec = 0;
       }
 
-      evtimer_del(&mEvTimeout); // delete potentially existing previous timeout
+      if(!first_run) {
+          evtimer_del(&mEvTimeout); // delete potentially existing previous timeout
+      }
+      first_run = false;
       evtimer_set(&mEvTimeout, ::eventCallback, this);
       evtimer_add(&mEvTimeout, &timeout);
     }

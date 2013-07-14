@@ -75,9 +75,6 @@ namespace newsoul
   private:
     void onClientAccepted(HandshakeSocket * socket);
 
-    //void onConfigKeySet(const ConfigManager::ChangeNotify * data);
-    //void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
-
     void onServerLoggedInStateChanged(bool loggedIn);
     void onCannotConnectNotify(const SCannotConnect * msg);
     void onServerConnectToPeerRequested(const SConnectToPeer * message);

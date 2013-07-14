@@ -384,14 +384,13 @@ newsoul::DownloadManager::DownloadManager(Newsoul * newsoul) : m_Newsoul(newsoul
     newsoul->peers()->peerOfflineEvent.connect(this, &DownloadManager::onPeerOffline);
     downloadAddedEvent.connect(this, &DownloadManager::onDownloadAdded);
     downloadUpdatedEvent.connect(this, &DownloadManager::onDownloadUpdated);
-    //newsoul->config()->keySetEvent.connect(this, &DownloadManager::onConfigKeySet);
-    //newsoul->config()->keyRemovedEvent.connect(this, &DownloadManager::onConfigKeyRemoved);
 
     m_AllowUpdate = false;
     m_AllowSave = true;
     m_PendingDownloadsSave = false;
     m_Limiter = new NewNet::RateLimiter();
     m_Limiter->setLimit(-1);
+    this->updateRates();
 }
 
 newsoul::DownloadManager::~DownloadManager()
@@ -1041,30 +1040,6 @@ void newsoul::DownloadManager::onPeerOffline(std::string user) {
 bool newsoul::DownloadManager::hasFreeSlots() {
     return (m_Downloading.size() < newsoul()->downSlots()) || ( newsoul()->downSlots() == 0);
 }
-
-/**
-  * Called when some key of the config has been changed
-  */
-//void
-//newsoul::DownloadManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
-//{
-    //if(data->domain == "transfers" && data->key == "download_slots")
-        //checkDownloads();
-    //if(data->domain == "transfers" && data->key == "download_rate")
-        //updateRates();
-//}
-
-/**
-  * Called when some key of the config has been deleted
-  */
-//void
-//newsoul::DownloadManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
-//{
-    //if(data->domain == "transfers" && data->key == "download_slots")
-        //checkDownloads();
-    //if(data->domain == "transfers" && data->key == "download_rate")
-        //updateRates();
-//}
 
 /**
   * Loads the downloads stored in the config file

@@ -91,9 +91,6 @@ namespace newsoul
       }
     }
 
-    //void onConfigKeySet(const ConfigManager::ChangeNotify * data);
-    //void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
-
     void onCannotConnect(NewNet::ClientSocket * socket);
     void onConnected(NewNet::ClientSocket *);
     void onDisconnected(NewNet::ClientSocket * socket);

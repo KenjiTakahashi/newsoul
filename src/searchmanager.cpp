@@ -32,8 +32,6 @@ newsoul::SearchManager::SearchManager(Newsoul * newsoul) : m_Newsoul(newsoul)
     newsoul->peers()->peerSocketUnavailableEvent.connect(this, &SearchManager::onPeerSocketUnavailable);
     newsoul->server()->addUserReceivedEvent.connect(this, &SearchManager::onAddUserReceived);
     newsoul->server()->wishlistIntervalReceivedEvent.connect(this, &SearchManager::onWishlistIntervalReceived);
-    //newsoul->config()->keySetEvent.connect(this, &SearchManager::onConfigKeySet);
-    //newsoul->config()->keyRemovedEvent.connect(this, &SearchManager::onConfigKeyRemoved);
 
     m_Parent = 0;
     m_ParentIp = std::string();
@@ -366,7 +364,7 @@ void newsoul::SearchManager::sendSearchResults(const std::string & username, con
   * Initiate a search in our buddy list
   */
 void newsoul::SearchManager::buddySearch(uint token, const std::string & query) {
-    std::vector<std::string> buddies = newsoul()->config()->getVec({"buddies"});
+    std::vector<std::string> buddies = newsoul()->config()->getVec({"users", "buddies"});
     std::vector<std::string>::const_iterator it;
     std::string q = newsoul()->codeset()->toNet(query);
     for(it = buddies.begin(); it != buddies.end(); ++it) {
@@ -532,18 +530,3 @@ void
 newsoul::SearchManager::searchReplyReceived(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint64 queuelen, const Folder & folders) {
     newsoul()->ifaces()->onSearchReply(ticket, user, slotfree, avgspeed, (uint) queuelen, folders);
 }
-
-//void
-//newsoul::SearchManager::onConfigKeySet(const ConfigManager::ChangeNotify * data) {
-    //if ((data->domain == "wishlist") && (!data->key.empty()))
-        //m_Wishlist[data->key] = newsoul()->config()->getInt({data->domain, data->key});
-//}
-
-//void
-//newsoul::SearchManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data) {
-    //if (data->domain == "wishlist") {
-        //std::map<std::string, time_t>::iterator it = m_Wishlist.find(data->key);
-        //if (it != m_Wishlist.end())
-            //m_Wishlist.erase(it);
-    //}
-//}

@@ -202,8 +202,6 @@ namespace newsoul
     void onPeerSocketUnavailable(std::string user);
     void onPeerSocketReady(PeerSocket * socket);
     void onPeerOffline(std::string user);
-    //void onConfigKeySet(const ConfigManager::ChangeNotify * data);
-    //void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
 
     /* Send the foldercontents request pending a peer socket */
     void askPendingFolderContents(PeerSocket * socket);

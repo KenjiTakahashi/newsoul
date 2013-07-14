@@ -17,21 +17,21 @@
 */
 
 #include "os.h"
-#include <iostream>
-#include <cstring>
-#include <errno.h>
 
-bool os::mkdir(const std::string &path, bool recursive) {
+bool os::_mkdir(const std::string &path, bool recursive) {
     size_t pos = path.rfind(separator());
     if(recursive && pos != std::string::npos) {
         const std::string piece = path.substr(0, pos);
-        mkdir(piece);
+        _mkdir(piece);
     }
     if(::mkdir((path + separator()).c_str(), 0777) == -1 && errno != EEXIST) {
-        std::cout << strerror(errno) << std::endl;
         return false;
     }
     return true;
+}
+
+bool os::mkdir(const std::string &path, bool recursive) {
+    return _mkdir(path::expand(path), recursive);
 }
 
 char os::separator() {

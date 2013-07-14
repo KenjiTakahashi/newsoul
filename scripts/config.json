@@ -47,10 +47,12 @@
     },
     "database": {
         "global": {
-            "paths": []
+            "paths": [],
+            "dbpath": "~/.config/newsoul/global/"
         },
         "buddy": {
             "paths": [],
+            "dbpath": "~/.config/newsoul/local/"
             "enabled": false
         }
     },

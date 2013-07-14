@@ -30,6 +30,8 @@ newsoul::Newsoul::Newsoul() {
     m_Token = rand();
 
     _instance = this;
+
+    this->_config = nullptr;
 }
 
 newsoul::Newsoul::~Newsoul() { }
@@ -212,6 +214,9 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
         }
     }
 
+    if(this->_config == nullptr) {
+        this->_config = new Config();
+    }
     return true;
 }
 
@@ -248,11 +253,11 @@ int newsoul::Newsoul::run(int argc, char *argv[]) {
 }
 
 void newsoul::Newsoul::LoadShares() {
-    const std::string shares = this->_config->getStr({"shares", "global", "dbfile"});
+    const std::string shares = this->_config->getStr({"database", "global", "dbpath"});
     if (!shares.empty()) {
         this->_globalShares = new SharesDB(shares, [this]{this->sendSharedNumber();});
     }
-    const std::string bshares = this->_config->getStr({"shares", "buddy", "dbfile"});
+    const std::string bshares = this->_config->getStr({"database", "buddy", "dbpath"});
     if (!bshares.empty() && haveBuddyShares()) {
         this->_buddyShares = new SharesDB(bshares, [this]{this->sendSharedNumber();});
     }

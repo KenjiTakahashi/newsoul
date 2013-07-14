@@ -21,6 +21,9 @@
 
 #include <initializer_list>
 #include <string>
+#ifndef _WIN32
+#include <wordexp.h>
+#endif
 #include "os.h"
 
 namespace path {
@@ -31,7 +34,14 @@ namespace path {
      * \param paths List of path chunks to join.
      * \return All paths joined into one.
      */
-    std::string join(std::initializer_list<std::string> paths);
+    std::string join(std::initializer_list<const std::string> paths);
+    /*!
+     * Expands environment variables and other things, like '~' char.
+     * Does not, however, expand commands.
+     * \param path Path for which to expand vars.
+     * \return New path with vars expanded.
+     */
+    std::string expand(const std::string &path);
 }
 
 #endif /* __UTILS_PATH_H__ */

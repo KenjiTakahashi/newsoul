@@ -20,10 +20,12 @@
 
 newsoul::SharesDB::SharesDB(const std::string &fn, std::function<void(void)> func) : dirsdb(NULL, DB_CXX_NO_EXCEPTIONS), attrdb(NULL, DB_CXX_NO_EXCEPTIONS) {
     this->updateApp = func;
-    os::mkdir(fn);
-    std::string dfn = path::join({fn, "dirs.db"});
-    std::string afn = path::join({fn, "attr.db"});
+    const std::string efn = path::expand(fn);
+    os::_mkdir(efn);
+    std::string dfn = path::join({efn, "dirs.db"});
+    std::string afn = path::join({efn, "attr.db"});
     this->dirsdb.set_flags(DB_DUPSORT);
+    //TODO: Handle errors. Really
     this->dirsdb.open(NULL, afn.c_str(), NULL, DB_HASH, DB_CREATE, 0);
     this->attrdb.open(NULL, dfn.c_str(), NULL, DB_HASH, DB_CREATE, 0);
     this->compress();

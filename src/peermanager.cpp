@@ -23,8 +23,6 @@
 
 newsoul::PeerManager::PeerManager(Newsoul * newsoul) : m_Newsoul(newsoul)
 {
-  //newsoul->config()->keySetEvent.connect(this, &PeerManager::onConfigKeySet);
-  //newsoul->config()->keyRemovedEvent.connect(this, &PeerManager::onConfigKeyRemoved);
   newsoul->server()->loggedInStateChangedEvent.connect(this, &PeerManager::onServerLoggedInStateChanged);
   newsoul->server()->cannotConnectNotifyReceivedEvent.connect(this, &PeerManager::onCannotConnectNotify);
   newsoul->server()->connectToPeerRequestedEvent.connect(this, &PeerManager::onServerConnectToPeerRequested);
@@ -369,24 +367,6 @@ newsoul::PeerManager::onClientAccepted(newsoul::HandshakeSocket * socket)
 {
   socket->setNewsoul(m_Newsoul);
 }
-
-//void
-//newsoul::PeerManager::onConfigKeySet(const newsoul::ConfigManager::ChangeNotify * data)
-//{
-  //if(data->domain == "clients.bind")
-  //{
-    //listen();
-  //}
-//}
-
-//void
-//newsoul::PeerManager::onConfigKeyRemoved(const newsoul::ConfigManager::RemoveNotify * data)
-//{
-  //if(data->domain == "clients.bind")
-  //{
-    //listen();
-  //}
-//}
 
 void
 newsoul::PeerManager::onServerLoggedInStateChanged(bool loggedIn)

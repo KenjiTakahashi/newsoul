@@ -29,6 +29,7 @@
 #include <string.h>
 #define mkdir(path, mode) _mkdir(path)
 #endif
+#include "path.h"
 
 namespace os {
     /*!
@@ -38,6 +39,7 @@ namespace os {
      * \param recursive When false, creates only last dir or fails.
      * \return True on success, false otherwise.
      */
+    bool _mkdir(const std::string &path, bool recursive=true);
     bool mkdir(const std::string &path, bool recursive=true);
     /*!
      * Returns filesystem path separator used by OS.

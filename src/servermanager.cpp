@@ -22,10 +22,6 @@
 
 newsoul::ServerManager::ServerManager(Newsoul * newsoul) : m_Newsoul(newsoul), m_LoggedIn(false)
 {
-    // Connect config event handlers
-    //newsoul->config()->keySetEvent.connect(this, &ServerManager::onConfigKeySet);
-    //newsoul->config()->keyRemovedEvent.connect(this, &ServerManager::onConfigKeyRemoved);
-
     // Connect local event handlers
     loggedInEvent.connect(this, &ServerManager::onLoggedIn);
     roomJoinedEvent.connect(this, &ServerManager::onRoomJoined);
@@ -222,32 +218,6 @@ newsoul::ServerManager::onMessageReceived(const TcpMessageSocket::MessageData * 
         msg.parse_network_packet(data->data, data->length);
   }
 }
-
-//void
-//newsoul::ServerManager::onConfigKeySet(const ConfigManager::ChangeNotify * data)
-//{
-  //if(loggedIn())
-  //{
-    //if(data->domain == "interests.like")
-      //SEND_MESSAGE(SInterestAdd(data->key));
-    //else if(data->domain == "interests.hate")
-      //SEND_MESSAGE(SInterestHatedAdd(data->key));
-    //else if(data->domain == "buddies" || data->domain == "trusted" || data->domain == "ignored" || data->domain == "banned")
-      //newsoul()->peers()->requestUserData(data->key);
-  //}
-//}
-
-//void
-//newsoul::ServerManager::onConfigKeyRemoved(const ConfigManager::RemoveNotify * data)
-//{
-  //if(loggedIn())
-  //{
-    //if(data->domain == "interests.like")
-      //SEND_MESSAGE(SInterestRemove(data->key));
-    //else if(data->domain == "interests.hate")
-      //SEND_MESSAGE(SInterestHatedRemove(data->key));
-  //}
-//}
 
 void
 newsoul::ServerManager::onLoggedIn(const SLogin * message)

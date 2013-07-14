@@ -87,8 +87,6 @@ namespace newsoul
     void onPeerSocketReady(PeerSocket * socket);
     void onParentDisconnected(NewNet::ClientSocket * socket_);
     void onChildDisconnected(NewNet::ClientSocket * socket_);
-    //void onConfigKeySet(const ConfigManager::ChangeNotify * data);
-    //void onConfigKeyRemoved(const ConfigManager::RemoveNotify * data);
     void onWishlistTimeout(long);
 
     NewNet::WeakRefPtr<Newsoul>                 m_Newsoul;          // Ref to the newsoul
