@@ -64,6 +64,7 @@ namespace newsoul
 
         /*!
          * Parses a single piece of CLI interface chain.
+         * Setter variant, i.e. calls newsoul::Config::set.
          * It also increments the iterator.
          * It is implemented that way in order to allow some error checks.
          * \param keys Config keys of the piece.
@@ -72,10 +73,24 @@ namespace newsoul
          * \param argv CLI arguments array.
          * \param n Number of arguments to chop.
          */
-        void parsePiece(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]);
+        void parsePSet(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]);
+
+        /*!
+         * \see newsoul::Newsoul::parsePSet.
+         * Adder version, i.e. calls newsoul::Config::add.
+         */
+        void parsePAdd(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]);
+
+        /*!
+         * \see newsoul::Newsoul::parsePSet.
+         * Deleter version, i.e. calls newsoul::Config::del.
+         */
+        void parsePDel(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]);
+
         /*!
          */
         void parsePart(std::map<const std::string, std::function<void(const std::string sarg)>> func, const std::string carg, int *i, int argc, char *argv[]);
+
         /*!
          * Parses parts and pieces belonging to set(s) command.
          * \param i Pointer to the main parser iterator.
@@ -84,11 +99,19 @@ namespace newsoul
          * \return True if we should finish parsing.
          */
         bool parseSet(int *i, int argc, char *argv[]);
+
         /*!
          * Parses parts and pieces belonging to database(d) command.
          * \see newsoul::Newsoul::parseSet.
          */
         bool parseDatabase(int *i, int argc, char *argv[]);
+
+        /*!
+         * Parses parts and pieces belonging to listeners(l) command.
+         * \see newsoul::Newsoul::parseSet.
+         */
+        bool parseListeners(int *i, int argc, char *argv[]);
+
         /*!
          * Parses a list of argmuents given on command line
          * and performs necessary actions, like setting config options, etc.

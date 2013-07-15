@@ -53,7 +53,7 @@ newsoul::Config::~Config() {
 
 void newsoul::Config::save() {
     std::ofstream f(this->fn);
-    const char *jsonstring = json_object_to_json_string(this->json);
+    const char *jsonstring = json_object_to_json_string_ext(this->json, JSON_C_TO_STRING_PRETTY);
     f.write(jsonstring, strlen(jsonstring));
     f.close();
 }
@@ -89,7 +89,7 @@ bool newsoul::Config::getBool(std::initializer_list<const std::string> keys) {
 std::vector<std::string> newsoul::Config::getVec(std::initializer_list<const std::string> keys) {
     struct json_object *result = this->get(keys);
     std::vector<std::string> out;
-    if(result == NULL || json_object_get_type(result) != json_type_array) {
+    if(result == NULL || !json_object_is_type(result, json_type_array)) {
         return out;
     }
 
@@ -144,19 +144,28 @@ bool newsoul::Config::contains(std::initializer_list<const std::string> keys, co
 
 void newsoul::Config::add(std::initializer_list<const std::string> keys, const std::string &value) {
     struct json_object *result = this->get(keys);
-    if(result == NULL || json_object_get_type(result) != json_type_array) {
+    if(result == NULL || !json_object_is_type(result, json_type_array)) {
         result = json_object_new_array();
         this->set(keys, result);
     }
 
     json_object_array_add(result, json_object_new_string(value.c_str()));
+
+    if(this->autosave) {
+        this->save();
+    }
 }
 
 bool newsoul::Config::del(std::initializer_list<const std::string> keys, const std::string &key) {
     struct json_object *result = this->get(keys);
+
     if(result != NULL) {
         if(json_object_object_get(result, key.c_str()) != NULL) {
             json_object_object_del(result, key.c_str());
+
+            if(this->autosave) {
+                this->save();
+            }
 
             return true;
         } else if(json_object_is_type(result, json_type_array)) {
@@ -187,8 +196,13 @@ bool newsoul::Config::del(std::initializer_list<const std::string> keys, const s
             json_object_object_del(jkey, skey.c_str());
             json_object_object_add(jkey, skey.c_str(), narray);
 
+            if(this->autosave) {
+                this->save();
+            }
+
             return true;
         }
     }
+
     return false;
 }

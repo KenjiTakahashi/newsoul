@@ -30,23 +30,37 @@ newsoul::Newsoul::Newsoul() {
     m_Token = rand();
 
     _instance = this;
-
-    this->_config = nullptr;
 }
 
 newsoul::Newsoul::~Newsoul() { }
 
-void newsoul::Newsoul::parsePiece(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]) {
-    if(++(*i) > argc) {
+void newsoul::Newsoul::parsePSet(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]) {
+    if(++*i > argc) {
         std::cout << "Not enough arguments" << std::endl;
     } else {
         this->_config->set(keys, argv[*i]);
     }
 }
 
+void newsoul::Newsoul::parsePAdd(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]) {
+    if(++*i > argc) {
+        std::cout << "Not enough arguments" << std::endl;
+    } else {
+        this->_config->add(keys, argv[*i]);
+    }
+}
+
+void newsoul::Newsoul::parsePDel(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]) {
+    if(++*i > argc) {
+        std::cout << "Not enough arguments" << std::endl;
+    } else {
+        this->_config->del(keys, argv[*i]);
+    }
+}
+
 void newsoul::Newsoul::parsePart(std::map<const std::string, std::function<void(const std::string sarg)>> func, const std::string carg, int *i, int argc, char *argv[]) {
     if(++*i == argc) {
-        std::cout << "Not enough arguments" << std::endl;
+        std::cout << carg << ": Not enough arguments" << std::endl;
         return;
     }
     for(; *i < argc; ++*i) {
@@ -56,7 +70,7 @@ void newsoul::Newsoul::parsePart(std::map<const std::string, std::function<void(
             if(f->second != nullptr) {
                 f->second(sarg);
             } else {
-                this->parsePiece({carg, sarg}, i, argc, argv);
+                this->parsePSet({carg, sarg}, i, argc, argv);
             }
         } else {
             std::cout << "Ignored invalid argument [" << sarg << "]" << std::endl;
@@ -65,16 +79,6 @@ void newsoul::Newsoul::parsePart(std::map<const std::string, std::function<void(
 }
 
 bool newsoul::Newsoul::parseSet(int *i, int argc, char *argv[]) {
-    if(std::string(argv[*i + 1]) == "from") {
-        if(++*i > argc) {
-            std::cout << "Not enough arguments, loading default config" << std::endl;
-        } else {
-            this->_config = new Config(std::string(argv[*i]));
-        }
-        return true;
-    } else {
-        this->_config = new Config();
-    }
     if(++*i == argc) {
         std::cout << "No config arguments supplied, command ignored" << std::endl;
         return false;
@@ -89,22 +93,10 @@ bool newsoul::Newsoul::parseSet(int *i, int argc, char *argv[]) {
         } else if(carg == "p2p") {
             this->parsePart({
                 {"ports", [this, carg, i, argc, argv](const std::string sarg){
-                    this->parsePiece({carg, sarg, "first"}, i, argc, argv);
-                    this->parsePiece({carg, sarg, "last"}, i, argc, argv);
+                    this->parsePSet({carg, sarg, "first"}, i, argc, argv);
+                    this->parsePSet({carg, sarg, "last"}, i, argc, argv);
                 }},
                 {"mode", nullptr}
-            }, carg, i, argc, argv);
-        } else if(carg == "listeners") {
-            this->parsePart({
-                {"list", [](const std::string sarg){}},
-                {"add", [this, carg, i, argc, argv](const std::string sarg){
-                    if(++*i > argc) {
-                        std::cout << "Not enough arguments" << std::endl;
-                    } else {
-                        this->parsePiece({carg, sarg, argv[*i]}, i, argc, argv);
-                    }
-                }},
-                {"remove", [](const std::string sarg){}},
             }, carg, i, argc, argv);
         } else if(carg == "encoding") {
             this->parsePart({
@@ -117,7 +109,7 @@ bool newsoul::Newsoul::parseSet(int *i, int argc, char *argv[]) {
                 {"incomplete", nullptr}
             }, carg, i, argc, argv);
         } else {
-            std::cout << "bailing out" << std::endl; //FIXME
+            std::cout << "set: Unrecognized argument [" << carg << "], leaving" << std::endl;
         }
     }
     return false;
@@ -138,8 +130,40 @@ bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
     return false;
 }
 
+bool newsoul::Newsoul::parseListeners(int *i, int argc, char *argv[]) {
+    this->parsePart({
+        {"list", [this](const std::string sarg){
+            std::vector<std::string> items = this->_config->getVec({"listeners", "paths"});
+            for(unsigned int i = 0; i < items.size(); ++i) {
+                std::cout << i << ": " << items[i] << std::endl;
+            }
+        }},
+        {"add", [this, i, argc, argv](const std::string sarg){
+            this->parsePAdd({"listeners", "paths"}, i, argc, argv);
+        }},
+        {"remove", [this, i, argc, argv](const std::string sarg){
+            this->parsePDel({"listeners", "paths"}, i, argc, argv);
+        }},
+        {"password", nullptr}
+    }, "listeners", i, argc, argv);
+    return false;
+}
+
 bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
     bool debug = false;
+
+    if(std::string(argv[1]) == "set" && std::string(argv[2]) == "from") {
+        if(3 > argc) {
+            this->_config = new Config(std::string(argv[3]));
+        } else {
+            std::cout << "Not enough arguments, loading default config" << std::endl;
+            this->_config = new Config();
+        }
+        return true;
+    } else {
+        this->_config = new Config();
+    }
+
     for(int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
         if(arg == "--debug" || arg == "-d") {
@@ -149,12 +173,11 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
             std::cout << "newsoul :: " << this->version << std::endl;
             return false;
         } else if(arg == "set" || arg == "s") {
-            bool end = this->parseSet(&i, argc, argv);
-            if(end) {
-                return true;
-            }
+            return this->parseSet(&i, argc, argv);
         } else if(arg == "database" || arg == "d") {
-            this->parseDatabase(&i, argc, argv);
+            return this->parseDatabase(&i, argc, argv);
+        } else if(arg == "listeners" || arg == "l") {
+            return this->parseListeners(&i, argc, argv);
         } else if(arg == "help" || arg == "h") {
             if(++i == argc) {
                 std::cout << "Usage: newsoul [--debug(-d)] [version(v)|help(h)|set(s)|database(d)] [<args>]" << std::endl << std::endl;
@@ -163,46 +186,49 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
                 std::cout << "  help [cmd]\t\tPrints detailed info about [cmd]. This screen if no cmd specified." << std::endl;
                 std::cout << "  set\t\t\tChanges configuration values. See [newsoul help set]." << std::endl;
                 std::cout << "  database\t\tManages shares database. See [newsoul help database]." << std::endl;
+                std::cout << "  listeners\t\tManages listening interfaces. See [newsoul help listeners]." << std::endl;
                 std::cout << std::endl << "Additional options:" << std::endl;
-                std::cout << "  --debug(-d) \t\tprints some more informations about what is going on" << std::endl;
+                std::cout << "  --debug(-d) \t\tPrints some more informations about what is going on" << std::endl;
                 std::cout << std::endl << "Signals:" << std::endl;
-                std::cout << "  HUP\t\t\treloads database(s)" << std::endl;
-                std::cout << "  ALRM\t\t\treconnects to server" << std::endl;
+                std::cout << "  HUP\t\t\tReloads database(s)" << std::endl;
+                std::cout << "  ALRM\t\t\tReconnects to server" << std::endl;
             } else {
                 std::string carg(argv[i]);
                 if(carg == "set") {
                     std::cout << "Usage: newsoul [--debug(-d)] set(s) [<args>], where <args> are:" << std::endl << std::endl;
-                    std::cout << "from <config file> \t\t\treads values from file [default: ~/.config/newsoul/config.json]" << std::endl;
+                    std::cout << "from <config file> \t\t\tReads values from file [default: ~/.config/newsoul/config.json]" << std::endl;
                     std::cout << "server <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  host <name>\t\t\t\tsets Soulseek's server host name [default: server.slsknet.org]" <<std::endl;
-                    std::cout << "  port <number>\t\t\t\tsets Soulseek's server port number [default: 2242]" << std::endl;
-                    std::cout << "  username <name>\t\t\tsets name of the user [default: anonymous]" << std::endl;
-                    std::cout << "  password <pass>\t\t\tsets user's password [default: <empty>]" << std::endl;
+                    std::cout << "  host <name>\t\t\t\tSets Soulseek's server host name [default: server.slsknet.org]" <<std::endl;
+                    std::cout << "  port <number>\t\t\t\tSets Soulseek's server port number [default: 2242]" << std::endl;
+                    std::cout << "  username <name>\t\t\tSets name of the user [default: anonymous]" << std::endl;
+                    std::cout << "  password <pass>\t\t\tSets user's password [default: <empty>]" << std::endl;
                     std::cout << "p2p <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  ports <first> <last>\t\t\tsets port range for peer connections [default: 2235-2236]" << std::endl;
-                    std::cout << "  mode <passive(p)|active(a)>\t\tsets connection mode [default: passive]" << std::endl;
-                    std::cout << "listeners <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  list\t\t\t\t\tlists all all existing listeners" << std::endl;
-                    std::cout << "  add <tcp|unix> <addr:port|fn> [pass]\tadds new listener, optionally password protected" << std::endl;
-                    std::cout << "  remove <index>\t\t\tremoves existing listener" << std::endl;
+                    std::cout << "  ports <first> <last>\t\t\tSets port range for peer connections [default: 2235-2236]" << std::endl;
+                    std::cout << "  mode <passive|active>\t\t\tSets connection mode [default: passive]" << std::endl;
                     std::cout << "encoding <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  network <encoding>\t\t\tsets encoding used in network messages [default: UTF-8]" << std::endl;
-                    std::cout << "  local <encoding>\t\t\tsets encoding used in filesystem [default: UTF-8]" << std::endl;
+                    std::cout << "  network <encoding>\t\t\tSets encoding used in network messages [default: UTF-8]" << std::endl;
+                    std::cout << "  local <encoding>\t\t\tSets encoding used in filesystem [default: UTF-8]" << std::endl;
                     std::cout << "downloads <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  complete <dir>\t\t\tsets directory for complete downloads [default: ~/.newsoul/complete]" << std::endl;
-                    std::cout << "  incomplete <dir>\t\t\tsets directory for incomplete downloads [default: <empty>]" << std::endl;
+                    std::cout << "  complete <dir>\t\t\tSets directory for complete downloads [default: ~/.newsoul/complete]" << std::endl;
+                    std::cout << "  incomplete <dir>\t\t\tSets directory for incomplete downloads [default: <empty>]" << std::endl;
                 } else if(carg == "database") {
                     std::cout << "Usage: newsoul [--debug(-d)] database(d) [<args>], where <args> are:" << std::endl << std::endl;
-                    std::cout << "rescan\t\t\t\t\tupdates database NOW" << std::endl;
+                    std::cout << "rescan\t\t\t\t\tUpdates database NOW" << std::endl;
                     std::cout << "global <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  list\t\t\t\t\tlists shared directories" << std::endl;
-                    std::cout << "  add <dir>\t\t\t\tadds new shared directory" << std::endl;
-                    std::cout << "  remove <index>\t\t\tremoves a shared directory" << std::endl;
+                    std::cout << "  list\t\t\t\t\tLists shared directories" << std::endl;
+                    std::cout << "  add <dir>\t\t\t\tAdds new shared directory" << std::endl;
+                    std::cout << "  remove <index>\t\t\tRemoves a shared directory" << std::endl;
                     std::cout << "buddy <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  list\t\t\t\t\tlists shared directories" << std::endl;
-                    std::cout << "  add <dir>\t\t\t\tadds new shared directory" << std::endl;
-                    std::cout << "  remove <index>\t\t\tremoves a shared directory" << std::endl;
-                    std::cout << "  enabled <yes|no>\t\t\tturns buddies only shares on or off [default: no]" << std::endl;
+                    std::cout << "  list\t\t\t\t\tLists shared directories" << std::endl;
+                    std::cout << "  add <dir>\t\t\t\tAdds new shared directory" << std::endl;
+                    std::cout << "  remove <index>\t\t\tRemoves a shared directory" << std::endl;
+                    std::cout << "  enabled <yes|no>\t\t\tTurns buddies only shares on or off [default: no]" << std::endl;
+                } else if(carg == "listeners") {
+                    std::cout << "Usage: newsoul [--debug(-d)] listeners(l) [<args>], where <args> are:" << std::endl << std::endl;
+                    std::cout << "list\t\t\t\tLists all existing listeners" << std::endl;
+                    std::cout << "add <tcp|unix> <addr:port|fn>\tAdds new listener" << std::endl;
+                    std::cout << "remove <addr:port|fn>\t\tRemoves existing listener" << std::endl;
+                    std::cout << "password <pass>\t\t\tSets listeners password [default: p]" << std::endl;
                 } else {
                     std::cout << "help: Unrecognized command [" << carg << "], leaving." << std::endl;
                 }
@@ -214,9 +240,6 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
         }
     }
 
-    if(this->_config == nullptr) {
-        this->_config = new Config();
-    }
     return true;
 }
 
