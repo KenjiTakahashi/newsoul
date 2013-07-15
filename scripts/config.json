@@ -27,8 +27,8 @@
         "users": {}
     },
     "downloads": {
-        "queue": "~/.newsoul/downloads",
-        "complete": "~/.newsoul/complete",
+        "queue": "~/.config/newsoul/downloads",
+        "complete": "~/.config/newsoul/complete",
         "incomplete": "",
         "wishes": {},
         "blacklist": [],
@@ -52,7 +52,7 @@
         },
         "buddy": {
             "paths": [],
-            "dbpath": "~/.config/newsoul/local/"
+            "dbpath": "~/.config/newsoul/local/",
             "enabled": false
         }
     },

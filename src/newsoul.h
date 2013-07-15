@@ -76,6 +76,12 @@ namespace newsoul
         void parsePSet(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]);
 
         /*!
+         * \see newsoul::Newsoul::parsePSset.
+         * Boolean version. Reads yes or no and converts it to boolean value.
+         */
+        void parsePSetBool(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]);
+
+        /*!
          * \see newsoul::Newsoul::parsePSet.
          * Adder version, i.e. calls newsoul::Config::add.
          */
@@ -89,7 +95,7 @@ namespace newsoul
 
         /*!
          */
-        void parsePart(std::map<const std::string, std::function<void(const std::string sarg)>> func, const std::string carg, int *i, int argc, char *argv[]);
+        void parsePart(std::map<const std::string, std::function<void(const std::string &sarg)>> func, const std::string carg, int *i, int argc, char *argv[]);
 
         /*!
          * Parses parts and pieces belonging to set(s) command.

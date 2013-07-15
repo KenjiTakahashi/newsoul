@@ -488,7 +488,7 @@ newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet * message)
 void
 newsoul::IfaceManager::onIfaceRemoveConfig(const IConfigRemove * message)
 {
-  //newsoul()->config()->removeKey({message->domain}, message->key); //FIXME:FIXME
+  newsoul()->config()->del({message->domain}, message->key);
 }
 
 void
@@ -806,7 +806,7 @@ newsoul::IfaceManager::onIfaceAddInterest(const IAddInterest * message)
 void
 newsoul::IfaceManager::onIfaceRemoveInterest(const IRemoveInterest * message)
 {
-  //newsoul()->config()->removeKey("interests.like", message->interest); //FIXME:FIXME
+  newsoul()->config()->del({"info", "interests", "like"}, message->interest);
 }
 
 void
@@ -818,7 +818,7 @@ newsoul::IfaceManager::onIfaceAddHatedInterest(const IAddHatedInterest * message
 void
 newsoul::IfaceManager::onIfaceRemoveHatedInterest(const IRemoveHatedInterest * message)
 {
-  //newsoul()->config()->removeKey("interests.hate", message->interest); //FIXME:FIXME
+  newsoul()->config()->del({"infO", "interests", "hate"}, message->interest);
 }
 
 void
@@ -830,7 +830,7 @@ newsoul::IfaceManager::onIfaceAddWishItem(const IAddWishItem * message)
 void
 newsoul::IfaceManager::onIfaceRemoveWishItem(const IRemoveWishItem * message)
 {
-  //newsoul()->config()->removeKey("wishlist", message->query); //FIXME:FIXME
+  newsoul()->config()->del({"downloads", "wishes"}, message->query);
 }
 
 void
