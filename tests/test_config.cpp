@@ -129,7 +129,7 @@ TEST_CASE("getVec", "[newsoul][Config]") {
 }
 
 TEST_CASE("set<int>", "[newsoul][Config]") {
-    std::istringstream data("{}");
+    std::istringstream data("{\"e\":{\"int1\":1}}");
     auto config = new newsoul::Config(data);
 
     SECTION("top level") {
@@ -149,11 +149,10 @@ TEST_CASE("set<int>", "[newsoul][Config]") {
     }
 
     SECTION("nested in existing section") {
-        config->set({"key", "int1"}, 1);
-        config->set({"key", "int2"}, 2);
+        config->set({"e", "int2"}, 2);
 
-        int result1 = config->getInt({"key", "int1"});
-        int result2 = config->getInt({"key", "int2"});
+        int result1 = config->getInt({"e", "int1"});
+        int result2 = config->getInt({"e", "int2"});
 
         REQUIRE(result1 == 1);
         REQUIRE(result2 == 2);
@@ -163,11 +162,11 @@ TEST_CASE("set<int>", "[newsoul][Config]") {
 }
 
 TEST_CASE("set<string>", "[newsoul][Config]") {
-    std::istringstream data("{}");
+    std::istringstream data("{\"e\":{\"str1\":\"s1\"}}");
     auto config = new newsoul::Config(data);
 
     SECTION("top level") {
-        config->set({"str1"}, "s1");
+        config->set({"str1"}, std::string("s1"));
 
         const std::string result = config->getStr({"str1"});
 
@@ -175,7 +174,7 @@ TEST_CASE("set<string>", "[newsoul][Config]") {
     }
 
     SECTION("nested") {
-        config->set({"key", "str2"}, "s2");
+        config->set({"key", "str2"}, std::string("s2"));
 
         const std::string result = config->getStr({"key", "str2"});
 
@@ -183,14 +182,46 @@ TEST_CASE("set<string>", "[newsoul][Config]") {
     }
 
     SECTION("nested in existing section") {
-        config->set({"key", "str1"}, "s1");
-        config->set({"key", "str2"}, "s2");
+        config->set({"e", "str2"}, std::string("s2"));
 
-        const std::string result1 = config->getStr({"key", "str1"});
-        const std::string result2 = config->getStr({"key", "str2"});
+        const std::string result1 = config->getStr({"e", "str1"});
+        const std::string result2 = config->getStr({"e", "str2"});
 
         REQUIRE(result1 == "s1");
         REQUIRE(result2 == "s2");
+    }
+
+    delete config;
+}
+
+TEST_CASE("set<bool>", "[newsoul][Config]") {
+    std::istringstream data("{\"e\":{\"b1\":true}}");
+    auto config = new newsoul::Config(data);
+
+    SECTION("top level") {
+        config->set({"b1"}, true);
+
+        bool result = config->getBool({"b1"});
+
+        REQUIRE(result == true);
+    }
+
+    SECTION("nested") {
+        config->set({"key", "b2"}, true);
+
+        bool result = config->getBool({"key", "b2"});
+
+        REQUIRE(result == true);
+    }
+
+    SECTION("nested in existing section") {
+        config->set({"e", "b2"}, true);
+
+        bool result1 = config->getBool({"e", "b1"});
+        bool result2 = config->getBool({"e", "b2"});
+
+        REQUIRE(result1 == true);
+        REQUIRE(result2 == true);
     }
 
     delete config;

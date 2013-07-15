@@ -113,6 +113,13 @@ namespace newsoul {
         void set(std::initializer_list<const std::string> keys, const std::string &value);
 
         /*!
+         * Sets value of type boolean.
+         * \param keys List of keys which will be chained into JSON path.
+         * \[aram value Value to set.
+         */
+        void set(std::initializer_list<const std::string> keys, bool value);
+
+        /*!
          * Checks whether given value is contained within a JSON array.
          * \param keys List of keys which will be chained into JSON path.
          * \return True if given JSON path contains value, false otherwise.

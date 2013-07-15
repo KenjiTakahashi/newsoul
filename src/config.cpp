@@ -127,6 +127,10 @@ void newsoul::Config::set(std::initializer_list<const std::string> keys, const s
     this->set(keys, json_object_new_string(value.c_str()));
 }
 
+void newsoul::Config::set(std::initializer_list<const std::string> keys, bool value) {
+    this->set(keys, json_object_new_boolean(value));
+}
+
 bool newsoul::Config::contains(std::initializer_list<const std::string> keys, const std::string &value) {
     struct json_object *result = this->get(keys);
     if(result == NULL || !json_object_is_type(result, json_type_array)) {
