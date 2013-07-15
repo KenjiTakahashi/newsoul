@@ -129,7 +129,7 @@ void newsoul::Config::set(std::initializer_list<const std::string> keys, const s
 
 bool newsoul::Config::contains(std::initializer_list<const std::string> keys, const std::string &value) {
     struct json_object *result = this->get(keys);
-    if(result == NULL || json_object_get_type(result) != json_type_array) {
+    if(result == NULL || !json_object_is_type(result, json_type_array)) {
         return false;
     }
 
@@ -150,4 +150,45 @@ void newsoul::Config::add(std::initializer_list<const std::string> keys, const s
     }
 
     json_object_array_add(result, json_object_new_string(value.c_str()));
+}
+
+bool newsoul::Config::del(std::initializer_list<const std::string> keys, const std::string &key) {
+    struct json_object *result = this->get(keys);
+    if(result != NULL) {
+        if(json_object_object_get(result, key.c_str()) != NULL) {
+            json_object_object_del(result, key.c_str());
+
+            return true;
+        } else if(json_object_is_type(result, json_type_array)) {
+            //This is tricky, but I'm afraid there is no other way.
+            struct json_object *narray = json_object_new_array();
+            struct json_object *e;
+
+            bool found = false;
+            for(int i = 0; i < json_object_array_length(result); ++i) {
+                e = json_object_array_get_idx(result, i);
+                if(json_object_get_string(e) != key) {
+                    json_object_array_add(narray, json_object_get(e));
+                } else {
+                    found = true;
+                }
+            }
+            if(!found) {
+                json_object_put(narray);
+                return false;
+            }
+
+            struct json_object *jkey = this->json;
+            const std::string skey = *(keys.end() - 1);
+            for(auto key = keys.begin(); key < keys.end() - 1; ++key) {
+                jkey = json_object_object_get(jkey, (*key).c_str());
+            }
+
+            json_object_object_del(jkey, skey.c_str());
+            json_object_object_add(jkey, skey.c_str(), narray);
+
+            return true;
+        }
+    }
+    return false;
 }

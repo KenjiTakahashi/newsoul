@@ -275,3 +275,60 @@ TEST_CASE("add", "[newsoul][Config]") {
 
     delete config;
 }
+
+TEST_CASE("del", "[newsoul][Config]") {
+    std::istringstream data("{\"v1\":1,\"vec1\":[\"v9\"],\"key\":{\"v2\":\"2\",\"vec2\":[\"v0\", \"v11\"]}}");
+    auto config = new newsoul::Config(data);
+
+    SECTION("top level object") {
+        bool res1 = config->del({}, "v1");
+        int res2 = config->getInt({"v1"});
+
+        REQUIRE(res1 == true);
+        REQUIRE(res2 == 0);
+    }
+
+    SECTION("nested object") {
+        bool res1 = config->del({"key"}, "v2");
+        const std::string res2 = config->getStr({"key", "v2"});
+
+        REQUIRE(res1 == true);
+        REQUIRE(res2 == "");
+    }
+
+    SECTION("not found object") {
+        bool res1 = config->del({"v1"}, "notfound");
+
+        REQUIRE(res1 == false);
+    }
+
+    SECTION("top level array value") {
+        bool res1 = config->del({"vec1"}, "v9");
+        std::vector<std::string> res2 = config->getVec({"vec1"});
+
+        REQUIRE(res1 == true);
+        REQUIRE(res2.empty() == true);
+    }
+
+    SECTION("nested array value") {
+        bool res1 = config->del({"key", "vec2"}, "v0");
+        std::vector<std::string> res2 = config->getVec({"key", "vec2"});
+
+        REQUIRE(res1 == true);
+        REQUIRE(res2[0] == "v11");
+    }
+
+    SECTION("not found array value") {
+        bool res1 = config->del({"vec1"}, "notfound");
+
+        REQUIRE(res1 == false);
+    }
+
+    SECTION("not found key", "[corner]") {
+        bool res1 = config->del({"notfound"}, "notfound");
+
+        REQUIRE(res1 == false);
+    }
+
+    delete config;
+}

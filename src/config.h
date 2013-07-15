@@ -126,6 +126,14 @@ namespace newsoul {
          * \param value Value to add to array pointed to by key path.
          */
         void add(std::initializer_list<const std::string> keys, const std::string &value);
+
+        /*!
+         * Deletes a key, along with all objects belonging to it.
+         * \param keys List of keys which will be chained into JSON path.
+         * \param key key to remove. It might also be an element of array.
+         * \return False if no such key was found (i.e. nothing got deleted).
+         */
+        bool del(std::initializer_list<const std::string> keys, const std::string &key);
     };
 }
 
