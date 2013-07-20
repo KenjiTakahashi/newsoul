@@ -157,7 +157,7 @@ newsoul::CodesetManager::fromFSToNet(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = string::replace(str, NewNet::Path::separator(), '\\');
+        strToConvert = string::replace(str, os::separator(), '\\');
     return convert(getNetworkCodeset({"encoding", "local"}), getNetworkCodeset({"encoding", "network"}), strToConvert);
 }
 
@@ -166,7 +166,7 @@ newsoul::CodesetManager::fromNetToFS(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = string::replace(str, '\\', NewNet::Path::separator());
+        strToConvert = string::replace(str, '\\', os::separator());
     return convert(getNetworkCodeset({"encoding", "network"}), getNetworkCodeset({"encoding", "local"}), strToConvert);
 }
 
@@ -175,7 +175,7 @@ newsoul::CodesetManager::fromFSToPeer(const std::string & peer, const std::strin
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = string::replace(str, NewNet::Path::separator(), '\\');
+        strToConvert = string::replace(str, os::separator(), '\\');
     return convert(getNetworkCodeset({"encoding", "local"}), getNetworkCodeset({"encoding", "users", peer}), strToConvert);
 }
 
@@ -184,7 +184,7 @@ newsoul::CodesetManager::fromPeerToFS(const std::string & peer, const std::strin
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = string::replace(str, '\\', NewNet::Path::separator());
+        strToConvert = string::replace(str, '\\', os::separator());
     return convert(getNetworkCodeset({"encoding", "network"}), getNetworkCodeset({"encoding", "users", peer}), strToConvert);
 }
 
@@ -193,7 +193,7 @@ newsoul::CodesetManager::fromUtf8ToFS(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = string::replace(str, '\\', NewNet::Path::separator());
+        strToConvert = string::replace(str, '\\', os::separator());
     return fromUtf8(getNetworkCodeset({"encoding", "local"}), strToConvert);
 }
 
@@ -202,7 +202,7 @@ newsoul::CodesetManager::fromFsToUtf8(const std::string & str, bool slashes)
 {
     std::string strToConvert = str;
     if (slashes)
-        strToConvert = string::replace(str, NewNet::Path::separator(), '\\');
+        strToConvert = string::replace(str, os::separator(), '\\');
     return toUtf8(getNetworkCodeset({"encoding", "local"}), strToConvert);
 }
 

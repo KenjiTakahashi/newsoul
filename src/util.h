@@ -33,7 +33,6 @@
 #include <stdint.h>
 #include <fstream>
 #include "utils/string.h"
-#include "NewNet/nnpath.h"
 
 static inline int write_int(std::ofstream * ofs, uint32 i) {
 	if(ofs->fail() || !ofs->is_open())

@@ -13,3 +13,5 @@ This file tracks changes since the last Museek+ svn trunk revision.
 -Dropped libogg/libvorbis+custom code in favour of taglib.
 -Fixed ignoring umask on directory creation.
 -Fixed compilation on FreeBSD.
+-Completely redesigned configuration file, using JSON instead of XML.
+-New CLI configuration utility to supersede nssetup.

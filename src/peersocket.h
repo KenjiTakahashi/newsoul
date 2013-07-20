@@ -24,6 +24,7 @@
 #include "messageprocessor.h"
 #include "peermessages.h"
 #include "usersocket.h"
+#include "utils/os.h"
 
 namespace newsoul
 {

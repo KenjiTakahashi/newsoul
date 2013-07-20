@@ -25,9 +25,10 @@
 #include <iconv.h>
 #include <map>
 #include "newsoul.h"
+#include "utils/os.h"
+#include "utils/path.h"
 #include "utils/string.h"
 #include "NewNet/nnobject.h"
-#include "NewNet/nnpath.h"
 #include "NewNet/nnweakrefptr.h"
 
 namespace newsoul

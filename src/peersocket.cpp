@@ -318,7 +318,7 @@ newsoul::PeerSocket::onTransferRequested(const PTransferRequest * request)
         // Prepare the download
         std::stringstream localPath;
         // Construct the destination path
-        localPath << newsoul()->config()->getStr({"downloads", "complete"}) << NewNet::Path::separator() << "upload" << NewNet::Path::separator()  << newsoul()->codeset()->fromNetToFS(user());
+        localPath << newsoul()->config()->getStr({"downloads", "complete"}) << os::separator() << "upload" << os::separator()  << newsoul()->codeset()->fromNetToFS(user());
         // Create the download and prepare it
         newsoul()->downloads()->add(user(), path, localPath.str());
         Download * newDownload = newsoul()->downloads()->findDownload(user(), path);

@@ -22,7 +22,6 @@
 #define NEWSOUL_DOWNLOADMANAGER_H
 
 #include <sstream>
-#include "codesetmanager.h"
 #include "downloadsocket.h"
 #include "peermanager.h"
 #include "servermanager.h"

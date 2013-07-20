@@ -100,7 +100,7 @@ newsoul::Download::incompletePath() const
 
     // Build file path: <incompletedir>/incomplete.<filesize>.<filename>
     std::stringstream path;
-    path << incompletedir << NewNet::Path::separator() << "incomplete." << size() << ".";
+    path << incompletedir << os::separator() << "incomplete." << size() << ".";
     path << filename();
 
     m_IncompletePath = newsoul()->codeset()->fromUtf8ToFS(path.str());
@@ -117,7 +117,7 @@ newsoul::Download::destinationPath(bool create) const
     // Build destination directory.
     std::stringstream path;
     // Was an absolute path provided with the download?
-    if(! NewNet::Path(m_LocalDir).isAbsolute()) {
+    if(!path::isAbsolute(m_LocalDir)) {
         // Nope, use the download directory
         std::string downloaddir = newsoul()->codeset()->fromUtf8ToFS(m_Newsoul->config()->getStr({"downloads", "complete"}));
         // Fallback to current directory.
@@ -1081,7 +1081,7 @@ void newsoul::DownloadManager::loadDownloads() {
 		}
 		if (!path.empty()) {
             NNLOG("newsoul.down.debug", "Loading download: %s from %s (size: %d)", path.c_str(), user.c_str(), size);
-            size_t posB = localpath.find_last_of(NewNet::Path::separator());
+            size_t posB = localpath.find_last_of(os::separator());
             add(user, path, localpath.substr(0, posB));
             Download * dl = findDownload(user, path);
             if (dl) {
