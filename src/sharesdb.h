@@ -36,6 +36,7 @@ typedef struct FILEENTRY {
     uint64_t size;
     std::string ext;
     std::vector<unsigned int> attrs;
+    time_t mtime;
 } FileEntry;
 typedef std::map<std::string, FileEntry> Folder;
 typedef std::map<std::string, Folder> Shares;
@@ -59,6 +60,7 @@ namespace newsoul {
          * 2) Filepath + "e" for ext value,
          * 3) Filepath + "a" for attrs array,
          * 3) Filepath + "l" for 3) size,
+         * 4) Filepath + "m" for modification time,
          * where values are corresponding with these in FileEntry structure.
          */
         Db attrdb;
@@ -67,7 +69,7 @@ namespace newsoul {
         std::vector<unsigned char> compressed;
 
         FileEntry getAttrs(const std::string &fn);
-        void addFile(const std::string &dir, const std::string &fn, const std::string &path, unsigned int size);
+        void addFile(const std::string &dir, const std::string &fn, const std::string &path, struct stat &st);
         void removeFile(const std::string &dir, const std::string &fn, const std::string &path);
         void addDir(const std::string &dir, const std::string &fn);
         void removeDir(const std::string &path);

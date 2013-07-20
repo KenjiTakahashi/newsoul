@@ -39,7 +39,7 @@ newsoul::SharesDB::~SharesDB() {
     this->dirsdb.close(0);
 }
 
-void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, const std::string &path, unsigned int size) {
+void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, const std::string &path, struct stat &st) {
     std::vector<int> attrs;
     std::string ext;
     TagLib::FileRef fp(path.c_str());
@@ -66,7 +66,9 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, c
         attrdb.put(NULL, &attrskey, &attrsdat, 0);
     }
     Dbt sizekey(const_cast<char*>((path + "s").c_str()), path.size() + 2);
-    Dbt sizedat(&size, sizeof(unsigned int));
+    Dbt sizedat(&st.st_size, sizeof(unsigned int));
+    Dbt mtimekey(const_cast<char*>((path + "m").c_str()), path.size() + 2);
+    Dbt mtimedat(&st.st_mtime, sizeof(time_t));
 
     attrdb.put(NULL, &sizekey, &sizedat, 0);
 
@@ -195,7 +197,7 @@ void newsoul::SharesDB::handleFileAction(efsw::WatchID wid, const std::string &d
     switch(action) {
         case efsw::Actions::Add:
             if(S_ISREG(st.st_mode)) {
-                this->addFile(dir, fn, path, st.st_size);
+                this->addFile(dir, fn, path, st);
             } else if(S_ISDIR(st.st_mode)) {
                 this->addDir(dir, fn);
             }
@@ -209,7 +211,7 @@ void newsoul::SharesDB::handleFileAction(efsw::WatchID wid, const std::string &d
             break;
         case efsw::Actions::Modified:
             if(S_ISREG(st.st_mode)) {
-                this->addFile(dir, fn, path, st.st_size);
+                this->addFile(dir, fn, path, st);
             }
             break;
         case efsw::Actions::Moved:
@@ -232,6 +234,7 @@ FileEntry newsoul::SharesDB::getAttrs(const std::string &fn) {
     Dbt extkey(const_cast<char*>((fn + "e").c_str()), fn.size() + 2);
     Dbt asizekey(const_cast<char*>((fn + "l").c_str()), fn.size() + 2);
     Dbt attrskey(const_cast<char*>((fn + "a").c_str()), fn.size() + 2);
+    Dbt mtimekey(const_cast<char*>((fn + "m").c_str()), fn.size() + 2);
 
     attrdb.cursor(NULL, &cursor, 0);
     cursor->get(&sizekey, &dat, 0);
@@ -243,6 +246,8 @@ FileEntry newsoul::SharesDB::getAttrs(const std::string &fn) {
     cursor->get(&attrskey, &dat, 0);
     unsigned int *attrs = (unsigned int*)dat.get_data();
     fe.attrs = std::vector<unsigned int>(attrs, attrs + len);
+    cursor->get(&mtimekey, &dat, 0);
+    fe.mtime = *(time_t*)dat.get_data();
     cursor->close();
 
     return fe;
