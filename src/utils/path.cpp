@@ -52,3 +52,11 @@ std::string path::expand(const std::string &path) {
     return path; //TODO: Real implementation (using ExpandEnvironmentStrings?)
 #endif
 }
+
+bool path::isAbsolute(const std::string &path) {
+#ifndef _WIN32
+    return !path.empty() && path[0] == '/';
+#else
+    return path.length() >= 3 && path.substr(1, 2) == ":\\";
+#endif
+}

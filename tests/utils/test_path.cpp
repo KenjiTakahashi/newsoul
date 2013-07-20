@@ -19,15 +19,15 @@
 #include "../catch.hpp"
 #include "../../src/utils/path.h"
 
-TEST_CASE("join", "[utils][path]") {
 #ifdef _WIN32
-    char sep = '\\';
-    std::string expected = "f\\s";
+char sep = '\\';
+std::string expected = "f\\s";
 #else
-    char sep = '/';
-    std::string expected = "f/s";
+char sep = '/';
+std::string expected = "f/s";
 #endif
 
+TEST_CASE("join", "[utils][path]") {
     SECTION("empty") {
         std::string result = path::join({});
 
@@ -62,5 +62,27 @@ TEST_CASE("join", "[utils][path]") {
         std::string result = path::join({sep + std::string("f")});
 
         REQUIRE(result == "/f");
+    }
+}
+
+TEST_CASE("isAbsolute", "[utils][path]") {
+    SECTION("absolute") {
+        std::string s;
+#ifdef _WIN32
+        s += "C:";
+#endif
+        s += sep + std::string("absolute") + sep + "path";
+
+        bool result = path::isAbsolute(s);
+
+        REQUIRE(result == true);
+    }
+
+    SECTION("relative") {
+        std::string s = std::string("relative") + sep + "path";
+
+        bool result = path::isAbsolute(s);
+
+        REQUIRE(result == false);
     }
 }
