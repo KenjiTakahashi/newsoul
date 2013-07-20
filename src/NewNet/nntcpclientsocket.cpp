@@ -21,7 +21,6 @@
 #include "nntcpclientsocket.h"
 #include "nnlog.h"
 #include "nnreactor.h"
-#include "platform.h"
 #include "util.h"
 #include <iostream>
 

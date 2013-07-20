@@ -22,6 +22,7 @@
 #define NEWNET_TCPSERVERSOCKET_H
 
 #include "nnserversocket.h"
+#include <string.h>
 
 namespace NewNet
 {

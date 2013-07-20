@@ -21,7 +21,7 @@
 #ifndef NEWNET_UTIL_H
 #define NEWNET_UTIL_H
 
-#include "platform.h"
+#include <fcntl.h>
 
 static inline long
 difftime(const struct timeval & a, const struct timeval & b)

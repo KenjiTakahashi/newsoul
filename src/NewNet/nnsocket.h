@@ -27,6 +27,19 @@
 #include "nnratelimiter.h"
 #include <event.h>
 
+#ifndef UNIX_PATH_MAX
+#define UNIX_PATH_MAX 108
+#endif
+#ifndef WIN32
+  typedef int sockopt_t;
+#define closesocket close
+#define WSAGetLastError() errno
+#define WSAEWOULDBLOCK EINPROGRESS
+#else
+  typedef char sockopt_t;
+  typedef int socklen_t;
+#endif // ! WIN32
+
 namespace NewNet
 {
   class Reactor;

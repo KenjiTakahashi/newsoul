@@ -19,9 +19,7 @@
  */
 
 #include "nnratelimiter.h"
-#include "platform.h"
 #include "util.h"
-
 #include <vector>
 #include <queue>
 #include <algorithm>

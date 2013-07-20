@@ -21,7 +21,6 @@
 #include "nnunixclientsocket.h"
 #include "nnlog.h"
 #include "nnreactor.h"
-#include "platform.h"
 #include <iostream>
 
 void

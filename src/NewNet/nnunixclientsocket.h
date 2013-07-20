@@ -23,6 +23,7 @@
 
 #include "nnclientsocket.h"
 #include <string>
+#include <sys/un.h>
 
 namespace NewNet
 {

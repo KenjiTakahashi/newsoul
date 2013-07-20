@@ -24,6 +24,7 @@
 #include "nnobject.h"
 #include <sys/types.h>
 #include <assert.h>
+#include <string.h>
 
 namespace NewNet
 {

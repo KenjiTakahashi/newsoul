@@ -24,6 +24,7 @@
 #include "nnsocket.h"
 #include "nnbuffer.h"
 #include "nnevent.h"
+#include <unistd.h>
 
 namespace NewNet
 {

@@ -19,7 +19,6 @@
  */
 
 #include "nnbuffer.h"
-#include "platform.h"
 
 #define CHUNK_SIZE 8192
 

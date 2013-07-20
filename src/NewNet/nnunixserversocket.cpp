@@ -20,7 +20,6 @@
 
 #include "nnunixserversocket.h"
 #include "nnlog.h"
-#include "platform.h"
 #include <iostream>
 
 void
