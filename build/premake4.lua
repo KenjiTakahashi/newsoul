@@ -44,12 +44,15 @@ function include()
     end
 end
 
-function link()
+function link(tests)
     include()
     links {
-        "tag", "z", "event", "nettle", "db_cxx", "json-c",
+        "tag", "z", "event", "nettle", "json-c",
         "newsoul-lib", "efsw", "NewNet", "utils"
     }
+    if not tests then
+        links {"db_cxx"}
+    end
     if os.is("bsd") then
         libdirs {"/usr/local/lib/db5"}
         links {"iconv"}
@@ -90,7 +93,7 @@ solution "newsoul"
     project "newsoul-tests"
         kind "ConsoleApp"
         files {"../tests/**.cpp"}
-        link()
+        link(true)
 
     project "newsoul-lib"
         kind "StaticLib"
