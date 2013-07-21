@@ -16,8 +16,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __NEWSOUL_DB_H__
-#define __NEWSOUL_DB_H__
+#ifndef __NEWSOUL_SHARESDB_H__
+#define __NEWSOUL_SHARESDB_H__
 
 #include <db_cxx.h>
 #include <map>
@@ -68,10 +68,42 @@ namespace newsoul {
         std::function<void(void)> updateApp;
         std::vector<unsigned char> compressed;
 
+    protected:
+        SharesDB() : dirsdb(NULL, 0), attrdb(NULL, 0) { }
+        /*!
+         * Retrieves file attributes from database.
+         * \param fn Path to file.
+         * \return Filled FileEntry structure.
+         */
         FileEntry getAttrs(const std::string &fn);
+        /*!
+         * Adds file to database.
+         * Also used to update existing file entries.
+         * \param dir Directory in which the file lies.
+         * \param fn Filename.
+         * \param path Whole path (usually dir+fn).
+         * \param st Statistics structure.
+         */
         void addFile(const std::string &dir, const std::string &fn, const std::string &path, struct stat &st);
+        /*!
+         * Removes file from database.
+         * \param dir Directory in which the file lies.
+         * \param fn Filename.
+         * \param path Whole path (usually dir+fn).
+         */
         void removeFile(const std::string &dir, const std::string &fn, const std::string &path);
+        /*!
+         * Adds directory to database.
+         * It is used to take care of empty dirs (we need to know about them).
+         * \param dir Directory in which the dir lies.
+         * \param fn Basename.
+         */
         void addDir(const std::string &dir, const std::string &fn);
+        /*!
+         * Removes directory from database.
+         * \see newsoul::Config::addDir for some details.
+         * \param path Path to directory (dir+basename).
+         */
         void removeDir(const std::string &path);
         template<typename T> void pack(std::vector<unsigned char> &data, T i);
         void pack(std::vector<unsigned char> &data, std::string s);
@@ -83,14 +115,44 @@ namespace newsoul {
 
         void handleFileAction(efsw::WatchID wid, const std::string &dir, const std::string &fn, efsw::Action action, std::string oldFn);
 
+        /*!
+         * Returns SLSK compatible, compressed version of the database.
+         * \return Compressed DB entries.
+         */
         inline const std::vector<unsigned char> &shares() const { return this->compressed; }
+        /*!
+         * Retrieves files contained within given directory.
+         * \param fn Directory.
+         * \return Files within fn.
+         */
         Shares contents(const std::string &fn);
         Folder query(const std::string &query) const;
+        /*!
+         * Repairs distorted path case.
+         * Use case: We get path from an case insensitive FS (e.g. NTFS).
+         * \param lower Distorted path.
+         * \return Repaired path.
+         */
         std::string toProperCase(const std::string &lower);
+        /*!
+         * Checks whether a specified file is shared.
+         * \param fn Path to file.
+         * \return True if shared, false otherwise.
+         */
         bool isShared(const std::string &fn);
+        /*!
+         * Returns number of all files in the database.
+         * \see newsoul::Config::dirsCount.
+         * \return Number of files.
+         */
         unsigned int filesCount();
+        /*!
+         * Returns number of all directories in the database.
+         * \see newsoul::Config::filesCount.
+         * \return Number of directories.
+         */
         unsigned int dirsCount();
     };
 }
 
-#endif // __NEWSOUL_DB_H__
+#endif // __NEWSOUL_SHARESDB_H__
