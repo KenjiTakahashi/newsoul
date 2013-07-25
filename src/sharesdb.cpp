@@ -29,12 +29,10 @@ newsoul::SharesDB::SharesDB(const std::string &fn, std::function<void(void)> fun
     this->dirsdb.open(NULL, afn.c_str(), NULL, DB_HASH, DB_CREATE, 0);
     this->attrdb.open(NULL, dfn.c_str(), NULL, DB_HASH, DB_CREATE, 0);
     this->compress();
-    this->fw = new efsw::FileWatcher();
-    this->fw->watch();
+    this->fw.watch();
 }
 
 newsoul::SharesDB::~SharesDB() {
-    delete this->fw;
     this->attrdb.close(0);
     this->dirsdb.close(0);
 }

@@ -21,6 +21,7 @@
 #ifndef NEWSOUL_PEERMESSAGES_H
 #define NEWSOUL_PEERMESSAGES_H
 
+#include "servermessages.h"
 #include "sharesdb.h"
 
 namespace newsoul

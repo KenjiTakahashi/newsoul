@@ -26,7 +26,6 @@
 #include <taglib/fileref.h>
 #include <vector>
 #include <zlib.h>
-#include "servermessages.h"
 #include "utils/os.h"
 #include "utils/path.h"
 #include "utils/string.h"
@@ -44,7 +43,7 @@ typedef std::map<std::string, Shares> Folders;
 
 namespace newsoul {
     class SharesDB : public efsw::FileWatchListener {
-        efsw::FileWatcher *fw; /*!< Real time FS watcher (efsw) */
+        efsw::FileWatcher fw; /*!< Real time FS watcher (efsw).*/
         /*!
          * Stores shared directory structure.
          * It is a K/V storage with duplicates.
