@@ -2,7 +2,7 @@ language: cpp
 compiler:
   - gcc
 before_install:
-  - wget https://github.com/cpputest/cpputest.github.io/blob/master/releases/cpputest-3.4.tar.gz?raw=true
+  - curl -L -o cpputest-3.4.tar.gz https://github.com/cpputest/cpputest.github.io/blob/master/releases/cpputest-3.4.tar.gz?raw=true
   - tar xvzf cpputest-3.4.tar.gz
   - cd cpputest-3.4
   - ./configure --disable-maintainer-mode
