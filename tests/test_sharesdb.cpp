@@ -121,6 +121,9 @@ TEST(addDir, success) {
 
 TEST_GROUP(removeDir) { };
 
+TEST(removeDir, success) {
+}
+
 TEST_GROUP(pack) { };
 
 TEST_GROUP(compress) { };

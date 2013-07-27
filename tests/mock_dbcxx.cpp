@@ -139,13 +139,17 @@ void Db::get_errfile(FILE **) { }
 void Db::get_errpfx(const char **) { }
 int Db::get_feedback(void (**)(Db *, int, int)) { return mock().intReturnValue(); }
 int Db::get_flags(u_int32_t *) { return mock().intReturnValue(); }
+#if DB_VERSION_MINOR >= 2
 int Db::get_heapsize(u_int32_t *, u_int32_t *) { return mock().intReturnValue(); }
+#endif
+#if DB_VERSION_MINOR >= 3
 int Db::get_heap_regionsize(u_int32_t *) { return mock().intReturnValue(); }
+int Db::get_lk_exclusive(bool *, bool *) { return mock().intReturnValue(); }
+#endif
 int Db::get_h_compare(int (**)(Db *, const Dbt *, const Dbt *)) { return mock().intReturnValue(); }
 int Db::get_h_ffactor(u_int32_t *) { return mock().intReturnValue(); }
 int Db::get_h_hash(u_int32_t (**)(Db *, const void *, u_int32_t)) { return mock().intReturnValue(); }
 int Db::get_h_nelem(u_int32_t *) { return mock().intReturnValue(); }
-int Db::get_lk_exclusive(bool *, bool *) { return mock().intReturnValue(); }
 int Db::get_lorder(int *) { return mock().intReturnValue(); }
 void Db::get_msgcall(void (**)(const DbEnv *, const char *)) { }
 void Db::get_msgfile(FILE **) { }
@@ -182,7 +186,7 @@ int Db::rename(const char *, const char *, const char *, u_int32_t) { return moc
 int Db::set_alloc(db_malloc_fcn_type, db_realloc_fcn_type, db_free_fcn_type) { return mock().intReturnValue(); }
 void Db::set_app_private(void *) { }
 int Db::set_append_recno(int (*)(Db *, Dbt *, db_recno_t)) { return mock().intReturnValue(); }
-int Db::set_bt_compare(bt_compare_fcn_type) { return mock().intReturnValue(); } /*deprecated*/
+int Db::set_bt_compare(bt_compare_fcn_type) { return mock().intReturnValue(); }
 int Db::set_bt_compare(int (*)(Db *, const Dbt *, const Dbt *)) { return mock().intReturnValue(); }
 int Db::set_bt_compress(int (*) (Db *, const Dbt *, const Dbt *, const Dbt *, const Dbt *, Dbt *), int (*)(Db *, const Dbt *, const Dbt *, Dbt *, Dbt *, Dbt *)) { return mock().intReturnValue(); }
 int Db::set_bt_minkey(u_int32_t) { return mock().intReturnValue(); }
@@ -198,15 +202,19 @@ void Db::set_errfile(FILE *) { }
 void Db::set_errpfx(const char *) { }
 int Db::set_feedback(void (*)(Db *, int, int)) { return mock().intReturnValue(); }
 int Db::set_flags(u_int32_t) { return mock().intReturnValue(); }
+#if DB_VERSION_MINOR >= 2
 int Db::set_heapsize(u_int32_t, u_int32_t) { return mock().intReturnValue(); }
+#endif
+#if DB_VERSION_MINOR >= 3
 int Db::set_heap_regionsize(u_int32_t) { return mock().intReturnValue(); }
-int Db::set_h_compare(h_compare_fcn_type) { return mock().intReturnValue(); } /*deprecated*/
+int Db::set_lk_exclusive(bool) { return mock().intReturnValue(); }
+#endif
+int Db::set_h_compare(h_compare_fcn_type) { return mock().intReturnValue(); }
 int Db::set_h_compare(int (*)(Db *, const Dbt *, const Dbt *)) { return mock().intReturnValue(); }
 int Db::set_h_ffactor(u_int32_t) { return mock().intReturnValue(); }
-int Db::set_h_hash(h_hash_fcn_type) { return mock().intReturnValue(); } /*deprecated*/
+int Db::set_h_hash(h_hash_fcn_type) { return mock().intReturnValue(); }
 int Db::set_h_hash(u_int32_t (*)(Db *, const void *, u_int32_t)) { return mock().intReturnValue(); }
 int Db::set_h_nelem(u_int32_t) { return mock().intReturnValue(); }
-int Db::set_lk_exclusive(bool) { return mock().intReturnValue(); }
 int Db::set_lorder(int) { return mock().intReturnValue(); }
 void Db::set_msgcall(void (*)(const DbEnv *, const char *)) { }
 void Db::set_msgfile(FILE *) { }
