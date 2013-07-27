@@ -68,13 +68,14 @@ namespace newsoul {
         std::vector<unsigned char> compressed;
 
     protected:
-        SharesDB() : dirsdb(NULL, 0), attrdb(NULL, 0) { }
+        SharesDB() : dirsdb(NULL, DB_CXX_NO_EXCEPTIONS), attrdb(NULL, DB_CXX_NO_EXCEPTIONS) { }
         /*!
          * Retrieves file attributes from database.
          * \param fn Path to file.
-         * \return Filled FileEntry structure.
+         * \param fe FileEntry to fill.
+         * \return 0 on success, 1 on error.
          */
-        FileEntry getAttrs(const std::string &fn);
+        int getAttrs(const std::string &fn, FileEntry *fe);
         /*!
          * Adds file to database.
          * Also used to update existing file entries.

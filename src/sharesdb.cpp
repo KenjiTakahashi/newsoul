@@ -59,20 +59,20 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, c
         Dbt asizedat(&size, sizeof(unsigned int));
         Dbt attrsdat(attrs.data(), attrs.size() * sizeof(unsigned int));
 
-        attrdb.put(NULL, &extkey, &extdat, 0);
-        attrdb.put(NULL, &asizekey, &asizedat, 0);
-        attrdb.put(NULL, &attrskey, &attrsdat, 0);
+        this->attrdb.put(NULL, &extkey, &extdat, 0);
+        this->attrdb.put(NULL, &asizekey, &asizedat, 0);
+        this->attrdb.put(NULL, &attrskey, &attrsdat, 0);
     }
     Dbt sizekey(const_cast<char*>((path + "s").c_str()), path.size() + 2);
     Dbt sizedat(&st.st_size, sizeof(unsigned int));
     Dbt mtimekey(const_cast<char*>((path + "m").c_str()), path.size() + 2);
     Dbt mtimedat(&st.st_mtime, sizeof(time_t));
 
-    attrdb.put(NULL, &sizekey, &sizedat, 0);
+    this->attrdb.put(NULL, &sizekey, &sizedat, 0);
 
     Dbt dkey(const_cast<char*>(dir.c_str()), dir.size() + 1);
     Dbt ddat(const_cast<char*>(fn.c_str()), fn.size() + 1);
-    dirsdb.put(NULL, &dkey, &ddat, DB_OVERWRITE_DUP);
+    this->dirsdb.put(NULL, &dkey, &ddat, DB_OVERWRITE_DUP);
 }
 
 void newsoul::SharesDB::removeFile(const std::string &dir, const std::string &fn, const std::string &path) {
@@ -81,8 +81,8 @@ void newsoul::SharesDB::removeFile(const std::string &dir, const std::string &fn
     Dbt ddat(const_cast<char*>(fn.c_str()), fn.size() + 1);
     Dbc *cursor;
 
-    attrdb.del(NULL, &key, 0);
-    dirsdb.cursor(NULL, &cursor, 0);
+    this->attrdb.del(NULL, &key, 0);
+    this->dirsdb.cursor(NULL, &cursor, 0);
     cursor->get(&dkey, &ddat, DB_GET_BOTH);
     cursor->del(0);
 
@@ -93,7 +93,7 @@ void newsoul::SharesDB::addDir(const std::string &dir, const std::string &fn) {
     Dbt key(const_cast<char*>(dir.c_str()), dir.size() + 1);
     Dbt dat(const_cast<char*>(fn.c_str()), fn.size() + 1);
 
-    dirsdb.put(NULL, &key, &dat, DB_OVERWRITE_DUP);
+    this->dirsdb.put(NULL, &key, &dat, DB_OVERWRITE_DUP);
 }
 
 void newsoul::SharesDB::removeDir(const std::string &path) {
@@ -101,7 +101,7 @@ void newsoul::SharesDB::removeDir(const std::string &path) {
     Dbt dat;
     Dbt key(const_cast<char*>(path.c_str()), path.size() + 1);
 
-    dirsdb.cursor(NULL, &cursor, 0);
+    this->dirsdb.cursor(NULL, &cursor, 0);
     int ret = cursor->get(&key, &dat, DB_SET);
     while(ret != DB_NOTFOUND) {
         std::string rfn((char*)dat.get_data());
@@ -109,7 +109,7 @@ void newsoul::SharesDB::removeDir(const std::string &path) {
     }
     cursor->close();
 
-    dirsdb.del(NULL, &key, 0);
+    this->dirsdb.del(NULL, &key, 0);
 }
 
 template<typename T> void newsoul::SharesDB::pack(std::vector<unsigned char> &data, T i) {
@@ -132,7 +132,7 @@ void newsoul::SharesDB::compress() {
     struct stat st;
     std::vector<unsigned char> inBuf;
 
-    dirsdb.cursor(NULL, &cursor1, 0);
+    this->dirsdb.cursor(NULL, &cursor1, 0);
     this->pack<uint32_t>(inBuf, this->dirsCount());
     while(cursor1->get(&key, &dat1, DB_NEXT_NODUP) != DB_NOTFOUND) {
         std::string path((char*)key.get_data());
@@ -153,13 +153,16 @@ void newsoul::SharesDB::compress() {
         }
         this->pack<uint32_t>(inBuf, length);
 
-        dirsdb.cursor(NULL, &cursor2, 0);
+        this->dirsdb.cursor(NULL, &cursor2, 0);
         ret = cursor2->get(&key, &dat3, DB_SET);
         while(ret != DB_NOTFOUND) {
             std::string file((char*)dat3.get_data());
             stat(file.c_str(), &st);
             if(S_ISREG(st.st_mode)) {
-                FileEntry fe = this->getAttrs(path::join({path, file}));
+                FileEntry fe;
+                if(this->getAttrs(path::join({path, file}), &fe) != 0) {
+                    continue;
+                }
 
                 inBuf.push_back(1);
                 this->pack(inBuf, file);
@@ -224,31 +227,45 @@ void newsoul::SharesDB::handleFileAction(efsw::WatchID wid, const std::string &d
     this->updateApp();
 }
 
-FileEntry newsoul::SharesDB::getAttrs(const std::string &fn) {
-    FileEntry fe;
+int newsoul::SharesDB::getAttrs(const std::string &fn, FileEntry *fe) {
     Dbc *cursor;
     Dbt dat;
-    Dbt sizekey(const_cast<char*>((fn + "s").c_str()), fn.size() + 2);
-    Dbt extkey(const_cast<char*>((fn + "e").c_str()), fn.size() + 2);
-    Dbt asizekey(const_cast<char*>((fn + "l").c_str()), fn.size() + 2);
-    Dbt attrskey(const_cast<char*>((fn + "a").c_str()), fn.size() + 2);
-    Dbt mtimekey(const_cast<char*>((fn + "m").c_str()), fn.size() + 2);
+    std::string s = fn + "s";
+    Dbt sizekey(const_cast<char*>(s.c_str()), fn.size() + 2);
+    std::string e = fn + "e";
+    Dbt extkey(const_cast<char*>(e.c_str()), fn.size() + 2);
+    std::string l = fn + "l";
+    Dbt asizekey(const_cast<char*>(l.c_str()), fn.size() + 2);
+    std::string a = fn + "a";
+    Dbt attrskey(const_cast<char*>(a.c_str()), fn.size() + 2);
+    std::string m = fn + "m";
+    Dbt mtimekey(const_cast<char*>(m.c_str()), fn.size() + 2);
 
-    attrdb.cursor(NULL, &cursor, 0);
-    cursor->get(&sizekey, &dat, 0);
-    fe.size = *(unsigned int*)dat.get_data();
-    cursor->get(&extkey, &dat, 0);
-    fe.ext = std::string((char*)dat.get_data());
-    cursor->get(&asizekey, &dat, 0);
+    this->attrdb.cursor(NULL, &cursor, 0);
+    if(cursor->get(&sizekey, &dat, 0) != 0) {
+        return 1;
+    }
+    fe->size = *(unsigned int*)dat.get_data();
+    if(cursor->get(&extkey, &dat, 0) != 0) {
+        return 1;
+    }
+    fe->ext = std::string((char*)dat.get_data());
+    if(cursor->get(&asizekey, &dat, 0) != 0) {
+        return 1;
+    }
     unsigned int len = *(unsigned int*)dat.get_data();
-    cursor->get(&attrskey, &dat, 0);
+    if(cursor->get(&attrskey, &dat, 0) != 0) {
+        return 1;
+    }
     unsigned int *attrs = (unsigned int*)dat.get_data();
-    fe.attrs = std::vector<unsigned int>(attrs, attrs + len);
-    cursor->get(&mtimekey, &dat, 0);
-    fe.mtime = *(time_t*)dat.get_data();
+    fe->attrs = std::vector<unsigned int>(attrs, attrs + len);
+    if(cursor->get(&mtimekey, &dat, 0) != 0) {
+        return 1;
+    }
+    fe->mtime = *(time_t*)dat.get_data();
     cursor->close();
 
-    return fe;
+    return 0;
 }
 
 Shares newsoul::SharesDB::contents(const std::string &fn) {
@@ -257,7 +274,7 @@ Shares newsoul::SharesDB::contents(const std::string &fn) {
     Dbt key, dat;
     struct stat st;
 
-    dirsdb.cursor(NULL, &cursor, 0);
+    this->dirsdb.cursor(NULL, &cursor, 0);
     while(cursor->get(&key, &dat, DB_NEXT)) {
         std::string k((char*)key.get_data());
         if(k == fn || k.substr(0, fn.size() + 1) == fn) {
@@ -266,7 +283,10 @@ Shares newsoul::SharesDB::contents(const std::string &fn) {
             std::string d((char*)dat.get_data());
             stat(d.c_str(), &st);
             if(S_ISREG(st.st_mode)) {
-                results[k][d] = this->getAttrs(path::join({k, d}));
+                FileEntry fe;
+                if(this->getAttrs(path::join({k, d}), &fe) == 0) {
+                    results[k][d] = fe;
+                }
             }
         }
     }
@@ -282,7 +302,7 @@ std::string newsoul::SharesDB::toProperCase(const std::string &lower) {
     Dbc *cursor;
     Dbt key, dat;
 
-    attrdb.cursor(NULL, &cursor, 0);
+    this->attrdb.cursor(NULL, &cursor, 0);
     while(cursor->get(&key, &dat, DB_NEXT) == 0) {
         std::string s((char*)key.get_data());
         if(string::tolower(s) == lower) {
@@ -297,13 +317,13 @@ std::string newsoul::SharesDB::toProperCase(const std::string &lower) {
 bool newsoul::SharesDB::isShared(const std::string &fn) {
     Dbt key(const_cast<char*>(fn.c_str()), fn.size() + 1);
 
-    return attrdb.exists(NULL, &key, 0) != DB_NOTFOUND;
+    return this->attrdb.exists(NULL, &key, 0) != DB_NOTFOUND;
 }
 
 unsigned int newsoul::SharesDB::filesCount() {
     //FIXME: This might be slow
     DB_HASH_STAT *stats;
-    attrdb.stat(NULL, &stats, 0);
+    this->attrdb.stat(NULL, &stats, 0);
     unsigned int res = stats->hash_nkeys;
     free(stats);
     return res;
@@ -312,7 +332,7 @@ unsigned int newsoul::SharesDB::filesCount() {
 unsigned int newsoul::SharesDB::dirsCount() {
     //FIXME: This might be slow
     DB_HASH_STAT *stats;
-    dirsdb.stat(NULL, &stats, 0);
+    this->dirsdb.stat(NULL, &stats, 0);
     unsigned int res = stats->hash_nkeys;
     free(stats);
     return res;

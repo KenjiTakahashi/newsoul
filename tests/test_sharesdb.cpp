@@ -16,8 +16,10 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "catch.hpp"
-#include "mock_dbcxx.h"
+#include <CppUTest/CommandLineTestRunner.h>
+#include <CppUTest/TestRegistry.h>
+#include <CppUTestExt/MockSupport.h>
+#include <CppUTestExt/MockSupportPlugin.h>
 #include "../src/sharesdb.h"
 
 class TSharesDB : public newsoul::SharesDB {
@@ -33,46 +35,75 @@ class TSharesDB : public newsoul::SharesDB {
         using newsoul::SharesDB::compress;
 };
 
-TEST_CASE("getAttrs", "[newsoul][SharesDB]") {
-    SECTION("entry exists") {
-    }
+TEST_GROUP(getAttrs) { };
 
-    SECTION("entry doesn't exist") {
-    }
+TEST(getAttrs, entry_exists) {
+    TSharesDB shares;
+    mock().setData("data", 1);
+    mock().setData("sdata", 10);
+    mock().setData("edata", "ext");
+    unsigned int a[3] = {10, 20, 30};
+    mock().setData("adata", a);
+    mock().setData("ldata", 3);
+    time_t t = 300;
+    mock().setData("mdata", &t);
+
+    mock().expectOneCall("Dbt::Dbt(0)");
+    mock().expectNCalls(5, "Dbt::Dbt(2)");
+    mock().expectOneCall("Db::cursor");
+    mock().expectNCalls(5, "Dbc::get");
+
+    FileEntry result;
+    int ret = shares.getAttrs("/entry", &result);
+
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(10, result.size);
+    CHECK_EQUAL("ext", result.ext);
+    CHECK(std::vector<unsigned int>({10, 20, 30}) == result.attrs);
+    CHECK_EQUAL(300, result.mtime);
 }
 
-TEST_CASE("addFile", "[newsoul][SharesDB]") {
+TEST(getAttrs, entry_does_not_exist) {
+    TSharesDB shares;
+    mock().setData("data", 0);
+
+    mock().expectOneCall("Dbt::Dbt(0)");
+    mock().expectNCalls(5, "Dbt::Dbt(2)");
+    mock().expectOneCall("Db::cursor");
+    mock().expectOneCall("Dbc::get");
+
+    FileEntry result;
+    int ret = shares.getAttrs("/entry", &result);
+
+    CHECK_EQUAL(1, ret);
 }
 
-TEST_CASE("removeFile", "[newsoul][SharesDB]") {
+int main(int argc, char *argv[]) {
+    MockSupportPlugin mockPlugin;
+    TestRegistry::getCurrentRegistry()->installPlugin(&mockPlugin);
+    return CommandLineTestRunner::RunAllTests(argc, argv);
 }
 
-TEST_CASE("addDir", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(addFile) { };
 
-TEST_CASE("removeDir", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(removeFile) { };
 
-TEST_CASE("pack", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(addDir) { };
 
-TEST_CASE("compress", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(removeDir) { };
 
-TEST_CASE("contents", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(pack) { };
 
-TEST_CASE("query", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(compress) { };
 
-TEST_CASE("toProperCase", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(contents) { };
 
-TEST_CASE("isShared", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(query) { };
 
-TEST_CASE("filesCount", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(toProperCase) { };
 
-TEST_CASE("dirsCount", "[newsoul][SharesDB]") {
-}
+TEST_GROUP(isShared) { };
+
+TEST_GROUP(filesCount) { };
+
+TEST_GROUP(dirsCount) { };
