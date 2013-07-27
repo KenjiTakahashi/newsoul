@@ -88,7 +88,7 @@ TEST_GROUP(addFile) { };
 
 TEST_GROUP(removeFile) { };
 
-TEST(removeFile, test) {
+TEST(removeFile, success) {
     TSharesDB shares;
     mock().setData("Dbc::get::withParameter", 1);
 
@@ -107,6 +107,17 @@ TEST(removeFile, test) {
 }
 
 TEST_GROUP(addDir) { };
+
+TEST(addDir, success) {
+    TSharesDB shares;
+
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/fdir").withParameter("2", 6);
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "sdir").withParameter("2", 5);
+
+    mock().expectOneCall("Db::put").withParameter("2", "/fdir").withParameter("3", "sdir");
+
+    shares.addDir("/fdir", "sdir");
+}
 
 TEST_GROUP(removeDir) { };
 

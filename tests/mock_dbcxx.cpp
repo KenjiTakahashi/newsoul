@@ -170,8 +170,8 @@ int Db::open(DbTxn *txnid, const char *, const char *subname, DBTYPE, u_int32_t,
     return mock().intReturnValue();
 }
 int Db::pget(DbTxn *txnid, Dbt *key, Dbt *pkey, Dbt *data, u_int32_t flags) { return mock().intReturnValue(); }
-int Db::put(DbTxn *, Dbt *, Dbt *, u_int32_t) {
-    mock().actualCall("Db::put");
+int Db::put(DbTxn *txnid, Dbt *key, Dbt *data, u_int32_t) {
+    mock().actualCall("Db::put").withParameter("2", (char*)key->get_data()).withParameter("3", (char*)data->get_data());
     return mock().intReturnValue();
 }
 int Db::remove(const char *, const char *, u_int32_t) {

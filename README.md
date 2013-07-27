@@ -13,6 +13,7 @@ This is *only* the daemon/server part, no clients (besides CLI) are developed he
 * BerkeleyDB (often referred to as *db*)
 * C++11 capable compiler (for compilation)
 * premake4 (for compilation)
+* CppUTest (for test-suite)
 * python2.x (for bindings and some misc utils)
 * pycrypto (for bindings and some misc utils)
 
