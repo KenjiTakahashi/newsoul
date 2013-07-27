@@ -88,7 +88,7 @@ int Dbc::get(Dbt* key, Dbt *data, u_int32_t flags) {
         }
         return 0;
     } else {
-        return 1;  // Non-zero code
+        return DB_NOTFOUND;  // Non-zero code
     }
 }
 int Dbc::get_priority(DB_CACHE_PRIORITY *priorityp) { return mock().intReturnValue(); }
@@ -139,13 +139,6 @@ void Db::get_errfile(FILE **) { }
 void Db::get_errpfx(const char **) { }
 int Db::get_feedback(void (**)(Db *, int, int)) { return mock().intReturnValue(); }
 int Db::get_flags(u_int32_t *) { return mock().intReturnValue(); }
-#if DB_VERSION_MINOR >= 2
-int Db::get_heapsize(u_int32_t *, u_int32_t *) { return mock().intReturnValue(); }
-#endif
-#if DB_VERSION_MINOR >= 3
-int Db::get_heap_regionsize(u_int32_t *) { return mock().intReturnValue(); }
-int Db::get_lk_exclusive(bool *, bool *) { return mock().intReturnValue(); }
-#endif
 int Db::get_h_compare(int (**)(Db *, const Dbt *, const Dbt *)) { return mock().intReturnValue(); }
 int Db::get_h_ffactor(u_int32_t *) { return mock().intReturnValue(); }
 int Db::get_h_hash(u_int32_t (**)(Db *, const void *, u_int32_t)) { return mock().intReturnValue(); }
@@ -203,9 +196,12 @@ void Db::set_errpfx(const char *) { }
 int Db::set_feedback(void (*)(Db *, int, int)) { return mock().intReturnValue(); }
 int Db::set_flags(u_int32_t) { return mock().intReturnValue(); }
 #if DB_VERSION_MINOR >= 2
+int Db::get_heapsize(u_int32_t *, u_int32_t *) { return mock().intReturnValue(); }
 int Db::set_heapsize(u_int32_t, u_int32_t) { return mock().intReturnValue(); }
 #endif
 #if DB_VERSION_MINOR >= 3
+int Db::get_heap_regionsize(u_int32_t *) { return mock().intReturnValue(); }
+int Db::get_lk_exclusive(bool *, bool *) { return mock().intReturnValue(); }
 int Db::set_heap_regionsize(u_int32_t) { return mock().intReturnValue(); }
 int Db::set_lk_exclusive(bool) { return mock().intReturnValue(); }
 #endif

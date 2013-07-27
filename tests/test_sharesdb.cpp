@@ -122,6 +122,18 @@ TEST(addDir, success) {
 TEST_GROUP(removeDir) { };
 
 TEST(removeDir, success) {
+    // We do not test removing files from attrdb as it calls removeFile.
+    TSharesDB shares;
+
+    mock().expectOneCall("Dbt::Dbt(0)");
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/fdir/sdir").withParameter("2", 11);
+    mock().expectOneCall("Db::cursor");
+    mock().expectOneCall("Dbc::get");
+
+    mock().expectOneCall("Dbc::close");
+    mock().expectOneCall("Db::del").withParameter("2", "/fdir/sdir");
+
+    shares.removeDir("/fdir/sdir");
 }
 
 TEST_GROUP(pack) { };
