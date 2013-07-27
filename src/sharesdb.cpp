@@ -243,23 +243,28 @@ int newsoul::SharesDB::getAttrs(const std::string &fn, FileEntry *fe) {
 
     this->attrdb.cursor(NULL, &cursor, 0);
     if(cursor->get(&sizekey, &dat, 0) != 0) {
+        cursor->close();
         return 1;
     }
     fe->size = *(unsigned int*)dat.get_data();
     if(cursor->get(&extkey, &dat, 0) != 0) {
+        cursor->close();
         return 1;
     }
     fe->ext = std::string((char*)dat.get_data());
     if(cursor->get(&asizekey, &dat, 0) != 0) {
+        cursor->close();
         return 1;
     }
     unsigned int len = *(unsigned int*)dat.get_data();
     if(cursor->get(&attrskey, &dat, 0) != 0) {
+        cursor->close();
         return 1;
     }
     unsigned int *attrs = (unsigned int*)dat.get_data();
     fe->attrs = std::vector<unsigned int>(attrs, attrs + len);
     if(cursor->get(&mtimekey, &dat, 0) != 0) {
+        cursor->close();
         return 1;
     }
     fe->mtime = *(time_t*)dat.get_data();

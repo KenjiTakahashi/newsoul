@@ -59,6 +59,7 @@ TEST(getAttrs, entry_exists) {
     mock().setData("mdata", &t);
 
     mock().expectNCalls(5, "Dbc::get");
+    mock().expectOneCall("Dbc::close");
 
     FileEntry result;
     int ret = shares.getAttrs("/entry", &result);
@@ -75,6 +76,7 @@ TEST(getAttrs, entry_does_not_exist) {
     mock().setData("data", 0);
 
     mock().expectOneCall("Dbc::get");
+    mock().expectOneCall("Dbc::close");
 
     FileEntry result;
     int ret = shares.getAttrs("/entry", &result);
@@ -85,6 +87,24 @@ TEST(getAttrs, entry_does_not_exist) {
 TEST_GROUP(addFile) { };
 
 TEST_GROUP(removeFile) { };
+
+TEST(removeFile, test) {
+    TSharesDB shares;
+    mock().setData("Dbc::get::withParameter", 1);
+
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/dir/file").withParameter("2", 10);
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/dir").withParameter("2", 5);
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "file").withParameter("2", 5);
+
+    mock().expectOneCall("Db::del").withParameter("2", "/dir/file");
+    mock().expectOneCall("Db::cursor");
+    mock().expectOneCall("Dbc::get").withParameter("1", "/dir").withParameter("2", "file");
+    mock().expectOneCall("Dbc::del");
+
+    mock().expectOneCall("Dbc::close");
+
+    shares.removeFile("/dir", "file", "/dir/file");
+}
 
 TEST_GROUP(addDir) { };
 

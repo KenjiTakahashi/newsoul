@@ -37,13 +37,23 @@ Dbt::Dbt(void *data_arg, u_int32_t size_arg) {
 }
 Dbt::~Dbt() { }
 
-int Dbc::close() { return mock().intReturnValue(); }
+int Dbc::close() {
+    mock().actualCall("Dbc::close");
+    return mock().intReturnValue();
+}
 int Dbc::cmp(Dbc *other_csr, int *result, u_int32_t flags) { return mock().intReturnValue(); }
 int Dbc::count(db_recno_t *countp, u_int32_t flags) { return mock().intReturnValue(); }
-int Dbc::del(u_int32_t flags) { return mock().intReturnValue(); }
+int Dbc::del(u_int32_t flags) {
+    mock().actualCall("Dbc::del");
+    return mock().intReturnValue();
+}
 int Dbc::dup(Dbc** cursorp, u_int32_t flags) { return mock().intReturnValue(); }
 int Dbc::get(Dbt* key, Dbt *data, u_int32_t flags) {
-    mock().actualCall("Dbc::get");
+    if(mock().getData("Dbc::get::withParameter").getIntValue()) {
+        mock().actualCall("Dbc::get").withParameter("1", (char*)key->get_data()).withParameter("2", (char*)data->get_data());
+    } else {
+        mock().actualCall("Dbc::get");
+    }
 
     if(mock().getData("data").getIntValue()) {
         const char *k = (const char*)key->get_data();
@@ -98,7 +108,7 @@ int Db::cursor(DbTxn *txnid, Dbc **cursorp, u_int32_t flags) {
     return mock().intReturnValue();
 }
 int Db::del(DbTxn *txnid, Dbt *key, u_int32_t flags) {
-    mock().actualCall("Db::del");
+    mock().actualCall("Db::del").withParameter("2", (char*)key->get_data());
     return mock().intReturnValue();
 }
 void Db::err(int, const char *, ...) { }
