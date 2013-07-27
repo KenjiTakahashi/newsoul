@@ -28,7 +28,7 @@ Dbt::Dbt() {
 }
 
 Dbt::Dbt(void *data_arg, u_int32_t size_arg) {
-    mock().actualCall("Dbt::Dbt(2)");
+    mock().actualCall("Dbt::Dbt(2)").withParameter("1", (char*)data_arg).withParameter("2", (int)size_arg);
 
     DBT *dbt = this;
     memset(dbt, 0, sizeof(DBT));

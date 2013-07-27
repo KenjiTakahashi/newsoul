@@ -35,7 +35,17 @@ class TSharesDB : public newsoul::SharesDB {
         using newsoul::SharesDB::compress;
 };
 
-TEST_GROUP(getAttrs) { };
+TEST_GROUP(getAttrs) {
+    void setup() {
+        mock().expectOneCall("Dbt::Dbt(0)");
+        mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/entrys").withParameter("2", 8);
+        mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/entrye").withParameter("2", 8);
+        mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/entrya").withParameter("2", 8);
+        mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/entryl").withParameter("2", 8);
+        mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/entrym").withParameter("2", 8);
+        mock().expectOneCall("Db::cursor");
+    }
+};
 
 TEST(getAttrs, entry_exists) {
     TSharesDB shares;
@@ -48,9 +58,6 @@ TEST(getAttrs, entry_exists) {
     time_t t = 300;
     mock().setData("mdata", &t);
 
-    mock().expectOneCall("Dbt::Dbt(0)");
-    mock().expectNCalls(5, "Dbt::Dbt(2)");
-    mock().expectOneCall("Db::cursor");
     mock().expectNCalls(5, "Dbc::get");
 
     FileEntry result;
@@ -67,21 +74,12 @@ TEST(getAttrs, entry_does_not_exist) {
     TSharesDB shares;
     mock().setData("data", 0);
 
-    mock().expectOneCall("Dbt::Dbt(0)");
-    mock().expectNCalls(5, "Dbt::Dbt(2)");
-    mock().expectOneCall("Db::cursor");
     mock().expectOneCall("Dbc::get");
 
     FileEntry result;
     int ret = shares.getAttrs("/entry", &result);
 
     CHECK_EQUAL(1, ret);
-}
-
-int main(int argc, char *argv[]) {
-    MockSupportPlugin mockPlugin;
-    TestRegistry::getCurrentRegistry()->installPlugin(&mockPlugin);
-    return CommandLineTestRunner::RunAllTests(argc, argv);
 }
 
 TEST_GROUP(addFile) { };
@@ -107,3 +105,9 @@ TEST_GROUP(isShared) { };
 TEST_GROUP(filesCount) { };
 
 TEST_GROUP(dirsCount) { };
+
+int main(int argc, char *argv[]) {
+    MockSupportPlugin mockPlugin;
+    TestRegistry::getCurrentRegistry()->installPlugin(&mockPlugin);
+    return CommandLineTestRunner::RunAllTests(argc, argv);
+}
