@@ -17,349 +17,403 @@
 */
 
 #include <sstream>
-#include "catch.hpp"
+#include <CppUTest/TestHarness.h>
 #include "../src/config.h"
 
-TEST_CASE("getInt", "[newsoul][Config]") {
-    std::istringstream data("{\"int1\":1,\"key\":{\"int2\":2}}");
-    auto config = new newsoul::Config(data);
+TEST_GROUP(getInt) {
+    newsoul::Config *config;
 
-    SECTION("top level") {
-        int result = config->getInt({"int1"});
-
-        REQUIRE(result == 1);
+    void setup() {
+        std::istringstream data("{\"int1\":1,\"key\":{\"int2\":2}}");
+        config = new newsoul::Config(data);
     }
 
-    SECTION("nested") {
-        int result = config->getInt({"key", "int2"});
-
-        REQUIRE(result == 2);
+    void teardown() {
+        delete config;
     }
+};
 
-    SECTION("not found") {
-        int result = config->getInt({"notfound"});
+TEST(getInt, top_level) {
+    int result = config->getInt({"int1"});
 
-        REQUIRE(result == 0);
-    }
-
-    delete config;
+    CHECK_EQUAL(1, result);
 }
 
-TEST_CASE("getStr", "[newsoul][Config]") {
-    std::istringstream data("{\"str1\":\"s1\",\"key\":{\"str2\":\"s2\"}}");
-    auto config = new newsoul::Config(data);
+TEST(getInt, nested) {
+    int result = config->getInt({"key", "int2"});
 
-    SECTION("top level") {
-        const std::string result = config->getStr({"str1"});
-
-        REQUIRE(result == "s1");
-    }
-
-    SECTION("nested") {
-        const std::string result = config->getStr({"key", "str2"});
-
-        REQUIRE(result == "s2");
-    }
-
-    SECTION("not found") {
-        const std::string result = config->getStr({"notfound"});
-
-        REQUIRE(result.empty());
-    }
-
-    delete config;
+    CHECK_EQUAL(2, result);
 }
 
-TEST_CASE("getBool", "[newsoul][Config]") {
-    std::istringstream data("{\"bool1\":true,\"key\":{\"bool2\":true}}");
-    auto config = new newsoul::Config(data, false);
+TEST(getInt, not_found) {
+    int result = config->getInt({"notfound"});
 
-    SECTION("top level") {
-        bool result = config->getBool({"bool1"});
-
-        REQUIRE(result == true);
-    }
-
-    SECTION("nested") {
-        bool result = config->getBool({"key", "bool2"});
-
-        REQUIRE(result == true);
-    }
-
-    SECTION("not found") {
-        bool result = config->getBool({"notfound"});
-
-        REQUIRE(result == false);
-    }
-
-    delete config;
+    CHECK_EQUAL(0, result);
 }
 
-TEST_CASE("getVec", "[newsoul][Config]") {
-    std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]}, \"notvec\":1}");
-    auto config = new newsoul::Config(data, false);
+TEST_GROUP(getStr) {
+    newsoul::Config *config;
 
-    SECTION("top level") {
-        std::vector<std::string> result = config->getVec({"vec1"});
-
-        REQUIRE(result[0] == "v1");
-        REQUIRE(result[1] == "v2");
+    void setup() {
+        std::istringstream data("{\"str1\":\"s1\",\"key\":{\"str2\":\"s2\"}}");
+        config = new newsoul::Config(data);
     }
 
-    SECTION("nested") {
-        std::vector<std::string> result = config->getVec({"key", "vec2"});
-
-        REQUIRE(result[0] == "v3");
-        REQUIRE(result[1] == "v4");
+    void teardown() {
+        delete config;
     }
+};
 
-    SECTION("not found") {
-        std::vector<std::string> result = config->getVec({"notfound"});
+TEST(getStr, top_level) {
+    const std::string result = config->getStr({"str1"});
 
-        REQUIRE(result.empty());
-    }
-
-    SECTION("not array", "[corner]") {
-        std::vector<std::string> result = config->getVec({"notvec"});
-
-        REQUIRE(result.empty());
-    }
-
-    delete config;
+    CHECK_EQUAL("s1", result);
 }
 
-TEST_CASE("set<int>", "[newsoul][Config]") {
-    std::istringstream data("{\"e\":{\"int1\":1}}");
-    auto config = new newsoul::Config(data);
+TEST(getStr, nested) {
+    const std::string result = config->getStr({"key", "str2"});
 
-    SECTION("top level") {
-        config->set({"int1"}, 1);
-
-        int result = config->getInt({"int1"});
-
-        REQUIRE(result == 1);
-    }
-
-    SECTION("nested") {
-        config->set({"key", "int2"}, 2);
-
-        int result = config->getInt({"key", "int2"});
-
-        REQUIRE(result == 2);
-    }
-
-    SECTION("nested in existing section") {
-        config->set({"e", "int2"}, 2);
-
-        int result1 = config->getInt({"e", "int1"});
-        int result2 = config->getInt({"e", "int2"});
-
-        REQUIRE(result1 == 1);
-        REQUIRE(result2 == 2);
-    }
-
-    delete config;
+    CHECK_EQUAL("s2", result);
 }
 
-TEST_CASE("set<string>", "[newsoul][Config]") {
-    std::istringstream data("{\"e\":{\"str1\":\"s1\"}}");
-    auto config = new newsoul::Config(data);
+TEST(getStr, not_found) {
+    const std::string result = config->getStr({"notfound"});
 
-    SECTION("top level") {
-        config->set({"str1"}, std::string("s1"));
-
-        const std::string result = config->getStr({"str1"});
-
-        REQUIRE(result == "s1");
-    }
-
-    SECTION("nested") {
-        config->set({"key", "str2"}, std::string("s2"));
-
-        const std::string result = config->getStr({"key", "str2"});
-
-        REQUIRE(result == "s2");
-    }
-
-    SECTION("nested in existing section") {
-        config->set({"e", "str2"}, std::string("s2"));
-
-        const std::string result1 = config->getStr({"e", "str1"});
-        const std::string result2 = config->getStr({"e", "str2"});
-
-        REQUIRE(result1 == "s1");
-        REQUIRE(result2 == "s2");
-    }
-
-    delete config;
+    CHECK(result.empty());
 }
 
-TEST_CASE("set<bool>", "[newsoul][Config]") {
-    std::istringstream data("{\"e\":{\"b1\":true}}");
-    auto config = new newsoul::Config(data);
+TEST_GROUP(getBool) {
+    newsoul::Config *config;
 
-    SECTION("top level") {
-        config->set({"b1"}, true);
-
-        bool result = config->getBool({"b1"});
-
-        REQUIRE(result == true);
+    void setup() {
+        std::istringstream data("{\"bool1\":true,\"key\":{\"bool2\":true}}");
+        config = new newsoul::Config(data);
     }
 
-    SECTION("nested") {
-        config->set({"key", "b2"}, true);
-
-        bool result = config->getBool({"key", "b2"});
-
-        REQUIRE(result == true);
+    void teardown() {
+        delete config;
     }
+};
 
-    SECTION("nested in existing section") {
-        config->set({"e", "b2"}, true);
+TEST(getBool, top_level) {
+    bool result = config->getBool({"bool1"});
 
-        bool result1 = config->getBool({"e", "b1"});
-        bool result2 = config->getBool({"e", "b2"});
-
-        REQUIRE(result1 == true);
-        REQUIRE(result2 == true);
-    }
-
-    delete config;
+    CHECK_EQUAL(true, result);
 }
 
-TEST_CASE("contains", "[newsoul][Config]") {
-    std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]}, \"notvec\":1}");
-    auto config = new newsoul::Config(data);
+TEST(getBool, nested) {
+    bool result = config->getBool({"key", "bool2"});
 
-    SECTION("top level") {
-        bool result = config->contains({"vec1"}, "v1");
-
-        REQUIRE(result == true);
-    }
-
-    SECTION("nested") {
-        bool result = config->contains({"key", "vec2"}, "v3");
-
-        REQUIRE(result == true);
-    }
-
-    SECTION("not found value") {
-        bool result = config->contains({"vec1"}, "v3");
-
-        REQUIRE(result == false);
-    }
-
-    SECTION("not found key") {
-        bool result = config->contains({"notfound"}, "");
-
-        REQUIRE(result == false);
-    }
-
-    SECTION("not array") {
-        bool result = config->contains({"notvec"}, "v5");
-
-        REQUIRE(result == false);
-    }
-
-    delete config;
+    CHECK_EQUAL(true, result);
 }
 
-TEST_CASE("add", "[newsoul][Config]") {
-    std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]},\"notvec\":1}");
-    auto config = new newsoul::Config(data);
+TEST(getBool, not_found) {
+    bool result = config->getBool({"notfound"});
 
-    SECTION("top level") {
-        config->add({"vec1"}, "v5");
-
-        std::vector<std::string> result = config->getVec({"vec1"});
-
-        REQUIRE(result[0] == "v1");
-        REQUIRE(result[1] == "v2");
-        REQUIRE(result[2] == "v5");
-    }
-
-    SECTION("nested") {
-        config->add({"key", "vec2"}, "v6");
-
-        std::vector<std::string> result = config->getVec({"key", "vec2"});
-
-        REQUIRE(result[0] == "v3");
-        REQUIRE(result[1] == "v4");
-        REQUIRE(result[2] == "v6");
-    }
-
-    SECTION("not array") {
-        config->add({"notvec"}, "v7");
-
-        std::vector<std::string> result = config->getVec({"notvec"});
-
-        REQUIRE(result[0] == "v7");
-    }
-
-    SECTION("non existing top level key") {
-        config->add({"notfound"}, "v8");
-
-        std::vector<std::string> result = config->getVec({"notfound"});
-
-        REQUIRE(result[0] == "v8");
-    }
-
-    delete config;
+    CHECK_EQUAL(false, result);
 }
 
-TEST_CASE("del", "[newsoul][Config]") {
-    std::istringstream data("{\"v1\":1,\"vec1\":[\"v9\"],\"key\":{\"v2\":\"2\",\"vec2\":[\"v0\", \"v11\"]}}");
-    auto config = new newsoul::Config(data);
+TEST_GROUP(getVec) {
+    newsoul::Config *config;
 
-    SECTION("top level object") {
-        bool res1 = config->del({}, "v1");
-        int res2 = config->getInt({"v1"});
-
-        REQUIRE(res1 == true);
-        REQUIRE(res2 == 0);
+    void setup() {
+        std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]}, \"notvec\":1}");
+        config = new newsoul::Config(data);
     }
 
-    SECTION("nested object") {
-        bool res1 = config->del({"key"}, "v2");
-        const std::string res2 = config->getStr({"key", "v2"});
+    void teardown() {
+        delete config;
+    }
+};
 
-        REQUIRE(res1 == true);
-        REQUIRE(res2 == "");
+TEST(getVec, top_level) {
+    std::vector<std::string> result = config->getVec({"vec1"});
+
+    CHECK(std::vector<std::string>({"v1", "v2"}) == result);
+}
+
+TEST(getVec, nested) {
+    std::vector<std::string> result = config->getVec({"key", "vec2"});
+
+    CHECK(std::vector<std::string>({"v3", "v4"}) == result);
+}
+
+TEST(getVec, not_found) {
+    std::vector<std::string> result = config->getVec({"notfound"});
+
+    CHECK(result.empty());
+}
+
+TEST(getVec, not_array) {
+    std::vector<std::string> result = config->getVec({"notvec"});
+
+    CHECK(result.empty());
+}
+
+TEST_GROUP(setInt) {
+    newsoul::Config *config;
+
+    void setup() {
+        std::istringstream data("{\"e\":{\"int1\":1}}");
+        config = new newsoul::Config(data);
     }
 
-    SECTION("not found object") {
-        bool res1 = config->del({"v1"}, "notfound");
+    void teardown() {
+        delete config;
+    }
+};
 
-        REQUIRE(res1 == false);
+TEST(setInt, top_level) {
+    config->set({"int1"}, 1);
+
+    int result = config->getInt({"int1"});
+
+    CHECK_EQUAL(1, result);
+}
+
+TEST(setInt, nested) {
+    config->set({"key", "int2"}, 2);
+
+    int result = config->getInt({"key", "int2"});
+
+    CHECK_EQUAL(2, result);
+}
+
+TEST(setInt, nested_in_existing_section) {
+    config->set({"e", "int2"}, 2);
+
+    int result1 = config->getInt({"e", "int1"});
+    int result2 = config->getInt({"e", "int2"});
+
+    CHECK_EQUAL(1, result1);
+    CHECK_EQUAL(2, result2);
+}
+
+TEST_GROUP(setString) {
+    newsoul::Config *config;
+
+    void setup() {
+        std::istringstream data("{\"e\":{\"str1\":\"s1\"}}");
+        config = new newsoul::Config(data);
     }
 
-    SECTION("top level array value") {
-        bool res1 = config->del({"vec1"}, "v9");
-        std::vector<std::string> res2 = config->getVec({"vec1"});
+    void teardown() {
+        delete config;
+    }
+};
 
-        REQUIRE(res1 == true);
-        REQUIRE(res2.empty() == true);
+TEST(setString, top_level) {
+    config->set({"str1"}, std::string("s1"));
+
+    const std::string result = config->getStr({"str1"});
+
+    CHECK_EQUAL("s1", result);
+}
+
+TEST(setString, nested) {
+    config->set({"key", "str2"}, std::string("s2"));
+
+    const std::string result = config->getStr({"key", "str2"});
+
+    CHECK_EQUAL("s2", result);
+}
+
+TEST(setString, nested_in_existing_section) {
+    config->set({"e", "str2"}, std::string("s2"));
+
+    const std::string result1 = config->getStr({"e", "str1"});
+    const std::string result2 = config->getStr({"e", "str2"});
+
+    CHECK_EQUAL("s1", result1);
+    CHECK_EQUAL("s2", result2);
+}
+
+TEST_GROUP(setBool) {
+    newsoul::Config *config;
+
+    void setup() {
+        std::istringstream data("{\"e\":{\"b1\":true}}");
+        config = new newsoul::Config(data);
     }
 
-    SECTION("nested array value") {
-        bool res1 = config->del({"key", "vec2"}, "v0");
-        std::vector<std::string> res2 = config->getVec({"key", "vec2"});
+    void teardown() {
+        delete config;
+    }
+};
 
-        REQUIRE(res1 == true);
-        REQUIRE(res2[0] == "v11");
+TEST(setBool, top_level) {
+    config->set({"b1"}, true);
+
+    bool result = config->getBool({"b1"});
+
+    CHECK_EQUAL(true, result);
+}
+
+TEST(setBool, nested) {
+    config->set({"key", "b2"}, true);
+
+    bool result = config->getBool({"key", "b2"});
+
+    CHECK_EQUAL(true, result);
+}
+
+TEST(setBool, nested_in_existing_section) {
+    config->set({"e", "b2"}, true);
+
+    bool result1 = config->getBool({"e", "b1"});
+    bool result2 = config->getBool({"e", "b2"});
+
+    CHECK_EQUAL(true, result1);
+    CHECK_EQUAL(true, result2);
+}
+
+TEST_GROUP(contains) {
+    newsoul::Config *config;
+
+    void setup() {
+        std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]},\"notvec\":1}");
+        config = new newsoul::Config(data);
     }
 
-    SECTION("not found array value") {
-        bool res1 = config->del({"vec1"}, "notfound");
+    void teardown() {
+        delete config;
+    }
+};
 
-        REQUIRE(res1 == false);
+TEST(contains, top_level) {
+    bool result = config->contains({"vec1"}, "v1");
+
+    CHECK_EQUAL(true, result);
+}
+
+TEST(contains, nested) {
+    bool result = config->contains({"key", "vec2"}, "v3");
+
+    CHECK_EQUAL(true, result);
+}
+
+TEST(contains, not_found_value) {
+    bool result = config->contains({"vec1"}, "v3");
+
+    CHECK_EQUAL(false, result);
+}
+
+TEST(contains, not_found_key) {
+    bool result = config->contains({"notfound"}, "");
+
+    CHECK_EQUAL(false, result);
+}
+
+TEST(contains, not_array) {
+    bool result = config->contains({"notvec"}, "v5");
+
+    CHECK_EQUAL(false, result);
+}
+
+TEST_GROUP(add) {
+    newsoul::Config *config;
+
+    void setup() {
+        std::istringstream data("{\"vec1\":[\"v1\",\"v2\"],\"key\":{\"vec2\":[\"v3\",\"v4\"]},\"notvec\":1}");
+        config = new newsoul::Config(data);
     }
 
-    SECTION("not found key", "[corner]") {
-        bool res1 = config->del({"notfound"}, "notfound");
+    void teardown() {
+        delete config;
+    }
+};
 
-        REQUIRE(res1 == false);
+TEST(add, top_level) {
+    config->add({"vec1"}, "v5");
+
+    std::vector<std::string> result = config->getVec({"vec1"});
+
+    CHECK(std::vector<std::string>({"v1", "v2", "v5"}) == result);
+}
+
+TEST(add, nested) {
+    config->add({"key", "vec2"}, "v6");
+
+    std::vector<std::string> result = config->getVec({"key", "vec2"});
+
+    CHECK(std::vector<std::string>({"v3", "v4", "v6"}) == result);
+}
+
+TEST(add, not_array) {
+    config->add({"notvec"}, "v7");
+
+    std::vector<std::string> result = config->getVec({"notvec"});
+
+    CHECK(std::vector<std::string>({"v7"}) == result);
+}
+
+TEST(add, non_existing_top_level_key) {
+    config->add({"notfound"}, "v8");
+
+    std::vector<std::string> result = config->getVec({"notfound"});
+
+    CHECK(std::vector<std::string>({"v8"}) == result);
+}
+
+TEST_GROUP(del) {
+    newsoul::Config *config;
+
+    void setup() {
+        std::istringstream data("{\"v1\":1,\"vec1\":[\"v9\"],\"key\":{\"v2\":\"2\",\"vec2\":[\"v0\",\"v11\"]}}");
+        config = new newsoul::Config(data);
     }
 
-    delete config;
+    void teardown() {
+        delete config;
+    }
+};
+
+TEST(del, top_level_object) {
+    bool res1 = config->del({}, "v1");
+    int res2 = config->getInt({"v1"});
+
+    CHECK_EQUAL(true, res1);
+    CHECK_EQUAL(0, res2);
+}
+
+TEST(del, nested_object) {
+    bool res1 = config->del({"key"}, "v2");
+    const std::string res2 = config->getStr({"key", "v2"});
+
+    CHECK_EQUAL(true, res1);
+    CHECK_EQUAL("", res2);
+}
+
+TEST(del, not_found_object) {
+    bool res1 = config->del({"v1"}, "notfound");
+
+    CHECK_EQUAL(false, res1);
+}
+
+TEST(del, top_level_array_value) {
+    bool res1 = config->del({"vec1"}, "v9");
+    std::vector<std::string> res2 = config->getVec({"vec1"});
+
+    CHECK_EQUAL(true, res1);
+    CHECK(res2.empty());
+}
+
+TEST(del, nested_array_value) {
+    bool res1 = config->del({"key", "vec2"}, "v0");
+    std::vector<std::string> res2 = config->getVec({"key", "vec2"});
+
+    CHECK_EQUAL(true, res1);
+    CHECK(std::vector<std::string>({"v11"}) == res2);
+}
+
+TEST(del, not_found_array_value) {
+    bool res1 = config->del({"vec1"}, "notfound");
+
+    CHECK_EQUAL(false, res1);
+}
+
+TEST(del, not_found_key) {
+    bool res1 = config->del({"notfound"}, "notfound");
+
+    CHECK_EQUAL(false, res1);
 }

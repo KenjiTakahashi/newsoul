@@ -16,7 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../catch.hpp"
+#include <CppUTest/TestHarness.h>
 #include "../../src/utils/path.h"
 
 #ifdef _WIN32
@@ -27,62 +27,62 @@ char sep = '/';
 std::string expected = "f/s";
 #endif
 
-TEST_CASE("join", "[utils][path]") {
-    SECTION("empty") {
-        std::string result = path::join({});
+TEST_GROUP(join) { };
 
-        REQUIRE(result.empty());
-    }
+TEST(join, empty) {
+    std::string result = path::join({});
 
-    SECTION("ends with sep + doesn't end with sep") {
-        std::string result = path::join({std::string("f") + sep, "s"});
-
-        REQUIRE(result == expected);
-    }
-
-    SECTION("doesn't end with sep + ends with sep") {
-        std::string result = path::join({"f", sep + std::string("s")});
-
-        REQUIRE(result == expected);
-    }
-
-    SECTION("ends with sep + ends with sep") {
-        std::string result = path::join({std::string("f") + sep, sep + std::string("s")});
-
-        REQUIRE(result == expected);
-    }
-
-    SECTION("doesn't end with sep + doesn't end with sep") {
-        std::string result = path::join({"f", "s"});
-
-        REQUIRE(result == expected);
-    }
-
-    SECTION("starts with sep", "[corner]") {
-        std::string result = path::join({sep + std::string("f")});
-
-        REQUIRE(result == "/f");
-    }
+    CHECK(result.empty());
 }
 
-TEST_CASE("isAbsolute", "[utils][path]") {
-    SECTION("absolute") {
-        std::string s;
+TEST(join, ends_with_sep_and_does_not_end_with_sep) {
+    std::string result = path::join({std::string("f") + sep, "s"});
+
+    CHECK_EQUAL(expected, result);
+}
+
+TEST(join, does_not_end_with_sep_and_ends_with_sep) {
+    std::string result = path::join({"f", sep + std::string("s")});
+
+    CHECK_EQUAL(expected, result);
+}
+
+TEST(join, ends_with_sep_and_ends_with_sep) {
+    std::string result = path::join({std::string("f") + sep, sep + std::string("s")});
+
+    CHECK_EQUAL(expected, result);
+}
+
+TEST(join, does_not_end_with_sep_and_does_not_end_with_sep) {
+    std::string result = path::join({"f", "s"});
+
+    CHECK_EQUAL(expected, result);
+}
+
+TEST(join, starts_with_sep) {
+    std::string result = path::join({sep + std::string("f")});
+
+    CHECK_EQUAL("/f", result);
+}
+
+TEST_GROUP(isAbsolute) { };
+
+TEST(isAbsolute, absolute) {
+    std::string s;
 #ifdef _WIN32
-        s += "C:";
+    s += "C:";
 #endif
-        s += sep + std::string("absolute") + sep + "path";
+    s += sep + std::string("absolute") + sep + "path";
 
-        bool result = path::isAbsolute(s);
+    bool result = path::isAbsolute(s);
 
-        REQUIRE(result == true);
-    }
+    CHECK_EQUAL(true, result);
+}
 
-    SECTION("relative") {
-        std::string s = std::string("relative") + sep + "path";
+TEST(isAbsolute, relative) {
+    std::string s = std::string("relative") + sep + "path";
 
-        bool result = path::isAbsolute(s);
+    bool result = path::isAbsolute(s);
 
-        REQUIRE(result == false);
-    }
+    CHECK_EQUAL(false, result);
 }

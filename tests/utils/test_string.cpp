@@ -16,103 +16,89 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../catch.hpp"
+#include <CppUTest/TestHarness.h>
 #include "../../src/utils/string.h"
 
-TEST_CASE("tolower", "[utils][string]") {
-    SECTION("all lower") {
-        std::string result = string::tolower("tolower");
+TEST_GROUP(tolower) { };
 
-        REQUIRE(result == "tolower");
-    }
+TEST(tolower, all_lower) {
+    std::string result = string::tolower("tolower");
 
-    SECTION("all upper") {
-        std::string result = string::tolower("TOLOWER");
-
-        REQUIRE(result == "tolower");
-    }
-
-    SECTION("first upper") {
-        std::string result = string::tolower("Tolower");
-
-        REQUIRE(result == "tolower");
-    }
-
-    SECTION("some upper") {
-        std::string result = string::tolower("ToLoWeR");
-
-        REQUIRE(result == "tolower");
-    }
+    CHECK_EQUAL("tolower", result);
 }
 
-TEST_CASE("split", "[utils][string]") {
-    //I know vectors can be compared, but REQUIRE is complaining.
-    SECTION("split,string on ,") {
-        std::vector<std::string> result = string::split("split,string", ",");
+TEST(tolower, all_upper) {
+    std::string result = string::tolower("TOLOWER");
 
-        REQUIRE(result.size() == 2);
-        REQUIRE(result[0] == "split");
-        REQUIRE(result[1] == "string");
-    }
-
-    SECTION("split,.string on ,.") {
-        std::vector<std::string> result = string::split("split,.string", ",.");
-
-        REQUIRE(result.size() == 2);
-        REQUIRE(result[0] == "split");
-        REQUIRE(result[1] == "string");
-    }
-
-    SECTION("split,long.string on ,.") {
-        std::vector<std::string> result = string::split("split,long.string", ",.");
-
-        REQUIRE(result.size() == 3);
-        REQUIRE(result[0] == "split");
-        REQUIRE(result[1] == "long");
-        REQUIRE(result[2] == "string");
-    }
-
-    SECTION("split,,string on ,", "[corner]") {
-        std::vector<std::string> result = string::split("split,,string", ",");
-
-        REQUIRE(result.size() == 2);
-        REQUIRE(result[0] == "split");
-        REQUIRE(result[1] == "string");
-    }
-
-    SECTION(",split,string on ,", "[corner]") {
-        std::vector<std::string> result = string::split(",split,string", ",");
-
-        REQUIRE(result.size() == 2);
-        REQUIRE(result[0] == "split");
-        REQUIRE(result[1] == "string");
-    }
-
-    SECTION("split,string, on ,", "[corner]") {
-        std::vector<std::string> result = string::split("split,string,", ",");
-
-        REQUIRE(result.size() == 2);
-        REQUIRE(result[0] == "split");
-        REQUIRE(result[1] == "string");
-    }
+    CHECK_EQUAL("tolower", result);
 }
 
-TEST_CASE("replace", "[utils][string]") {
-    SECTION("replace e with y") {
-        std::string result = string::replace("replace", 'e', 'y');
+TEST(tolower, first_upper) {
+    std::string result = string::tolower("Tolower");
 
-        REQUIRE(result == "ryplacy");
-    }
+    CHECK_EQUAL("tolower", result);
+}
 
-    SECTION("replace rep with bar") {
-        std::string result = string::replace("replace", "rep", "bar");
+TEST(tolower, some_upper) {
+    std::string result = string::tolower("ToLoWeR");
 
-        REQUIRE(result == "barlace");
-    }
+    CHECK_EQUAL("tolower", result);
+}
 
-    SECTION("replace rap with bar", "[corner]") {
-        std::string result = string::replace("replace", "rap", "bar");
+TEST_GROUP(split) { };
 
-        REQUIRE(result == "replace");
-    }
+TEST(split, split_string_on_comma) {
+    std::vector<std::string> result = string::split("split,string", ",");
+
+    CHECK(std::vector<std::string>({"split", "string"}) == result);
+}
+
+TEST(split, split_string_on_comma_and_period) {
+    std::vector<std::string> result = string::split("split,.string", ",.");
+
+    CHECK(std::vector<std::string>({"split", "string"}) == result);
+}
+
+TEST(split, split_long_string_on_comma_and_period) {
+    std::vector<std::string> result = string::split("split,long.string", ",.");
+
+    CHECK(std::vector<std::string>({"split", "long", "string"}) == result);
+}
+
+TEST(split, split_string_on_comma2) {
+    std::vector<std::string> result = string::split("split,,string", ",");
+
+    CHECK(std::vector<std::string>({"split", "string"}) == result);
+}
+
+TEST(split, split_string_on_comma3) {
+    std::vector<std::string> result = string::split(",split,string", ",");
+
+    CHECK(std::vector<std::string>({"split", "string"}) == result);
+}
+
+TEST(split, split_string_on_comma4) {
+    std::vector<std::string> result = string::split("split,string,", ",");
+
+    CHECK(std::vector<std::string>({"split", "string"}) == result);
+}
+
+TEST_GROUP(replace) { };
+
+TEST(replace, replace_e_with_y) {
+    std::string result = string::replace("replace", 'e', 'y');
+
+    CHECK_EQUAL("ryplacy", result);
+}
+
+TEST(replace, replace_rep_with_bar) {
+    std::string result = string::replace("replace", "rep", "bar");
+
+    CHECK_EQUAL("barlace", result);
+}
+
+TEST(replace, replace_rap_with_bar) {
+    std::string result = string::replace("replace", "rap", "bar");
+
+    CHECK_EQUAL("replace", result);
 }

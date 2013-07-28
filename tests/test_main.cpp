@@ -16,6 +16,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define CATCH_CONFIG_MAIN
+#include <CppUTest/CommandLineTestRunner.h>
+#include <CppUTest/TestRegistry.h>
+#include <CppUTestExt/MockSupportPlugin.h>
 
-#include "catch.hpp"
+int main(int argc, char *argv[]) {
+    MockSupportPlugin mockPlugin;
+    TestRegistry::getCurrentRegistry()->installPlugin(&mockPlugin);
+    return CommandLineTestRunner::RunAllTests(argc, argv);
+}

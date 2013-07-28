@@ -122,7 +122,7 @@ TEST(addDir, success) {
 TEST_GROUP(removeDir) { };
 
 TEST(removeDir, success) {
-    // We do not test removing files from attrdb as it calls removeFile.
+    // We do not test removing files from attrdb, as it calls removeFile.
     TSharesDB shares;
 
     mock().expectOneCall("Dbt::Dbt(0)");
@@ -151,9 +151,3 @@ TEST_GROUP(isShared) { };
 TEST_GROUP(filesCount) { };
 
 TEST_GROUP(dirsCount) { };
-
-int main(int argc, char *argv[]) {
-    MockSupportPlugin mockPlugin;
-    TestRegistry::getCurrentRegistry()->installPlugin(&mockPlugin);
-    return CommandLineTestRunner::RunAllTests(argc, argv);
-}

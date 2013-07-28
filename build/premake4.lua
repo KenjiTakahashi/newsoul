@@ -52,6 +52,8 @@ function link(tests)
     }
     if not tests then
         links {"db_cxx"}
+    else
+        links {"CppUTest", "CppUTestExt"}
     end
     if os.is("bsd") then
         libdirs {"/usr/local/lib/db5"}
@@ -93,14 +95,7 @@ solution "newsoul"
     project "newsoul-tests"
         kind "ConsoleApp"
         files {"../tests/**.cpp"}
-        excludes {"../tests/test_sharesdb.cpp", "../tests/mock_dbcxx.cpp"}
         link(true)
-
-    project "newsoul-tests2"
-        kind "ConsoleApp"
-        files {"../tests/test_sharesdb.cpp", "../tests/mock_dbcxx.cpp"}
-        link(true)
-        links {"CppUTest", "CppUTestExt"}
         buildoptions {"-include CppUTest/MemoryLeakDetectorNewMacros.h",
                       "-include CppUTest/MemoryLeakDetectorMallocMacros.h"}
 

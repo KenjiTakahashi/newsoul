@@ -22,73 +22,84 @@
 #define rmdir(path) _rmdir(path)
 #endif
 #include <cstdlib>
-#include "../catch.hpp"
+#include <CppUTest/SimpleString.h>
+#include <CppUTest/MemoryLeakWarningPlugin.h>
+#include <CppUTest/TestHarness.h>
 #include "../../src/utils/path.h"
 #include "../../src/utils/os.h"
 
-TEST_CASE("mkdir", "[utils][os]") {
-    char *cwdb = getcwd(NULL, 0);
-    std::string cwd(cwdb); 
-    free(cwdb);
-    SECTION("non-existing top level") {
-        std::string path = path::join({cwd, "toplevel"});
-        bool result = os::mkdir(path);
+TEST_GROUP(mkdir) {
+    std::string cwd;
 
-        struct stat st;
-        int ret = stat(path.c_str(), &st);
-
-        REQUIRE(result);
-        REQUIRE(ret == 0);
-        REQUIRE(S_ISDIR(st.st_mode));
-
-        rmdir(path.c_str());
+    void setup() {
+        char *cwdb = getcwd(NULL, 0);
+        std::string cwd(cwdb); 
+        MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
+        free(cwdb);
+        MemoryLeakWarningPlugin::turnOnNewDeleteOverloads();
     }
+};
 
-    SECTION("non-existing two levels") {
-        std::string path = path::join({cwd, "sndlevel", "toplevel"});
-        bool result = os::mkdir(path);
+TEST(mkdir, non_existing_top_level) {
+    std::string path = path::join({cwd, "toplevel"});
+    bool result = os::mkdir(path);
 
-        struct stat st;
-        int ret = stat(path.c_str(), &st);
+    struct stat st;
+    int ret = stat(path.c_str(), &st);
 
-        REQUIRE(result);
-        REQUIRE(ret == 0);
-        REQUIRE(S_ISDIR(st.st_mode));
+    CHECK(result);
+    CHECK_EQUAL(0, ret);
+    CHECK(S_ISDIR(st.st_mode));
 
-        rmdir(path.c_str());
-        rmdir(path::join({cwd, "sndlevel"}).c_str());
-    }
-
-    SECTION("non-recursive") {
-        std::string path = path::join({cwd, "sndlevel", "toplevel"});
-        bool result = os::mkdir(path, false);
-
-        struct stat st;
-        int ret = stat(path.c_str(), &st);
-
-        REQUIRE(!result);
-        REQUIRE(ret == -1);
-    }
-
-    SECTION("ends with separator", "[corner]") {
-        std::string path = path::join({cwd, "toplevel/"});
-        bool result = os::mkdir(path);
-
-        struct stat st;
-        int ret = stat(path.c_str(), &st);
-
-        REQUIRE(result);
-        REQUIRE(ret == 0);
-
-        rmdir(path.c_str());
-    }
+    rmdir(path.c_str());
 }
 
-TEST_CASE("separator", "[utils][os]") {
+TEST(mkdir, non_existing_two_levels) {
+    std::string path = path::join({cwd, "sndlevel", "toplevel"});
+    bool result = os::mkdir(path);
+
+    struct stat st;
+    int ret = stat(path.c_str(), &st);
+
+    CHECK(result);
+    CHECK_EQUAL(0, ret);
+    CHECK(S_ISDIR(st.st_mode));
+
+    rmdir(path.c_str());
+    rmdir(path::join({cwd, "sndlevel"}).c_str());
+}
+
+TEST(mkdir, non_recursive) {
+    std::string path = path::join({cwd, "sndlevel", "toplevel"});
+    bool result = os::mkdir(path, false);
+
+    struct stat st;
+    int ret = stat(path.c_str(), &st);
+
+    CHECK(!result);
+    CHECK_EQUAL(-1, ret);
+}
+
+TEST(mkdir, ends_with_separator) {
+    std::string path = path::join({cwd, "toplevel/"});
+    bool result = os::mkdir(path);
+
+    struct stat st;
+    int ret = stat(path.c_str(), &st);
+
+    CHECK(result);
+    CHECK_EQUAL(0, ret);
+
+    rmdir(path.c_str());
+}
+
+TEST_GROUP(separator) { };
+
+TEST(separator, success) {
     const char result = os::separator();
 #ifndef _WIN32
-    REQUIRE(result == '/');
+    CHECK_EQUAL('/', result);
 #else
-    REQUIRE(result == '\\');
+    CHECK_EQUAL('\\', result);
 #endif
 }
