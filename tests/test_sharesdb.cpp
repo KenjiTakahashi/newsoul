@@ -86,6 +86,12 @@ TEST(getAttrs, entry_does_not_exist) {
 
 TEST_GROUP(addFile) { };
 
+TEST(addFile, with_properties) {
+}
+
+TEST(addFile, without_properties) {
+}
+
 TEST_GROUP(removeFile) { };
 
 TEST(removeFile, success) {

@@ -46,15 +46,14 @@ end
 
 function link(tests)
     include()
-    links {
-        "tag", "z", "event", "nettle", "json-c",
-        "newsoul-lib", "efsw", "NewNet", "utils"
-    }
+    links {"z", "event", "nettle", "json-c", "efsw"}
     if not tests then
-        links {"db_cxx"}
+        links {"db_cxx", "tag"}
     else
+        includedirs {"../tests/mocks"}
         links {"CppUTest", "CppUTestExt"}
     end
+
     if os.is("bsd") then
         libdirs {"/usr/local/lib/db5"}
         links {"iconv"}
@@ -89,33 +88,19 @@ solution "newsoul"
 
     project "newsoul"
         kind "ConsoleApp"
-        files {"../src/main.cpp"}
+        files {"../src/**.cpp"}
+        excludes {"../src/efsw/**.cpp"}
         link()
 
     project "newsoul-tests"
         kind "ConsoleApp"
-        files {"../tests/**.cpp"}
+        files {"../src/**.cpp", "../tests/**.cpp"}
+        excludes {"../src/efsw/**.cpp", "../src/main.cpp"}
         link(true)
-        buildoptions {"-include CppUTest/MemoryLeakDetectorNewMacros.h",
-                      "-include CppUTest/MemoryLeakDetectorMallocMacros.h"}
-
-    project "newsoul-lib"
-        kind "StaticLib"
-        targetdir "lib"
-        files {"../src/*.cpp"}
-        excludes {"../src/main.cpp"}
-        include()
-
-    project "utils"
-        kind "StaticLib"
-        targetdir "lib"
-        files {"../src/utils/*.cpp"}
-
-    project "NewNet"
-        kind "StaticLib"
-        targetdir "lib"
-        files {"../src/NewNet/*.cpp"}
-        defines {"NN_PTR_DEBUG", "NN_PTR_DEBUG_ASSERT"}
+        buildoptions {
+            "-include CppUTest/MemoryLeakDetectorNewMacros.h",
+            "-include CppUTest/MemoryLeakDetectorMallocMacros.h"
+        }
 
     project "efsw"
         if os.is("windows") then
