@@ -20,6 +20,7 @@
 #include <CppUTest/TestRegistry.h>
 #include <CppUTestExt/MockSupport.h>
 #include <CppUTestExt/MockSupportPlugin.h>
+#include <sys/stat.h>
 #include "../src/sharesdb.h"
 
 class TSharesDB : public newsoul::SharesDB {
@@ -84,12 +85,43 @@ TEST(getAttrs, entry_does_not_exist) {
     CHECK_EQUAL(1, ret);
 }
 
-TEST_GROUP(addFile) { };
+TEST_GROUP(addFile) {
+    struct stat st;
+
+    void setup() {
+        this->st.st_size = 20;
+        this->st.st_mtime = 600;
+    }
+};
 
 TEST(addFile, with_properties) {
+    TSharesDB shares;
+    mock().setData("TagLib::isNull", false);
+
+    mock().expectOneCall("FileRef::FileRef").withParameter("1", "/dir/file.ext");
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.exte").withParameter("3", "ext");
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.extl").withParameter("3", 3);
+    std::vector<int> attrs({1, 10, 0});
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.exta").withParameterOfType("attrs", "3", attrs.data());
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.exts").withParameter("3", 20);
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.extm").withParameter("3", 600);
+    mock().expectOneCall("Db::put").withParameter("2", "/dir").withParameter("3", "file.ext");
+    mock().ignoreOtherCalls();
+
+    shares.addFile("/dir", "file.ext", "/dir/file.ext", this->st);
 }
 
 TEST(addFile, without_properties) {
+    TSharesDB shares;
+    mock().setData("TagLib::isNull", true);
+
+    mock().expectOneCall("FileRef::FileRef").withParameter("1", "/dir/file.ext");
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.exts").withParameter("3", 20);
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.extm").withParameter("3", 600);
+    mock().expectOneCall("Db::put").withParameter("2", "/dir").withParameter("3", "file.ext");
+    mock().ignoreOtherCalls();
+
+    shares.addFile("/dir", "file.ext", "/dir/file.ext", this->st);
 }
 
 TEST_GROUP(removeFile) { };

@@ -51,9 +51,12 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, c
         attrs.push_back(props->length());
         attrs.push_back(0); //FIXME: vbr
 
-        Dbt extkey(const_cast<char*>((path + "e").c_str()), path.size() + 2);
-        Dbt asizekey(const_cast<char*>((path + "l").c_str()), path.size() + 2);
-        Dbt attrskey(const_cast<char*>((path + "a").c_str()), path.size() + 2);
+        std::string e = path + "e";
+        Dbt extkey(const_cast<char*>(e.c_str()), path.size() + 2);
+        std::string l = path + "l";
+        Dbt asizekey(const_cast<char*>(l.c_str()), path.size() + 2);
+        std::string a = path + "a";
+        Dbt attrskey(const_cast<char*>(a.c_str()), path.size() + 2);
 
         Dbt extdat(const_cast<char*>(ext.c_str()), ext.size() + 1);
         Dbt asizedat(&size, sizeof(unsigned int));
@@ -63,12 +66,15 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, c
         this->attrdb.put(NULL, &asizekey, &asizedat, 0);
         this->attrdb.put(NULL, &attrskey, &attrsdat, 0);
     }
-    Dbt sizekey(const_cast<char*>((path + "s").c_str()), path.size() + 2);
+    std::string s = path + "s";
+    Dbt sizekey(const_cast<char*>(s.c_str()), path.size() + 2);
     Dbt sizedat(&st.st_size, sizeof(unsigned int));
-    Dbt mtimekey(const_cast<char*>((path + "m").c_str()), path.size() + 2);
+    std::string m = path + "m";
+    Dbt mtimekey(const_cast<char*>(m.c_str()), path.size() + 2);
     Dbt mtimedat(&st.st_mtime, sizeof(time_t));
 
     this->attrdb.put(NULL, &sizekey, &sizedat, 0);
+    this->attrdb.put(NULL, &mtimekey, &mtimedat, 0);
 
     Dbt dkey(const_cast<char*>(dir.c_str()), dir.size() + 1);
     Dbt ddat(const_cast<char*>(fn.c_str()), fn.size() + 1);

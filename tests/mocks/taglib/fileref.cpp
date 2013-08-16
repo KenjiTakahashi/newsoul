@@ -18,7 +18,34 @@
 
 #include "fileref.h"
 
-TagLib::FileRef::FileRef(const char *fn, bool rap, TagLib::AudioProperties::ReadStyle aps) { }
-TagLib::FileRef::~FileRef() { }
-TagLib::AudioProperties *TagLib::FileRef::audioProperties() const { }
-bool TagLib::FileRef::isNull() const { }
+TagLib::AudioProperties::AudioProperties(int length, int bitrate) {
+    this->_length = length;
+    this->_bitrate = bitrate;
+}
+TagLib::AudioProperties::~AudioProperties() { }
+int TagLib::AudioProperties::length() const {
+    return this->_length;
+}
+int TagLib::AudioProperties::bitrate() const {
+    return this->_bitrate;
+}
+
+TagLib::FileRef::FileRef(const char *fn, bool rap, TagLib::AudioProperties::ReadStyle aps) {
+    mock().actualCall("FileRef::FileRef").withParameter("1", fn);
+    this->ap = NULL;
+}
+TagLib::FileRef::~FileRef() {
+    if(this->ap != NULL) {
+        delete this->ap;
+    }
+}
+TagLib::AudioProperties *TagLib::FileRef::audioProperties() {
+    if(this->ap == NULL) {
+        this->ap = new TagLib::AudioProperties(10, 1);
+    }
+    return this->ap;
+}
+bool TagLib::FileRef::isNull() const {
+    int v = mock().getData("TagLib::isNull").getIntValue();
+    return mock().getData("TagLib::isNull").getIntValue();
+}

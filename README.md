@@ -22,7 +22,7 @@ This is *only* the daemon/server part, no clients (besides CLI) are developed he
 ```sh
 $ cd build
 $ premake4 gmake  # see premake4 --help for other options
-$ make
+$ make newsoul
 # premake4 install
 ```
 

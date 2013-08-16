@@ -168,7 +168,20 @@ int Db::open(DbTxn *txnid, const char *, const char *subname, DBTYPE, u_int32_t,
 }
 int Db::pget(DbTxn *txnid, Dbt *key, Dbt *pkey, Dbt *data, u_int32_t flags) { return mock().intReturnValue(); }
 int Db::put(DbTxn *txnid, Dbt *key, Dbt *data, u_int32_t) {
-    mock().actualCall("Db::put").withParameter("2", (char*)key->get_data()).withParameter("3", (char*)data->get_data());
+    const char *k = (const char*)key->get_data();
+    switch(k[strlen(k) - 1]) {
+        case 's':
+        case 'm':
+        case 'l':
+            mock().actualCall("Db::put").withParameter("2", k).withParameter("3", *(int*)data->get_data());
+            break;
+        case 'a':
+            mock().actualCall("Db::put").withParameter("2", k).withParameterOfType("attrs", "3", data->get_data());
+            break;
+        default:
+            mock().actualCall("Db::put").withParameter("2", k).withParameter("3", (char*)data->get_data());
+            break;
+    }
     return mock().intReturnValue();
 }
 int Db::remove(const char *, const char *, u_int32_t) {

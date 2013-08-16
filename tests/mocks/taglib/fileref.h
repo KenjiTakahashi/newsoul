@@ -23,6 +23,10 @@
 
 namespace TagLib {
     class AudioProperties {
+    private:
+        int _length;
+        int _bitrate;
+
     public:
         enum ReadStyle {
             Fast,
@@ -30,16 +34,22 @@ namespace TagLib {
             Accurate
         };
 
-        virtual int length() const = 0;
-        virtual int bitrate() const = 0;
+        AudioProperties(int length, int bitrate);
+        virtual ~AudioProperties();
+
+        virtual int length() const;
+        virtual int bitrate() const;
     };
 
     class FileRef {
+    private:
+        TagLib::AudioProperties *ap;
+
     public:
         FileRef(const char *fn, bool rap=true, AudioProperties::ReadStyle aps=AudioProperties::Average);
         ~FileRef();
 
-        AudioProperties *audioProperties() const;
+        AudioProperties *audioProperties();
         bool isNull() const;
     };
 }

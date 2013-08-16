@@ -20,8 +20,27 @@
 #include <CppUTest/TestRegistry.h>
 #include <CppUTestExt/MockSupportPlugin.h>
 
+class AttrsComparator : public MockNamedValueComparator {
+public:
+    virtual bool isEqual(void *obj1, void *obj2) {
+        int *o1 = (int*)obj1;
+        int *o2 = (int*)obj2;
+        bool res = true;
+        for(int i = 0; i < 3; ++i) {
+            res = o1[i] == o2[i];
+        }
+        return res;
+    }
+
+    virtual SimpleString valueToString(void *obj) {
+        return StringFrom(obj);
+    }
+};
+
 int main(int argc, char *argv[]) {
+    AttrsComparator attrsComparator;
     MockSupportPlugin mockPlugin;
+    mockPlugin.installComparator("attrs", attrsComparator);
     TestRegistry::getCurrentRegistry()->installPlugin(&mockPlugin);
     return CommandLineTestRunner::RunAllTests(argc, argv);
 }
