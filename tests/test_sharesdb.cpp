@@ -210,4 +210,24 @@ TEST(isShared, not_shared) {
 
 TEST_GROUP(filesCount) { };
 
+TEST(filesCount, test) {
+    TSharesDB shares;
+
+    mock().expectOneCall("Db::stat");
+
+    unsigned int result = shares.filesCount();
+
+    CHECK_EQUAL(10, result);
+}
+
 TEST_GROUP(dirsCount) { };
+
+TEST(dirsCount, test) {
+    TSharesDB shares;
+
+    mock().expectOneCall("Db::stat");
+
+    unsigned int result = shares.dirsCount();
+
+    CHECK_EQUAL(10, result);
+}

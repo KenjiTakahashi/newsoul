@@ -333,7 +333,7 @@ bool newsoul::SharesDB::isShared(const std::string &fn) {
 
 unsigned int newsoul::SharesDB::filesCount() {
     //FIXME: This might be slow
-    DB_HASH_STAT *stats;
+    DB_HASH_STAT *stats = (DB_HASH_STAT*)malloc(sizeof(DB_HASH_STAT));
     this->attrdb.stat(NULL, &stats, 0);
     unsigned int res = stats->hash_nkeys;
     free(stats);
@@ -342,7 +342,7 @@ unsigned int newsoul::SharesDB::filesCount() {
 
 unsigned int newsoul::SharesDB::dirsCount() {
     //FIXME: This might be slow
-    DB_HASH_STAT *stats;
+    DB_HASH_STAT *stats = (DB_HASH_STAT*)malloc(sizeof(DB_HASH_STAT));
     this->dirsdb.stat(NULL, &stats, 0);
     unsigned int res = stats->hash_nkeys;
     free(stats);

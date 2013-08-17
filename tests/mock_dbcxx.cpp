@@ -240,6 +240,8 @@ int Db::set_re_source(const char *) { return mock().intReturnValue(); }
 int Db::sort_multiple(Dbt *, Dbt *, u_int32_t) { return mock().intReturnValue(); }
 int Db::stat(DbTxn *, void *sp, u_int32_t flags) {
     mock().actualCall("Db::stat");
+    DB_HASH_STAT **stat = (DB_HASH_STAT**)sp;
+    (*stat)->hash_nkeys = 10;
     return mock().intReturnValue();
 }
 int Db::stat_print(u_int32_t flags) { return mock().intReturnValue(); }
