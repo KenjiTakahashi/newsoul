@@ -186,6 +186,28 @@ TEST_GROUP(toProperCase) { };
 
 TEST_GROUP(isShared) { };
 
+TEST(isShared, shared) {
+    TSharesDB shares;
+
+    mock().expectOneCall("Db::exists").withParameter("2", "/dir/file.ext").andReturnValue(1);
+    mock().ignoreOtherCalls();
+
+    bool result = shares.isShared("/dir/file.ext");
+
+    CHECK_EQUAL(true, result);
+}
+
+TEST(isShared, not_shared) {
+    TSharesDB shares;
+
+    mock().expectOneCall("Db::exists").withParameter("2", "/dir/file.ext").andReturnValue(DB_NOTFOUND);
+    mock().ignoreOtherCalls();
+
+    bool result = shares.isShared("/dir/file.ext");
+
+    CHECK_EQUAL(false, result);
+}
+
 TEST_GROUP(filesCount) { };
 
 TEST_GROUP(dirsCount) { };

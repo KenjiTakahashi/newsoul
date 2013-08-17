@@ -114,7 +114,7 @@ int Db::del(DbTxn *txnid, Dbt *key, u_int32_t flags) {
 void Db::err(int, const char *, ...) { }
 void Db::errx(const char *, ...) { }
 int Db::exists(DbTxn *txnid, Dbt *key, u_int32_t flags) {
-    mock().actualCall("Db::exists");
+    mock().actualCall("Db::exists").withParameter("2", (char*)key->get_data());
     return mock().intReturnValue();
 }
 int Db::fd(int *fdp) { return mock().intReturnValue(); }
