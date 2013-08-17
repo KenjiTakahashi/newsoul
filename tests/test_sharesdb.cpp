@@ -47,7 +47,6 @@ TEST_GROUP(getAttrs) {
         mock().expectOneCall("Db::cursor");
     }
 };
-
 TEST(getAttrs, entry_exists) {
     TSharesDB shares;
     mock().setData("data", 1);
@@ -71,7 +70,6 @@ TEST(getAttrs, entry_exists) {
     CHECK(std::vector<unsigned int>({10, 20, 30}) == result.attrs);
     CHECK_EQUAL(300, result.mtime);
 }
-
 TEST(getAttrs, entry_does_not_exist) {
     TSharesDB shares;
     mock().setData("data", 0);
@@ -93,7 +91,6 @@ TEST_GROUP(addFile) {
         this->st.st_mtime = 600;
     }
 };
-
 TEST(addFile, with_properties) {
     TSharesDB shares;
     mock().setData("TagLib::isNull", false);
@@ -110,7 +107,6 @@ TEST(addFile, with_properties) {
 
     shares.addFile("/dir", "file.ext", "/dir/file.ext", this->st);
 }
-
 TEST(addFile, without_properties) {
     TSharesDB shares;
     mock().setData("TagLib::isNull", true);
@@ -125,7 +121,6 @@ TEST(addFile, without_properties) {
 }
 
 TEST_GROUP(removeFile) { };
-
 TEST(removeFile, success) {
     TSharesDB shares;
     mock().setData("Dbc::get::withParameter", 1);
@@ -145,7 +140,6 @@ TEST(removeFile, success) {
 }
 
 TEST_GROUP(addDir) { };
-
 TEST(addDir, success) {
     TSharesDB shares;
 
@@ -158,7 +152,6 @@ TEST(addDir, success) {
 }
 
 TEST_GROUP(removeDir) { };
-
 TEST(removeDir, success) {
     // We do not test removing files from attrdb, as it calls removeFile.
     TSharesDB shares;
@@ -184,8 +177,29 @@ TEST_GROUP(query) { };
 
 TEST_GROUP(toProperCase) { };
 
-TEST_GROUP(isShared) { };
+TEST(toProperCase, entry_exists) {
+    TSharesDB shares;
+    mock().setData("data", 1);
+    mock().setData("keydata", "/Dir/File.ext");
 
+    mock().ignoreOtherCalls();
+
+    std::string result = shares.toProperCase("/dir/file.ext");
+
+    CHECK_EQUAL("/Dir/File.ext", result);
+}
+
+TEST(toProperCase, entry_does_not_exist) {
+    TSharesDB shares;
+
+    mock().ignoreOtherCalls();
+
+    std::string result = shares.toProperCase("/dir/file.ext");
+
+    CHECK_EQUAL(std::string(), result);
+}
+
+TEST_GROUP(isShared) { };
 TEST(isShared, shared) {
     TSharesDB shares;
 
@@ -196,7 +210,6 @@ TEST(isShared, shared) {
 
     CHECK_EQUAL(true, result);
 }
-
 TEST(isShared, not_shared) {
     TSharesDB shares;
 
@@ -209,8 +222,7 @@ TEST(isShared, not_shared) {
 }
 
 TEST_GROUP(filesCount) { };
-
-TEST(filesCount, test) {
+TEST(filesCount, success) {
     TSharesDB shares;
 
     mock().expectOneCall("Db::stat");
@@ -221,8 +233,7 @@ TEST(filesCount, test) {
 }
 
 TEST_GROUP(dirsCount) { };
-
-TEST(dirsCount, test) {
+TEST(dirsCount, success) {
     TSharesDB shares;
 
     mock().expectOneCall("Db::stat");

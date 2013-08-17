@@ -57,6 +57,11 @@ int Dbc::get(Dbt* key, Dbt *data, u_int32_t flags) {
 
     if(mock().getData("data").getIntValue()) {
         const char *k = (const char*)key->get_data();
+        if(k == NULL) {
+            k = mock().getData("keydata").getStringValue();
+            key->set_data(const_cast<char*>(k));
+            key->set_size(sizeof(k));
+        }
         switch(k[strlen(k) - 1]) {
             case 's': {
                 unsigned int d = mock().getData("sdata").getIntValue();
