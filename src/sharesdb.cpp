@@ -165,7 +165,7 @@ void newsoul::SharesDB::compress() {
             std::string file((char*)dat3.get_data());
             stat(file.c_str(), &st);
             if(S_ISREG(st.st_mode)) {
-                FileEntry fe;
+                File fe;
                 if(this->getAttrs(path::join({path, file}), &fe) != 0) {
                     continue;
                 }
@@ -233,7 +233,7 @@ void newsoul::SharesDB::handleFileAction(efsw::WatchID wid, const std::string &d
     this->updateApp();
 }
 
-int newsoul::SharesDB::getAttrs(const std::string &fn, FileEntry *fe) {
+int newsoul::SharesDB::getAttrs(const std::string &fn, File *fe) {
     Dbc *cursor;
     Dbt dat;
     std::string s = fn + "s";
@@ -279,14 +279,14 @@ int newsoul::SharesDB::getAttrs(const std::string &fn, FileEntry *fe) {
     return 0;
 }
 
-Shares newsoul::SharesDB::contents(const std::string &fn) {
-    Shares results;
+newsoul::Dirs newsoul::SharesDB::contents(const std::string &fn) {
+    Dirs results;
     Dbc *cursor;
     Dbt key, dat;
     struct stat st;
 
     this->dirsdb.cursor(NULL, &cursor, 0);
-    while(cursor->get(&key, &dat, DB_NEXT)) {
+    while(cursor->get(&key, &dat, DB_NEXT) == 0) {
         std::string k((char*)key.get_data());
         if(k == fn || k.substr(0, fn.size() + 1) == fn) {
             results[k];
@@ -294,7 +294,7 @@ Shares newsoul::SharesDB::contents(const std::string &fn) {
             std::string d((char*)dat.get_data());
             stat(d.c_str(), &st);
             if(S_ISREG(st.st_mode)) {
-                FileEntry fe;
+                File fe;
                 if(this->getAttrs(path::join({k, d}), &fe) == 0) {
                     results[k][d] = fe;
                 }
@@ -306,7 +306,7 @@ Shares newsoul::SharesDB::contents(const std::string &fn) {
     return results;
 }
 
-Folder newsoul::SharesDB::query(const std::string &query) const {
+newsoul::Dir newsoul::SharesDB::query(const std::string &query) const {
 }
 
 std::string newsoul::SharesDB::toProperCase(const std::string &lower) {

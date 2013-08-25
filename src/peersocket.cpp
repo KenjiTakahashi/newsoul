@@ -404,10 +404,10 @@ newsoul::PeerSocket::onFolderContentsRequested(const PFolderContentsRequest * me
 {
     if (! newsoul()->isBanned(user())) {
         std::vector<std::string>::const_iterator it;
-        Folders reply;
+        Shares reply;
         for (it = message->dirs.begin(); it != message->dirs.end(); it++) {
             std::string dir = *it;
-            Shares content;
+            Dirs content;
             if (newsoul()->haveBuddyShares() && newsoul()->isBuddied(user())) {
                 content = newsoul()->buddyshares()->contents(dir);
                 if (content.size() > 0)
@@ -436,8 +436,8 @@ void
 newsoul::PeerSocket::onSearchResultsReceived(const PSearchReply * message) {
     NNLOG("newsoul.peers.debug", "Search result from %s", user().c_str());
 
-    Folder folders;
-    Folder::const_iterator it = message->results.begin();
+    Dir folders;
+    Dir::const_iterator it = message->results.begin();
     for(; it != message->results.end(); ++it) {
         std::string encodedFilename = newsoul()->codeset()->fromPeer(user(), (*it).first);
         folders[encodedFilename] = (*it).second;

@@ -60,7 +60,7 @@ namespace newsoul
     uint transferSpeed() {return m_TransferSpeed;};
     void setTransferSpeed(uint speed) {m_TransferSpeed = speed;};
 
-    void searchReplyReceived(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint64 queuelen, const Folder & folders);
+    void searchReplyReceived(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint64 queuelen, const Dir & folders);
     void branchLevelReceived(DistributedSocket * socket, uint level);
 
     void transmitSearch(uint unknown, const std::string & username, uint ticket, const std::string & query);
@@ -101,7 +101,7 @@ namespace newsoul
                                                 m_PotentialParents; // Potential parent we're connecting to
     std::map<std::string, std::pair<NewNet::RefPtr<DistributedSocket>, uint> >
                                                 m_Children;         // List of all our children with their respective depth
-    std::map<std::string, std::map<uint, Folder> >
+    std::map<std::string, std::map<uint, Dir> >
                                                 m_PendingResults;   // Pending search results we'll have to send soon
     std::map<std::string, time_t>               m_Wishlist;         // Wishlist items with the last time we searched for them
     NewNet::WeakRefPtr<NewNet::Event<long>::Callback> m_WishlistTimeout; // Wishlist timeout

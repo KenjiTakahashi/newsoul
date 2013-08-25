@@ -61,7 +61,7 @@ TEST(getAttrs, entry_exists) {
     mock().expectNCalls(5, "Dbc::get");
     mock().expectOneCall("Dbc::close");
 
-    FileEntry result;
+    newsoul::File result;
     int ret = shares.getAttrs("/entry", &result);
 
     CHECK_EQUAL(0, ret);
@@ -77,7 +77,7 @@ TEST(getAttrs, entry_does_not_exist) {
     mock().expectOneCall("Dbc::get");
     mock().expectOneCall("Dbc::close");
 
-    FileEntry result;
+    newsoul::File result;
     int ret = shares.getAttrs("/entry", &result);
 
     CHECK_EQUAL(1, ret);
@@ -172,11 +172,30 @@ TEST_GROUP(pack) { };
 TEST_GROUP(compress) { };
 
 TEST_GROUP(contents) { };
+TEST(contents, non_existing) {
+    TSharesDB shares;
+    mock().setData("data", 0);
+
+    mock().ignoreOtherCalls();
+
+    newsoul::Dirs result = shares.contents("/non/existing");
+
+    newsoul::Dirs expected;
+    CHECK(expected == result);
+}
+TEST(contents, empty) {
+    TSharesDB shares;
+}
+TEST(contents, no_subdirs) {
+    TSharesDB shares;
+}
+TEST(contents, with_subdirs) {
+    TSharesDB shares;
+}
 
 TEST_GROUP(query) { };
 
 TEST_GROUP(toProperCase) { };
-
 TEST(toProperCase, entry_exists) {
     TSharesDB shares;
     mock().setData("data", 1);
@@ -188,7 +207,6 @@ TEST(toProperCase, entry_exists) {
 
     CHECK_EQUAL("/Dir/File.ext", result);
 }
-
 TEST(toProperCase, entry_does_not_exist) {
     TSharesDB shares;
 

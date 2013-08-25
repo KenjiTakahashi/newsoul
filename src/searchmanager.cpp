@@ -351,7 +351,7 @@ void newsoul::SearchManager::sendSearchResults(const std::string & username, con
         else
             db = newsoul()->shares();
 
-        Folder results = db->query(query);
+        Dir results = db->query(query);
 
         if (!results.empty()) {
             m_PendingResults[username][token] = results;
@@ -415,11 +415,11 @@ void newsoul::SearchManager::wishlistAdd(const std::string & query) {
 void newsoul::SearchManager::onPeerSocketReady(PeerSocket * socket) {
     std::string username = socket->user();
 
-    std::map<std::string, std::map<uint, Folder> >::iterator pending = m_PendingResults.find(username);
+    std::map<std::string, std::map<uint, Dir> >::iterator pending = m_PendingResults.find(username);
     if (pending != m_PendingResults.end() && m_PendingResults[username].size()) {
         NNLOG("newsoul.peers.debug", "Sending search results to %s", username.c_str());
 
-        std::map<uint, Folder>::const_iterator it;
+        std::map<uint, Dir>::const_iterator it;
         for (it = m_PendingResults[username].begin(); it != m_PendingResults[username].end(); it++) {
             PSearchReply msg(it->first, username, it->second, transferSpeed(), (uint64) newsoul()->uploads()->queueTotalLength(), newsoul()->uploads()->hasFreeSlots());
             socket->sendMessage(msg.make_network_packet());
@@ -520,13 +520,13 @@ void
 newsoul::SearchManager::onPeerSocketUnavailable(std::string user)
 {
     // Could not connect to the peer or disconnected: delete the pending search results
-    std::map<std::string, std::map<uint, Folder> >::iterator it;
+    std::map<std::string, std::map<uint, Dir> >::iterator it;
     it = m_PendingResults.find(user);
     if (it != m_PendingResults.end())
         m_PendingResults.erase(it);
 }
 
 void
-newsoul::SearchManager::searchReplyReceived(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint64 queuelen, const Folder & folders) {
+newsoul::SearchManager::searchReplyReceived(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint64 queuelen, const Dir & folders) {
     newsoul()->ifaces()->onSearchReply(ticket, user, slotfree, avgspeed, (uint) queuelen, folders);
 }

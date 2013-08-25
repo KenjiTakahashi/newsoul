@@ -160,7 +160,7 @@ namespace newsoul
     void updateRates();
 
     /* Analyse the folder contents we've received and if we can start some download with it */
-    void addFolderContents(const std::string & user, const Folders & folders);
+    void addFolderContents(const std::string & user, const Shares & folders);
 
     void enqueueDownload(Download * download);
 

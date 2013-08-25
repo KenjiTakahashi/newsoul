@@ -462,13 +462,13 @@ newsoul::DownloadManager::askPendingPlaces(PeerSocket * socket) {
 /**
  * Analyse the folder contents we've received and look if we can start some download with it
  */
-void newsoul::DownloadManager::addFolderContents(const std::string & user, const Folders & folders) {
+void newsoul::DownloadManager::addFolderContents(const std::string & user, const Shares & folders) {
     if (m_ContentsAsked.find(user) == m_ContentsAsked.end()) {
         NNLOG("newsoul.down.warn", "Unexpected folder content from %s.", user.c_str());
         return;
     }
 
-    Folders::const_iterator fit;
+    Shares::const_iterator fit;
     std::string downloadDir = newsoul()->config()->getStr({"downloads", "complete"});
 
     // Don't download files matching a blacklist item
@@ -484,7 +484,7 @@ void newsoul::DownloadManager::addFolderContents(const std::string & user, const
             continue;
         }
 
-        Shares::const_iterator sit;
+        Dirs::const_iterator sit;
         m_AllowUpdate = false;
         for (sit = fit->second.begin(); sit != fit->second.end(); sit++) {
             // Remote path where the file is located (=remotePath without the filename)
@@ -506,7 +506,7 @@ void newsoul::DownloadManager::addFolderContents(const std::string & user, const
             if (posB != std::string::npos && posB < remotePathDir.size())
                 localPath += newsoul()->codeset()->fromUtf8ToFS(remotePathDir.substr(posB));
 
-            Folder::const_iterator fiit;
+            Dir::const_iterator fiit;
             bool blacklisted = false;
             for (fiit = sit->second.begin(); fiit != sit->second.end(); fiit++) {
                 std::string filename = newsoul()->codeset()->fromPeer(user, fiit->first);

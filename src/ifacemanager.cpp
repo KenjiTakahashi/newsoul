@@ -1332,12 +1332,12 @@ newsoul::IfaceManager::onPeerSharesReceived(const PSharesReply * message)
     PeerSocket * socket = message->peerSocket();
 
     // We need to convert the shares with correct encoding
-    Shares oriShares = message->shares;
-    Shares encShares;
-    Shares::iterator itFold;
-    Folder::iterator itFile;
+    Dirs oriShares = message->shares;
+    Dirs encShares;
+    Dirs::iterator itFold;
+    Dir::iterator itFile;
     for(itFold = oriShares.begin(); itFold != oriShares.end(); ++itFold) {
-        Folder newFold;
+        Dir newFold;
         for(itFile = itFold->second.begin(); itFile != itFold->second.end(); ++itFile) {
             newFold[newsoul()->codeset()->fromPeer(socket->user(), itFile->first)] = itFile->second;
         }
@@ -1406,7 +1406,7 @@ newsoul::IfaceManager::onUploadRemoved(Upload * upload)
 }
 
 void
-newsoul::IfaceManager::onSearchReply(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint queuelen, const Folder & folders)
+newsoul::IfaceManager::onSearchReply(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint queuelen, const Dir & folders)
 {
   SEND_ALL(ISearchReply(ticket, user, slotfree, avgspeed, queuelen, folders));
 }

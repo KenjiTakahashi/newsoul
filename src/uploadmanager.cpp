@@ -594,14 +594,14 @@ newsoul::UploadManager::addFolder(const std::string & user, const std::string & 
     std::string dir = newsoul()->codeset()->toNet(localPath);
     std::string error;
     if (! newsoul()->isBanned(user)) {
-        Shares content;
+        Dirs content;
         if (newsoul()->haveBuddyShares() && newsoul()->isBuddied(user))
             content = newsoul()->buddyshares()->contents(dir);
         else
             content = newsoul()->shares()->contents(dir);
 
-        Shares::const_iterator it;
-        Folder::const_iterator fit;
+        Dirs::const_iterator it;
+        Dir::const_iterator fit;
         for (it = content.begin(); it != content.end(); it++) {
             for (fit = it->second.begin(); fit != it->second.end(); fit++) {
                 std::string pathFile = dir + '\\' + fit->first;

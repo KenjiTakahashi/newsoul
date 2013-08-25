@@ -31,17 +31,28 @@
 #include "utils/string.h"
 #include "efsw/include/efsw/efsw.hpp"
 
-typedef struct FILEENTRY {
-    uint64_t size;
-    std::string ext;
-    std::vector<unsigned int> attrs;
-    time_t mtime;
-} FileEntry;
-typedef std::map<std::string, FileEntry> Folder;
-typedef std::map<std::string, Folder> Shares;
-typedef std::map<std::string, Shares> Folders;
-
 namespace newsoul {
+    class File {
+    public:
+        uint64_t size;
+        std::string ext;
+        std::vector<unsigned int> attrs;
+        time_t mtime;
+
+        bool operator==(const File &other) const {
+            return (
+                this->size == other.size &&
+                this->ext == other.ext &&
+                this->attrs == other.attrs &&
+                this->mtime == other.mtime
+            );
+        }
+    };
+
+    typedef std::map<std::string, File> Dir;
+    typedef std::map<std::string, Dir> Dirs;
+    typedef std::map<std::string, Dirs> Shares;
+
     class SharesDB : public efsw::FileWatchListener {
         efsw::FileWatcher fw; /*!< Real time FS watcher (efsw).*/
         /*!
@@ -60,7 +71,7 @@ namespace newsoul {
          * 3) Filepath + "a" for attrs array,
          * 3) Filepath + "l" for 3) size,
          * 4) Filepath + "m" for modification time,
-         * where values are corresponding with these in FileEntry structure.
+         * where values are corresponding with these in File structure.
          */
         Db attrdb;
         //FIXME: This is silly and will have to go.
@@ -72,10 +83,10 @@ namespace newsoul {
         /*!
          * Retrieves file attributes from database.
          * \param fn Path to file.
-         * \param fe FileEntry to fill.
+         * \param fe File structure to fill.
          * \return 0 on success, 1 on error.
          */
-        int getAttrs(const std::string &fn, FileEntry *fe);
+        int getAttrs(const std::string &fn, File *fe);
         /*!
          * Adds file to database.
          * Also used to update existing file entries.
@@ -125,8 +136,8 @@ namespace newsoul {
          * \param fn Directory.
          * \return Files within fn.
          */
-        Shares contents(const std::string &fn);
-        Folder query(const std::string &query) const;
+        Dirs contents(const std::string &fn);
+        Dir query(const std::string &query) const;
         /*!
          * Repairs distorted path case.
          * Use case: We get path from an case insensitive FS (e.g. NTFS).

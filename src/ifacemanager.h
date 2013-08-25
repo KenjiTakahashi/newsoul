@@ -58,7 +58,7 @@ namespace newsoul
     }
 
     // Some search results received
-    void onSearchReply(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint queuelen, const Folder & folders);
+    void onSearchReply(uint ticket, const std::string & user, bool slotfree, uint avgspeed, uint queuelen, const Dir & folders);
 
     void sendNewSearchToAll(const std::string & query, uint token);
 

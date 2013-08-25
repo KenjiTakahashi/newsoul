@@ -85,13 +85,13 @@ PEERMESSAGE(PSharesReply, 5)
                 break; // If this happens, message is malformed. No need to continue (prevent huge loops)
 			std::string dirname = unpack_string();
 			uint f = unpack_int();
-			Folder files;
+            newsoul::Dir files;
 			while(f) {
 			    if (buffer.empty())
                     break; // If this happens, message is malformed. No need to continue (prevent huge loops)
 				unpack_char();
 				std::string filename = unpack_string();
-				FileEntry fe;
+                newsoul::File fe;
 				fe.size = unpack_off();
 				fe.ext = unpack_string();
 				uint attrs = unpack_int();
@@ -112,7 +112,7 @@ PEERMESSAGE(PSharesReply, 5)
 
 	uchar *data;
 	uint data_len;
-	Shares shares;
+    newsoul::Dirs shares;
 END
 
 PEERMESSAGE(PSearchRequest, 8)
@@ -135,14 +135,14 @@ END
 
 PEERMESSAGE(PSearchReply, 9)
 	PSearchReply() {};
-	PSearchReply(uint _t, const std::string& _u, const Folder& _r, uint _spe, uint64 _que, bool _fre)
+	PSearchReply(uint _t, const std::string& _u, const newsoul::Dir& _r, uint _spe, uint64 _que, bool _fre)
                     : user(_u), results(_r), ticket(_t), avgspeed(_spe), queuelen(_que), slotfree(_fre) {}
 
 	MAKE
 		pack(user);
 		pack(ticket);
 		pack((uint32)results.size());
-		Folder::iterator it = results.begin();
+        newsoul::Dir::iterator it = results.begin();
 		for(; it != results.end(); ++it) {
 			pack((uchar)1);
 			pack((*it).first, true);
@@ -184,7 +184,7 @@ PEERMESSAGE(PSearchReply, 9)
             }
 			unpack_char();
 			std::string fn = unpack_string();
-			FileEntry fe;
+            newsoul::File fe;
             fe.size = unpack_off(); // Sometimes an uint with an exotic client
 			fe.ext = unpack_string();
 			int attrs = unpack_int();
@@ -215,7 +215,7 @@ PEERMESSAGE(PSearchReply, 9)
                     break; // If this happens, message is malformed. No need to continue (prevent huge loops)
                 unpack_char();
                 std::string fn = unpack_string();
-                FileEntry fe;
+                newsoul::File fe;
                 fe.size = static_cast<uint64>(unpack_int()); // Sometimes an uint with an exotic client
                 fe.ext = unpack_string();
                 int attrs = unpack_int();
@@ -239,7 +239,7 @@ PEERMESSAGE(PSearchReply, 9)
 	END_PARSE
 
 	std::string user;
-	Folder results;
+    newsoul::Dir results;
 	uint ticket, avgspeed;
 	uint64 queuelen;
 	bool slotfree;
@@ -313,20 +313,20 @@ END
 
 PEERMESSAGE(PFolderContentsReply, 37)
 	PFolderContentsReply() {};
-	PFolderContentsReply(const Folders _f)
+	PFolderContentsReply(const newsoul::Shares _f)
                            : folders(_f) {};
 
 	MAKE
 		pack((uint32)folders.size());
-		Folders::iterator fit = folders.begin();
+        newsoul::Shares::iterator fit = folders.begin();
 		for(; fit != folders.end(); ++fit) {
 			pack((*fit).first);
 			pack((uint32)(*fit).second.size());
-			Shares::iterator dit = (*fit).second.begin();
+            newsoul::Dirs::iterator dit = (*fit).second.begin();
 			for(; dit != (*fit).second.end(); ++dit) {
 				pack((*dit).first, true);
 				pack((uint32)(*dit).second.size());
-				Folder::iterator it = (*dit).second.begin();
+                newsoul::Dir::iterator it = (*dit).second.begin();
 				for(; it != (*dit).second.end(); ++it) {
 					pack((uchar)1);
 					pack((*it).first);
@@ -363,7 +363,7 @@ PEERMESSAGE(PFolderContentsReply, 37)
 				while(p) {
                     if (buffer.empty())
                         break; // If this happens, message is malformed. No need to continue (prevent huge loops)
-					FileEntry fe;
+                    newsoul::File fe;
 					unpack_char();
 					std::string _name = unpack_string();
 					fe.size = unpack_off();
@@ -385,7 +385,7 @@ PEERMESSAGE(PFolderContentsReply, 37)
 		}
 	END_PARSE
 
-	Folders folders;
+	newsoul::Shares folders;
 END
 
 PEERMESSAGE(PTransferRequest, 40)

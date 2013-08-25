@@ -55,7 +55,7 @@ public:
 		pack(d.country);
 	}
 
-	inline void pack(const FileEntry& fe) {
+	inline void pack(const newsoul::File& fe) {
 		pack(fe.size);
 		pack(fe.ext);
 		pack((uint32)fe.attrs.size());
@@ -614,17 +614,17 @@ IFACEMESSAGE(IUserShares, 0x0205)
 */
 
 	IUserShares() {}
-	IUserShares(const std::string& _u, const Shares& _s)
+	IUserShares(const std::string& _u, const newsoul::Dirs& _s)
                    : user(_u), shares(_s) {}
 
 	MAKE
 		pack(user);
 		pack((uint32)shares.size());
-		Shares::const_iterator dit = shares.begin();
+        newsoul::Dirs::const_iterator dit = shares.begin();
 		for(; dit != shares.end(); ++dit) {
 			pack((*dit).first);
 			pack((uint32)(*dit).second.size());
-			Folder::const_iterator fit = (*dit).second.begin();
+            newsoul::Dir::const_iterator fit = (*dit).second.begin();
 			for(; fit != (*dit).second.end(); ++fit) {
 				pack((*fit).first);
 				pack((*fit).second);
@@ -637,7 +637,7 @@ IFACEMESSAGE(IUserShares, 0x0205)
 	END_PARSE
 
 	std::string user;
-	Shares shares;
+    newsoul::Dirs shares;
 END
 
 IFACEMESSAGE(IPeerAddress, 0x0206)
@@ -1519,7 +1519,7 @@ IFACEMESSAGE(ISearchReply, 0x0402)
 	folder results -- The actual results
 */
 	ISearchReply() {}
-	ISearchReply(uint32 _t, const std::string& _u, bool _f, uint32 _s, uint32 _q, const Folder& _r)
+	ISearchReply(uint32 _t, const std::string& _u, bool _f, uint32 _s, uint32 _q, const newsoul::Dir& _r)
                     : username(_u), results(_r) { ticket = _t, slotfree = _f, speed = _s, queue = _q; }
 
 	MAKE
@@ -1529,10 +1529,10 @@ IFACEMESSAGE(ISearchReply, 0x0402)
 		pack(speed);
 		pack(queue); // Slsk protocol uses 64bit int. It would be a good idea to do the same in newsoul protocol one day.
 		pack((uint32)results.size());
-		Folder::const_iterator it = results.begin();
+        newsoul::Dir::const_iterator it = results.begin();
 		for(; it != results.end(); ++it) {
 			pack((*it).first);
-			pack((const FileEntry&)(*it).second);
+			pack((const newsoul::File&)(*it).second);
 		}
 	END_MAKE
 
@@ -1542,7 +1542,7 @@ IFACEMESSAGE(ISearchReply, 0x0402)
 
 	uint32 ticket, speed, queue;
 	std::string username;
-	Folder results;
+    newsoul::Dir results;
 	bool slotfree;
 END
 
