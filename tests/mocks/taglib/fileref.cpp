@@ -46,6 +46,5 @@ TagLib::AudioProperties *TagLib::FileRef::audioProperties() {
     return this->ap;
 }
 bool TagLib::FileRef::isNull() const {
-    int v = mock().getData("TagLib::isNull").getIntValue();
     return mock().getData("TagLib::isNull").getIntValue();
 }

@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include <taglib/fileref.h>
+#include <queue>
 #include <vector>
 #include <zlib.h>
 #include "utils/os.h"
@@ -108,8 +109,9 @@ namespace newsoul {
          * It is used to take care of empty dirs (we need to know about them).
          * \param dir Directory in which the dir lies.
          * \param fn Basename.
+         * \param path Whole path (usually dir+fn).
          */
-        void addDir(const std::string &dir, const std::string &fn);
+        void addDir(const std::string &dir, const std::string &fn, const std::string &path);
         /*!
          * Removes directory from database.
          * \see newsoul::Config::addDir for some details.

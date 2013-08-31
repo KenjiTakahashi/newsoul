@@ -20,6 +20,7 @@
 #include <CppUTest/TestRegistry.h>
 #include <CppUTestExt/MockSupport.h>
 #include <CppUTestExt/MockSupportPlugin.h>
+#include <initializer_list>
 #include <sys/stat.h>
 #include "../src/sharesdb.h"
 
@@ -145,10 +146,13 @@ TEST(addDir, success) {
 
     mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/fdir").withParameter("2", 6);
     mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "sdir").withParameter("2", 5);
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/fdir/sdir").withParameter("2", 11);
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "").withParameter("2", 1);
 
     mock().expectOneCall("Db::put").withParameter("2", "/fdir").withParameter("3", "sdir");
+    mock().expectOneCall("Db::put").withParameter("2", "/fdir/sdir").withParameter("3", "");
 
-    shares.addDir("/fdir", "sdir");
+    shares.addDir("/fdir", "sdir", "/fdir/sdir");
 }
 
 TEST_GROUP(removeDir) { };
@@ -171,26 +175,58 @@ TEST_GROUP(pack) { };
 
 TEST_GROUP(compress) { };
 
-TEST_GROUP(contents) { };
+TEST_GROUP(contents) {
+    unsigned int i;
+    std::vector<std::string> data;
+
+    void setup() {
+        mock().setData("Dbc::withContents", 1);
+        this->i = 0;
+        mock().setDataObject("Dbc::contents::i", "unsigned int", &this->i);
+
+        mock().ignoreOtherCalls();
+    }
+
+    void setContents(std::initializer_list<std::string> contents) {
+        this->data = std::vector<std::string>(contents);
+        mock().setDataObject("Dbc::contents", "std::vector", &this->data);
+    }
+};
 TEST(contents, non_existing) {
     TSharesDB shares;
-    mock().setData("data", 0);
-
-    mock().ignoreOtherCalls();
+    mock().setData("Dbc::withContents", 0);
 
     newsoul::Dirs result = shares.contents("/non/existing");
 
     newsoul::Dirs expected;
     CHECK(expected == result);
 }
-TEST(contents, empty) {
+TEST(contents, without_subdirs) {
     TSharesDB shares;
+    this->setContents({"", "null"});
+
+    newsoul::Dirs result = shares.contents("/dir");
+
+    newsoul::Dirs expected({{"/dir", {}}});
+    CHECK(expected == result);
 }
-TEST(contents, no_subdirs) {
+TEST(contents, with_one_subdir) {
     TSharesDB shares;
+    this->setContents({"/dir/subdir", "null", ""});
+
+    newsoul::Dirs result = shares.contents("/dir");
+
+    newsoul::Dirs expected({{"/dir", {}}, {"/dir/subdir", {}}});
+    CHECK(expected == result);
 }
-TEST(contents, with_subdirs) {
+TEST(contents, with_multiple_subdirs) {
     TSharesDB shares;
+    this->setContents({"/dir/subdir1", "null", "/dir/subdir2", "null", ""});
+
+    newsoul::Dirs result = shares.contents("/dir");
+
+    newsoul::Dirs expected({{"/dir", {}}, {"/dir/subdir1", {}}, {"/dir/subdir2", {}}});
+    CHECK(expected == result);
 }
 
 TEST_GROUP(query) { };

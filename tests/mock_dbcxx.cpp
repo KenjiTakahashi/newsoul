@@ -19,6 +19,7 @@
 #include <CppUTestExt/MockSupport.h>
 #include <cstring>
 #include <db_cxx.h>
+#include <vector>
 
 Dbt::Dbt() {
     mock().actualCall("Dbt::Dbt(0)");
@@ -49,6 +50,21 @@ int Dbc::del(u_int32_t flags) {
 }
 int Dbc::dup(Dbc** cursorp, u_int32_t flags) { return mock().intReturnValue(); }
 int Dbc::get(Dbt* key, Dbt *data, u_int32_t flags) {
+    if(mock().getData("Dbc::withContents").getIntValue()) {
+        std::vector<std::string> *contents = (std::vector<std::string>*)mock().getData("Dbc::contents").getObjectPointer();
+        unsigned int *ci = (unsigned int*)mock().getData("Dbc::contents::i").getObjectPointer();
+        if(*ci >= contents->size()) {
+            return DB_NOTFOUND;
+        }
+        std::string str = contents->at((*ci)++);
+        if(str == "null") {
+            return DB_NOTFOUND;
+        }
+        data->set_data(const_cast<char*>(str.c_str()));
+        data->set_size(str.size() + 1);
+        return 0;
+    }
+
     if(mock().getData("Dbc::get::withParameter").getIntValue()) {
         mock().actualCall("Dbc::get").withParameter("1", (char*)key->get_data()).withParameter("2", (char*)data->get_data());
     } else {
@@ -92,9 +108,8 @@ int Dbc::get(Dbt* key, Dbt *data, u_int32_t flags) {
                 break;
         }
         return 0;
-    } else {
-        return DB_NOTFOUND;  // Non-zero code
     }
+    return DB_NOTFOUND;  // Non-zero code
 }
 int Dbc::get_priority(DB_CACHE_PRIORITY *priorityp) { return mock().intReturnValue(); }
 int Dbc::pget(Dbt* key, Dbt* pkey, Dbt *data, u_int32_t flags) { return mock().intReturnValue(); }

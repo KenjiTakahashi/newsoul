@@ -95,11 +95,15 @@ void newsoul::SharesDB::removeFile(const std::string &dir, const std::string &fn
     cursor->close();
 }
 
-void newsoul::SharesDB::addDir(const std::string &dir, const std::string &fn) {
+void newsoul::SharesDB::addDir(const std::string &dir, const std::string &fn, const std::string &path) {
     Dbt key(const_cast<char*>(dir.c_str()), dir.size() + 1);
     Dbt dat(const_cast<char*>(fn.c_str()), fn.size() + 1);
+    Dbt pkey(const_cast<char*>(path.c_str()), path.size() + 1);
+    std::string empty = "";
+    Dbt pdat(const_cast<char*>(empty.c_str()), 1);
 
     this->dirsdb.put(NULL, &key, &dat, DB_OVERWRITE_DUP);
+    this->dirsdb.put(NULL, &pkey, &pdat, DB_OVERWRITE_DUP);
 }
 
 void newsoul::SharesDB::removeDir(const std::string &path) {
@@ -206,7 +210,7 @@ void newsoul::SharesDB::handleFileAction(efsw::WatchID wid, const std::string &d
             if(S_ISREG(st.st_mode)) {
                 this->addFile(dir, fn, path, st);
             } else if(S_ISDIR(st.st_mode)) {
-                this->addDir(dir, fn);
+                this->addDir(dir, fn, path);
             }
             break;
         case efsw::Actions::Delete:
@@ -285,13 +289,22 @@ newsoul::Dirs newsoul::SharesDB::contents(const std::string &fn) {
     Dbt key, dat;
     struct stat st;
 
+    std::queue<std::string> queue;
+    std::string k;
+
+    queue.push(fn);
     this->dirsdb.cursor(NULL, &cursor, 0);
-    while(cursor->get(&key, &dat, DB_NEXT) == 0) {
-        std::string k((char*)key.get_data());
-        if(k == fn || k.substr(0, fn.size() + 1) == fn) {
+    while(!queue.empty()) {
+        k = queue.front();
+
+        key.set_data(const_cast<char*>(k.c_str()));
+        key.set_size(k.size() + 1);
+
+        while(cursor->get(&key, &dat, DB_NEXT) == 0) {
             results[k];
 
             std::string d((char*)dat.get_data());
+
             stat(d.c_str(), &st);
             if(S_ISREG(st.st_mode)) {
                 File fe;
@@ -299,7 +312,13 @@ newsoul::Dirs newsoul::SharesDB::contents(const std::string &fn) {
                     results[k][d] = fe;
                 }
             }
+
+            if(d != "") {
+                queue.push(d);
+            }
         }
+
+        queue.pop();
     }
     cursor->close();
 
