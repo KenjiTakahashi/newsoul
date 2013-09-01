@@ -171,8 +171,6 @@ TEST(removeDir, success) {
     shares.removeDir("/fdir/sdir");
 }
 
-TEST_GROUP(pack) { };
-
 TEST_GROUP(compress) { };
 
 TEST_GROUP(contents) {
