@@ -20,6 +20,8 @@
 #define __NEWSOUL_SHARESDB_H__
 
 #include <db_cxx.h>
+#include <initializer_list>
+#include <ftw.h>
 #include <map>
 #include <stdint.h>
 #include <sys/stat.h>
@@ -55,6 +57,7 @@ namespace newsoul {
     typedef std::map<std::string, Dirs> Shares;
 
     class SharesDB : public efsw::FileWatchListener {
+        static SharesDB *_this;
         efsw::FileWatcher fw; /*!< Real time FS watcher (efsw).*/
         /*!
          * Stores shared directory structure.
@@ -80,6 +83,7 @@ namespace newsoul {
         std::vector<unsigned char> compressed;
 
     protected:
+        static int add(const char *path, const struct stat *st, int type, struct FTW *ftwbuf);
         SharesDB() : dirsdb(NULL, DB_CXX_NO_EXCEPTIONS), attrdb(NULL, DB_CXX_NO_EXCEPTIONS) { }
         /*!
          * Retrieves file attributes from database.
@@ -127,7 +131,13 @@ namespace newsoul {
         ~SharesDB();
 
         void handleFileAction(efsw::WatchID wid, const std::string &dir, const std::string &fn, efsw::Action action, std::string oldFn);
-
+        /*!
+         * Adds given files/directories to the database.
+         * Directories are scanned recursively.
+         * Usually used to add directories through CLI.
+         * \param paths Files/directories to add.
+         */
+        void add(std::initializer_list<const std::string> paths);
         /*!
          * Returns SLSK compatible, compressed version of the database.
          * \return Compressed DB entries.

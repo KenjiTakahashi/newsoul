@@ -29,10 +29,14 @@ newsoul::Newsoul::Newsoul() {
     srand(time(NULL));
     m_Token = rand();
 
-    _instance = this;
+    Newsoul::_instance = this;
 }
 
-newsoul::Newsoul::~Newsoul() { }
+newsoul::Newsoul::~Newsoul() {
+    delete this->_globalShares;
+    //delete this->_buddyShares;
+    delete this->_config;
+}
 
 void newsoul::Newsoul::parsePSet(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]) {
     if(++*i >= argc) {
@@ -145,7 +149,7 @@ bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
                 }},
                 {"add", [this, i, argc, argv](const std::string &sarg){
                     this->parsePAdd({"database", "global", "paths"}, i, argc, argv);
-                    //TODO: add to db
+                    this->_globalShares->add({argv[*i]});
                 }},
                 {"remove", [this, i, argc, argv](const std::string &sarg){
                     this->parsePDel({"database", "global", "paths"}, i, argc, argv);
@@ -208,6 +212,8 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
     } else {
         this->_config = new Config();
     }
+
+    this->LoadShares();  //FIXME
 
     for(int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
@@ -310,7 +316,6 @@ int newsoul::Newsoul::run(int argc, char *argv[]) {
     m_Ifaces = new IfaceManager(this);
     m_Searches = new SearchManager(this);
 
-    this->LoadShares();
     this->LoadDownloads();
 
 #ifndef _WIN32

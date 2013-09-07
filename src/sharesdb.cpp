@@ -18,6 +18,8 @@
 
 #include "sharesdb.h"
 
+newsoul::SharesDB *newsoul::SharesDB::_this;
+
 newsoul::SharesDB::SharesDB(const std::string &fn, std::function<void(void)> func) : dirsdb(NULL, DB_CXX_NO_EXCEPTIONS), attrdb(NULL, DB_CXX_NO_EXCEPTIONS) {
     this->updateApp = func;
     const std::string efn = path::expand(fn);
@@ -35,6 +37,29 @@ newsoul::SharesDB::SharesDB(const std::string &fn, std::function<void(void)> fun
 newsoul::SharesDB::~SharesDB() {
     this->attrdb.close(0);
     this->dirsdb.close(0);
+}
+
+int newsoul::SharesDB::add(const char *path, const struct stat *st, int type, struct FTW *ftwbuf) {
+    std::string dir(path, 0, ftwbuf->base - 1);
+    struct stat *mst = const_cast<struct stat*>(st);
+    switch(type) {
+        case FTW_F:
+            SharesDB::_this->addFile(dir, path + ftwbuf->base, path, *mst);
+            break;
+        case FTW_D:
+            SharesDB::_this->addDir(dir, path + ftwbuf->base, path);
+            break;
+        default: //TODO: report error
+            break;
+    }
+    return 0;
+}
+
+void newsoul::SharesDB::add(std::initializer_list<const std::string> paths) {
+    SharesDB::_this = this;
+    for(auto path : paths) {
+        nftw(path.c_str(), SharesDB::add, 20, 0);
+    }
 }
 
 void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, const std::string &path, struct stat &st) {
@@ -138,11 +163,12 @@ void newsoul::SharesDB::pack(std::vector<unsigned char> &data, std::string s) {
 
 void newsoul::SharesDB::compress() {
     Dbc *cursor1, *cursor2;
-    Dbt key, dat1, dat2, dat3;
+    Dbt key, dat1;
     struct stat st;
     std::vector<unsigned char> inBuf;
 
     this->dirsdb.cursor(NULL, &cursor1, 0);
+    this->dirsdb.cursor(NULL, &cursor2, 0);
     this->pack<uint32_t>(inBuf, this->dirsCount());
     while(cursor1->get(&key, &dat1, DB_NEXT_NODUP) != DB_NOTFOUND) {
         std::string path((char*)key.get_data());
@@ -155,6 +181,7 @@ void newsoul::SharesDB::compress() {
             }
         }
 
+        Dbt dat2;
         int ret = cursor2->get(&key, &dat2, DB_SET);
         unsigned int length = 0;
         while(ret != DB_NOTFOUND) {
@@ -163,26 +190,25 @@ void newsoul::SharesDB::compress() {
         }
         this->pack<uint32_t>(inBuf, length);
 
-        this->dirsdb.cursor(NULL, &cursor2, 0);
+        Dbt dat3;
         ret = cursor2->get(&key, &dat3, DB_SET);
         while(ret != DB_NOTFOUND) {
             std::string file((char*)dat3.get_data());
-            stat(file.c_str(), &st);
+            std::string fpath = path::join({path, file});
+            stat(fpath.c_str(), &st);
             if(S_ISREG(st.st_mode)) {
                 File fe;
-                if(this->getAttrs(path::join({path, file}), &fe) != 0) {
-                    continue;
-                }
-
-                inBuf.push_back(1);
-                this->pack(inBuf, file);
-                this->pack<uint64_t>(inBuf, fe.size);
-                this->pack(inBuf, fe.ext);
-                this->pack<uint32_t>(inBuf, fe.attrs.size());
-                std::vector<unsigned int>::iterator ait = fe.attrs.begin();
-                for(unsigned int j = 0; ait != fe.attrs.end(); ++ait) {
-                    this->pack<uint32_t>(inBuf, j++);
-                    this->pack<uint32_t>(inBuf, *ait);
+                if(this->getAttrs(fpath, &fe) == 0) {
+                    inBuf.push_back(1);
+                    this->pack(inBuf, file);
+                    this->pack<uint64_t>(inBuf, fe.size);
+                    this->pack(inBuf, fe.ext);
+                    this->pack<uint32_t>(inBuf, fe.attrs.size());
+                    auto ait = fe.attrs.begin();
+                    for(unsigned int j = 0; ait != fe.attrs.end(); ++ait) {
+                        this->pack<uint32_t>(inBuf, j++);
+                        this->pack<uint32_t>(inBuf, *ait);
+                    }
                 }
             }
             ret = cursor2->get(&key, &dat3, DB_NEXT_DUP);
@@ -252,28 +278,28 @@ int newsoul::SharesDB::getAttrs(const std::string &fn, File *fe) {
     Dbt mtimekey(const_cast<char*>(m.c_str()), fn.size() + 2);
 
     this->attrdb.cursor(NULL, &cursor, 0);
-    if(cursor->get(&sizekey, &dat, 0) != 0) {
+    if(cursor->get(&sizekey, &dat, DB_SET) != 0) {
         cursor->close();
         return 1;
     }
     fe->size = *(unsigned int*)dat.get_data();
-    if(cursor->get(&extkey, &dat, 0) != 0) {
+    if(cursor->get(&extkey, &dat, DB_SET) != 0) {
         cursor->close();
         return 1;
     }
     fe->ext = std::string((char*)dat.get_data());
-    if(cursor->get(&asizekey, &dat, 0) != 0) {
+    if(cursor->get(&asizekey, &dat, DB_SET) != 0) {
         cursor->close();
         return 1;
     }
     unsigned int len = *(unsigned int*)dat.get_data();
-    if(cursor->get(&attrskey, &dat, 0) != 0) {
+    if(cursor->get(&attrskey, &dat, DB_SET) != 0) {
         cursor->close();
         return 1;
     }
     unsigned int *attrs = (unsigned int*)dat.get_data();
     fe->attrs = std::vector<unsigned int>(attrs, attrs + len);
-    if(cursor->get(&mtimekey, &dat, 0) != 0) {
+    if(cursor->get(&mtimekey, &dat, DB_SET) != 0) {
         cursor->close();
         return 1;
     }
