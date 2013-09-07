@@ -183,6 +183,7 @@ void newsoul::SharesDB::compress() {
 
         Dbt dat2;
         int ret = cursor2->get(&key, &dat2, DB_SET);
+        ret = cursor2->get(&key, &dat2, DB_NEXT_DUP);
         unsigned int length = 0;
         while(ret != DB_NOTFOUND) {
             length += 1;
@@ -380,7 +381,7 @@ unsigned int newsoul::SharesDB::filesCount() {
     //FIXME: This might be slow
     DB_HASH_STAT *stats = (DB_HASH_STAT*)malloc(sizeof(DB_HASH_STAT));
     this->attrdb.stat(NULL, &stats, 0);
-    unsigned int res = stats->hash_nkeys;
+    unsigned int res = stats->hash_nkeys / 5;
     free(stats);
     return res;
 }
