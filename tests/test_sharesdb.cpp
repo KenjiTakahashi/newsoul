@@ -281,7 +281,7 @@ TEST(filesCount, success) {
 
     unsigned int result = shares.filesCount();
 
-    CHECK_EQUAL(10, result);
+    CHECK_EQUAL(2, result);
 }
 
 TEST_GROUP(dirsCount) { };
