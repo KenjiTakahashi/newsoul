@@ -113,6 +113,10 @@ TEST(addFile, without_properties) {
     mock().setData("TagLib::isNull", true);
 
     mock().expectOneCall("FileRef::FileRef").withParameter("1", "/dir/file.ext");
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.exte").withParameter("3", "");
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.extl").withParameter("3", 0);
+    std::vector<int> attrs;
+    mock().expectOneCall("Db::put").withParameter("2", "/dir/file.exta").withParameterOfType("attrs", "3", attrs.data());
     mock().expectOneCall("Db::put").withParameter("2", "/dir/file.exts").withParameter("3", 20);
     mock().expectOneCall("Db::put").withParameter("2", "/dir/file.extm").withParameter("3", 600);
     mock().expectOneCall("Db::put").withParameter("2", "/dir").withParameter("3", "file.ext");

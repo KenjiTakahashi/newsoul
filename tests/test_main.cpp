@@ -25,6 +25,13 @@ public:
     bool isEqual(void *obj1, void *obj2) {
         int *o1 = (int*)obj1;
         int *o2 = (int*)obj2;
+        if(o1 == NULL && o2 != NULL) {
+            return false;
+        } else if(o1 != NULL && o2 == NULL) {
+            return false;
+        } else if(o1 == NULL && o2 == NULL) {
+            return true;
+        }
         bool res = true;
         for(int i = 0; i < 3; ++i) {
             res = o1[i] == o2[i];

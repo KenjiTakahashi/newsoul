@@ -64,6 +64,7 @@ void newsoul::SharesDB::add(std::initializer_list<const std::string> paths) {
 
 void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, const std::string &path, struct stat &st) {
     std::vector<int> attrs;
+    unsigned int size = 0;
     std::string ext;
     TagLib::FileRef fp(path.c_str());
 
@@ -71,33 +72,35 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, c
         TagLib::AudioProperties *props = fp.audioProperties();
 
         ext = string::tolower(fn.substr(fn.rfind('.') + 1));
-        unsigned int size = 3;
+        size = 3;
         attrs.push_back(props->bitrate());
         attrs.push_back(props->length());
         attrs.push_back(0); //FIXME: vbr
-
-        std::string e = path + "e";
-        Dbt extkey(const_cast<char*>(e.c_str()), path.size() + 2);
-        std::string l = path + "l";
-        Dbt asizekey(const_cast<char*>(l.c_str()), path.size() + 2);
-        std::string a = path + "a";
-        Dbt attrskey(const_cast<char*>(a.c_str()), path.size() + 2);
-
-        Dbt extdat(const_cast<char*>(ext.c_str()), ext.size() + 1);
-        Dbt asizedat(&size, sizeof(unsigned int));
-        Dbt attrsdat(attrs.data(), attrs.size() * sizeof(unsigned int));
-
-        this->attrdb.put(NULL, &extkey, &extdat, 0);
-        this->attrdb.put(NULL, &asizekey, &asizedat, 0);
-        this->attrdb.put(NULL, &attrskey, &attrsdat, 0);
     }
+
+    std::string e = path + "e";
+    Dbt extkey(const_cast<char*>(e.c_str()), e.size() + 1);
+    Dbt extdat(const_cast<char*>(ext.c_str()), ext.size() + 1);
+
+    std::string l = path + "l";
+    Dbt asizekey(const_cast<char*>(l.c_str()), l.size() + 1);
+    Dbt asizedat(&size, sizeof(unsigned int));
+
+    std::string a = path + "a";
+    Dbt attrskey(const_cast<char*>(a.c_str()), a.size() + 1);
+    Dbt attrsdat(attrs.data(), attrs.size() * sizeof(unsigned int));
+
     std::string s = path + "s";
     Dbt sizekey(const_cast<char*>(s.c_str()), path.size() + 2);
     Dbt sizedat(&st.st_size, sizeof(unsigned int));
+
     std::string m = path + "m";
     Dbt mtimekey(const_cast<char*>(m.c_str()), path.size() + 2);
     Dbt mtimedat(&st.st_mtime, sizeof(time_t));
 
+    this->attrdb.put(NULL, &extkey, &extdat, 0);
+    this->attrdb.put(NULL, &asizekey, &asizedat, 0);
+    this->attrdb.put(NULL, &attrskey, &attrsdat, 0);
     this->attrdb.put(NULL, &sizekey, &sizedat, 0);
     this->attrdb.put(NULL, &mtimekey, &mtimedat, 0);
 
