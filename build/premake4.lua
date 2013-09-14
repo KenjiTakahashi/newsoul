@@ -70,6 +70,18 @@ function link(tests)
     end
 end
 
+function conf_excludes()
+	if os.is("windows") then
+		excludes { "src/efsw/WatcherKqueue.cpp", "src/efsw/WatcherFSEvents.cpp", "src/efsw/WatcherInotify.cpp", "src/efsw/FileWatcherKqueue.cpp", "src/efsw/FileWatcherInotify.cpp", "src/efsw/FileWatcherFSEvents.cpp" }
+	elseif os.is("linux") then
+		excludes { "src/efsw/WatcherKqueue.cpp", "src/efsw/WatcherFSEvents.cpp", "src/efsw/WatcherWin32.cpp", "src/efsw/FileWatcherKqueue.cpp", "src/efsw/FileWatcherWin32.cpp", "src/efsw/FileWatcherFSEvents.cpp" }
+	elseif os.is("macosx") then
+		excludes { "src/efsw/WatcherInotify.cpp", "src/efsw/WatcherWin32.cpp", "src/efsw/FileWatcherInotify.cpp", "src/efsw/FileWatcherWin32.cpp" }
+	elseif os.is("freebsd") then
+		excludes { "src/efsw/WatcherInotify.cpp", "src/efsw/WatcherWin32.cpp", "src/efsw/WatcherFSEvents.cpp", "src/efsw/FileWatcherInotify.cpp", "src/efsw/FileWatcherWin32.cpp", "src/efsw/FileWatcherFSEvents.cpp" }
+	end
+end
+
 solution "newsoul"
     targetdir "bin"
     configurations {"release", "debug"}
@@ -135,6 +147,7 @@ solution "newsoul"
 		targetdir "lib"
 		includedirs {"../src/efsw/include", "../src/efsw/src"}
 		files {"../src/efsw/src/efsw/*.cpp", osfiles}
+        conf_excludes()
 
 		configuration "debug"
 			buildoptions {"-pedantic -Wno-long-long"}
