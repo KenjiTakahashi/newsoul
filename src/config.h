@@ -97,6 +97,11 @@ namespace newsoul {
          * \return Read value or false by default.
          */
         bool getBool(std::initializer_list<const std::string> keys);
+        /*!
+         * Gets a list of items.
+         * \param keys List of keys which will be chained into JSON path.
+         * \return Read value or empty vector.
+         */
         std::vector<std::string> getVec(std::initializer_list<const std::string> keys);
 
         /*!
@@ -111,7 +116,6 @@ namespace newsoul {
          * \param value Value to set.
          */
         void set(std::initializer_list<const std::string> keys, const std::string &value);
-
         /*!
          * Sets value of type boolean.
          * \param keys List of keys which will be chained into JSON path.

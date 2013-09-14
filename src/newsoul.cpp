@@ -146,6 +146,10 @@ bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
         } else if(carg == "global") {
             this->parsePart({
                 {"list", [this](const std::string &sarg){
+                    std::vector<std::string> items = this->_config->getVec({"database", "global", "paths"});
+                    for(unsigned int i = 0; i < items.size(); ++i) {
+                        std::cout << i << ": " << items[i] << std::endl;
+                    }
                 }},
                 {"add", [this, i, argc, argv](const std::string &sarg){
                     this->parsePAdd({"database", "global", "paths"}, i, argc, argv);
