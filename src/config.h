@@ -119,7 +119,7 @@ namespace newsoul {
         /*!
          * Sets value of type boolean.
          * \param keys List of keys which will be chained into JSON path.
-         * \[aram value Value to set.
+         * \param value Value to set.
          */
         void set(std::initializer_list<const std::string> keys, bool value);
 
@@ -133,6 +133,7 @@ namespace newsoul {
         /*!
          * Adds an item to array. If key path exists, last pieces' value
          * will be overwritten by new array with value provided as parameter.
+         * Note: Array is actually a set, i.e. it ignores duplicates.
          * \param keys List of keys which will be chained into JSON path.
          * \param value Value to add to array pointed to by key path.
          */

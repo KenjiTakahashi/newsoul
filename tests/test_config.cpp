@@ -355,6 +355,14 @@ TEST(add, non_existing_top_level_key) {
     CHECK(std::vector<std::string>({"v8"}) == result);
 }
 
+TEST(add, no_duplicates) {
+    config->add({"vec1"}, "v1");
+
+    std::vector<std::string> result = config->getVec({"vec1"});
+
+    CHECK(std::vector<std::string>({"v1", "v2"}) == result);
+}
+
 TEST_GROUP(del) {
     newsoul::Config *config;
 

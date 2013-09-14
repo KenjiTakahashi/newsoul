@@ -153,6 +153,10 @@ void newsoul::Config::add(std::initializer_list<const std::string> keys, const s
         this->set(keys, result);
     }
 
+    if(this->contains(keys, value)) {
+        return;
+    }
+
     json_object_array_add(result, json_object_new_string(value.c_str()));
 
     if(this->autosave) {
