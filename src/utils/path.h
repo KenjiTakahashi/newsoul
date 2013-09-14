@@ -35,7 +35,6 @@ namespace path {
      * \return All paths joined into one.
      */
     std::string join(std::initializer_list<const std::string> paths);
-
     /*!
      * Expands environment variables and other things, like '~' char.
      * Does not, however, expand commands.
@@ -43,7 +42,6 @@ namespace path {
      * \return New path with vars expanded.
      */
     std::string expand(const std::string &path);
-
     /*!
      * Checks whether given path is absolute.
      * \param path Path to check.

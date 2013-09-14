@@ -62,6 +62,24 @@ void newsoul::SharesDB::add(std::initializer_list<const std::string> paths) {
     }
 }
 
+void newsoul::SharesDB::remove(std::initializer_list<const std::string> paths) {
+    struct stat st;
+
+    for(auto path : paths) {
+        const char *path_c = path.c_str();
+        stat(path_c, &st);
+
+        if(S_ISREG(st.st_mode)) {
+            unsigned int index = path.find_last_of(os::separator());
+            this->removeFile(path.substr(0, index), path.substr(index), path);
+        } else if(S_ISDIR(st.st_mode)) {
+            this->removeDir(path);
+        } else {
+            //TODO: report error
+        }
+    }
+}
+
 void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, const std::string &path, struct stat &st) {
     std::vector<int> attrs;
     unsigned int size = 0;
@@ -110,12 +128,16 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, c
 }
 
 void newsoul::SharesDB::removeFile(const std::string &dir, const std::string &fn, const std::string &path) {
-    Dbt key(const_cast<char*>(path.c_str()), path.size() + 1);
+    for(auto k : {"e", "l", "a", "s", "m"}) {
+        std::string key_s = path + k;
+        Dbt key(const_cast<char*>(key_s.c_str()), key_s.size() + 1);
+        this->attrdb.del(NULL, &key, 0);
+    }
+
     Dbt dkey(const_cast<char*>(dir.c_str()), dir.size() + 1);
     Dbt ddat(const_cast<char*>(fn.c_str()), fn.size() + 1);
     Dbc *cursor;
 
-    this->attrdb.del(NULL, &key, 0);
     this->dirsdb.cursor(NULL, &cursor, 0);
     cursor->get(&dkey, &ddat, DB_GET_BOTH);
     cursor->del(0);
@@ -136,18 +158,47 @@ void newsoul::SharesDB::addDir(const std::string &dir, const std::string &fn, co
 
 void newsoul::SharesDB::removeDir(const std::string &path) {
     Dbc *cursor;
-    Dbt dat;
-    Dbt key(const_cast<char*>(path.c_str()), path.size() + 1);
+    Dbt key;
+    struct stat st;
 
-    this->dirsdb.cursor(NULL, &cursor, 0);
-    int ret = cursor->get(&key, &dat, DB_SET);
-    while(ret != DB_NOTFOUND) {
-        std::string rfn((char*)dat.get_data());
-        this->removeFile(path, rfn, path::join({path, rfn}));
+    std::queue<std::string> queue;
+    std::string k;
+
+    std::string spath(path);
+    if(spath[spath.length() - 1] == os::separator()) {
+        spath.resize(spath.length() - 1);
     }
-    cursor->close();
 
-    this->dirsdb.del(NULL, &key, 0);
+    queue.push(spath);
+    this->dirsdb.cursor(NULL, &cursor, 0);
+    while(!queue.empty()) {
+        k = queue.front();
+
+        key.set_data(const_cast<char*>(k.c_str()));
+        key.set_size(k.size() + 1);
+
+        Dbt dat;
+        int ret = cursor->get(&key, &dat, DB_SET);
+        while(ret != DB_NOTFOUND) {
+            std::string d((char*)dat.get_data());
+
+            if(!d.empty()) {
+                std::string kd = path::join({k, d});
+
+                stat(kd.c_str(), &st);
+                if(S_ISREG(st.st_mode)) {
+                    this->removeFile(k, d, kd);
+                } else if(S_ISDIR(st.st_mode)) {
+                    queue.push(kd);
+                }
+            }
+
+            cursor->del(0);
+            ret = cursor->get(&key, &dat, DB_NEXT_DUP);
+        }
+
+        queue.pop();
+    }
 }
 
 template<typename T> void newsoul::SharesDB::pack(std::vector<unsigned char> &data, T i) {
@@ -343,7 +394,7 @@ newsoul::Dirs newsoul::SharesDB::contents(const std::string &fn) {
                 }
             }
 
-            if(d != "") {
+            if(!d.empty()) {
                 queue.push(d);
             }
         }

@@ -139,6 +139,12 @@ namespace newsoul {
          */
         void add(std::initializer_list<const std::string> paths);
         /*!
+         * Removes given files/directories from the database.
+         * Usually used to remove directories through CLI.
+         * \param paths Files/directories to remove.
+         */
+        void remove(std::initializer_list<const std::string> paths);
+        /*!
          * Returns SLSK compatible, compressed version of the database.
          * \return Compressed DB entries.
          */

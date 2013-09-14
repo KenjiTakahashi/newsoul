@@ -130,11 +130,19 @@ TEST(removeFile, success) {
     TSharesDB shares;
     mock().setData("Dbc::get::withParameter", 1);
 
-    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/dir/file").withParameter("2", 10);
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/dir/filee").withParameter("2", 11);
+    mock().expectOneCall("Db::del").withParameter("2", "/dir/filee");
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/dir/filel").withParameter("2", 11);
+    mock().expectOneCall("Db::del").withParameter("2", "/dir/filel");
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/dir/filea").withParameter("2", 11);
+    mock().expectOneCall("Db::del").withParameter("2", "/dir/filea");
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/dir/files").withParameter("2", 11);
+    mock().expectOneCall("Db::del").withParameter("2", "/dir/files");
+    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/dir/filem").withParameter("2", 11);
+    mock().expectOneCall("Db::del").withParameter("2", "/dir/filem");
+
     mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/dir").withParameter("2", 5);
     mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "file").withParameter("2", 5);
-
-    mock().expectOneCall("Db::del").withParameter("2", "/dir/file");
     mock().expectOneCall("Db::cursor");
     mock().expectOneCall("Dbc::get").withParameter("1", "/dir").withParameter("2", "file");
     mock().expectOneCall("Dbc::del");
@@ -157,22 +165,6 @@ TEST(addDir, success) {
     mock().expectOneCall("Db::put").withParameter("2", "/fdir/sdir").withParameter("3", "");
 
     shares.addDir("/fdir", "sdir", "/fdir/sdir");
-}
-
-TEST_GROUP(removeDir) { };
-TEST(removeDir, success) {
-    // We do not test removing files from attrdb, as it calls removeFile.
-    TSharesDB shares;
-
-    mock().expectOneCall("Dbt::Dbt(0)");
-    mock().expectOneCall("Dbt::Dbt(2)").withParameter("1", "/fdir/sdir").withParameter("2", 11);
-    mock().expectOneCall("Db::cursor");
-    mock().expectOneCall("Dbc::get");
-
-    mock().expectOneCall("Dbc::close");
-    mock().expectOneCall("Db::del").withParameter("2", "/fdir/sdir");
-
-    shares.removeDir("/fdir/sdir");
 }
 
 TEST_GROUP(compress) { };

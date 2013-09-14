@@ -157,7 +157,14 @@ bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
                 }},
                 {"remove", [this, i, argc, argv](const std::string &sarg){
                     this->parsePDel({"database", "global", "paths"}, i, argc, argv);
-                    //TODO: remove from db
+                    std::vector<std::string> items = this->_config->getVec({"database", "global", "paths"});
+                    int index = atoi(argv[*i]);
+                    if(index >= 0 && index < (int)items.size()) {
+                        this->_globalShares->remove({items[index]});
+                        this->_config->del({"database", "global", "paths"}, items[index]);
+                    } else {
+                        std::cout << "remove: Invalid index [" << index << "]." << std::endl;
+                    }
                 }}
             }, carg, i, argc, argv);
         } else if(carg == "buddy") {
