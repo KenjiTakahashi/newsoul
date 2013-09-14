@@ -156,7 +156,10 @@ bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
                     this->_globalShares->add({argv[*i]});
                 }},
                 {"remove", [this, i, argc, argv](const std::string &sarg){
-                    this->parsePDel({"database", "global", "paths"}, i, argc, argv);
+                    if(++*i >= argc) {
+                        std::cout << "remove: Not enough arguments." << std::endl;
+                        return;
+                    }
                     std::vector<std::string> items = this->_config->getVec({"database", "global", "paths"});
                     int index = atoi(argv[*i]);
                     if(index >= 0 && index < (int)items.size()) {
