@@ -32,7 +32,6 @@
 #include "utils/os.h"
 #include "utils/path.h"
 #include "utils/string.h"
-#include "efsw/include/efsw/efsw.hpp"
 
 namespace newsoul {
     class File {
@@ -56,9 +55,8 @@ namespace newsoul {
     typedef std::map<std::string, Dir> Dirs;
     typedef std::map<std::string, Dirs> Shares;
 
-    class SharesDB : public efsw::FileWatchListener {
+    class SharesDB {
         static SharesDB *_this;
-        efsw::FileWatcher fw; /*!< Real time FS watcher (efsw).*/
         /*!
          * Stores shared directory structure.
          * It is a K/V storage with duplicates.
@@ -130,7 +128,6 @@ namespace newsoul {
         SharesDB(const std::string &fn, std::function<void(void)> func);
         ~SharesDB();
 
-        void handleFileAction(efsw::WatchID wid, const std::string &dir, const std::string &fn, efsw::Action action, std::string oldFn);
         /*!
          * Adds given files/directories to the database.
          * Directories are scanned recursively.

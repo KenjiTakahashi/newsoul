@@ -31,7 +31,6 @@ newsoul::SharesDB::SharesDB(const std::string &fn, std::function<void(void)> fun
     this->dirsdb.open(NULL, afn.c_str(), NULL, DB_HASH, DB_CREATE, 0);
     this->attrdb.open(NULL, dfn.c_str(), NULL, DB_HASH, DB_CREATE, 0);
     this->compress();
-    this->fw.watch();
 }
 
 newsoul::SharesDB::~SharesDB() {
@@ -279,43 +278,6 @@ void newsoul::SharesDB::compress() {
     }
 
     delete [] outBuf;
-}
-
-void newsoul::SharesDB::handleFileAction(efsw::WatchID wid, const std::string &dir, const std::string &fn, efsw::Action action, std::string oldFn="") {
-    std::string path = path::join({dir, fn});
-    struct stat st;
-    stat(path.c_str(), &st);
-
-    switch(action) {
-        case efsw::Actions::Add:
-            if(S_ISREG(st.st_mode)) {
-                this->addFile(dir, fn, path, st);
-            } else if(S_ISDIR(st.st_mode)) {
-                this->addDir(dir, fn, path);
-            }
-            break;
-        case efsw::Actions::Delete:
-            if(S_ISREG(st.st_mode)) {
-                this->removeFile(dir, fn, path);
-            } else if(S_ISDIR(st.st_mode)) {
-                this->removeDir(path);
-            }
-            break;
-        case efsw::Actions::Modified:
-            if(S_ISREG(st.st_mode)) {
-                this->addFile(dir, fn, path, st);
-            }
-            break;
-        case efsw::Actions::Moved:
-            //FIXME: implement, waiting for efsw
-            if(S_ISREG(st.st_mode)) {
-            } else if(S_ISDIR(st.st_mode)) {
-            }
-            break;
-    }
-
-    this->compress();
-    this->updateApp();
 }
 
 int newsoul::SharesDB::getAttrs(const std::string &fn, File *fe) {

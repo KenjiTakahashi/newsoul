@@ -22,7 +22,7 @@
 
 class AttrsComparator : public MockNamedValueComparator {
 public:
-    bool isEqual(void *obj1, void *obj2) {
+    bool isEqual(const void *obj1, const void *obj2) {
         int *o1 = (int*)obj1;
         int *o2 = (int*)obj2;
         if(o1 == NULL && o2 != NULL) {
@@ -39,7 +39,7 @@ public:
         return res;
     }
 
-    SimpleString valueToString(void *obj) {
+    SimpleString valueToString(const void *obj) {
         return StringFrom(obj);
     }
 };

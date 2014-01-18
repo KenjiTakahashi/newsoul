@@ -1,12 +1,3 @@
-function args_contains(element)
-  for _, value in pairs(_ARGS) do
-    if value == element then
-      return true
-    end
-  end
-  return false
-end
-
 newoption {
     trigger = "prefix",
     value = "/usr",
@@ -46,7 +37,7 @@ end
 
 function link(tests)
     include()
-    links {"z", "event", "nettle", "json-c", "efsw"}
+    links {"z", "event", "nettle", "json-c"}
     if not tests then
         links {"db_cxx", "tag"}
     else
@@ -58,28 +49,6 @@ function link(tests)
         libdirs {"/usr/local/lib/db5"}
         links {"iconv"}
     end
-
-    if args_contains("kqueue") then
-        links {"kqueue"}
-    end
-    if not os.is("windows") and not os.is("haiku") then
-        links {"pthread"}
-    end
-    if os.is("macosx") then
-        links {"CoreFoundation.framework", "CoreServices.framework"}
-    end
-end
-
-function conf_excludes()
-	if os.is("windows") then
-		excludes { "src/efsw/WatcherKqueue.cpp", "src/efsw/WatcherFSEvents.cpp", "src/efsw/WatcherInotify.cpp", "src/efsw/FileWatcherKqueue.cpp", "src/efsw/FileWatcherInotify.cpp", "src/efsw/FileWatcherFSEvents.cpp" }
-	elseif os.is("linux") then
-		excludes { "src/efsw/WatcherKqueue.cpp", "src/efsw/WatcherFSEvents.cpp", "src/efsw/WatcherWin32.cpp", "src/efsw/FileWatcherKqueue.cpp", "src/efsw/FileWatcherWin32.cpp", "src/efsw/FileWatcherFSEvents.cpp" }
-	elseif os.is("macosx") then
-		excludes { "src/efsw/WatcherInotify.cpp", "src/efsw/WatcherWin32.cpp", "src/efsw/FileWatcherInotify.cpp", "src/efsw/FileWatcherWin32.cpp" }
-	elseif os.is("freebsd") then
-		excludes { "src/efsw/WatcherInotify.cpp", "src/efsw/WatcherWin32.cpp", "src/efsw/WatcherFSEvents.cpp", "src/efsw/FileWatcherInotify.cpp", "src/efsw/FileWatcherWin32.cpp", "src/efsw/FileWatcherFSEvents.cpp" }
-	end
 end
 
 solution "newsoul"
@@ -101,53 +70,14 @@ solution "newsoul"
     project "newsoul"
         kind "ConsoleApp"
         files {"../src/**.cpp"}
-        excludes {"../src/efsw/**.cpp"}
         link()
 
     project "newsoul-tests"
         kind "ConsoleApp"
         files {"../src/**.cpp", "../tests/**.cpp"}
-        excludes {"../src/efsw/**.cpp", "../src/main.cpp"}
+        excludes {"../src/main.cpp"}
         link(true)
         buildoptions {
             "-include CppUTest/MemoryLeakDetectorNewMacros.h",
             "-include CppUTest/MemoryLeakDetectorMallocMacros.h"
         }
-
-    project "efsw"
-        if os.is("windows") then
-            osfiles = "../src/efsw/src/efsw/platform/win/*.cpp"
-        else
-            osfiles = "../src/efsw/src/efsw/platform/posix/*.cpp"
-        end
-
-        -- This is for testing in other platforms that don't support kqueue
-        if args_contains("kqueue") then
-            defines {"EFSW_KQUEUE"}
-            printf("Forced Kqueue backend build.")
-        end
-
-        -- Activates verbose mode
-        if args_contains("verbose") then
-            defines {"EFSW_VERBOSE"}
-        end
-
-        if os.is("macosx") then
-            -- Premake 4.4 needed for this
-            if not string.match(_PREMAKE_VERSION, "^4.[123]") then
-                local ver = os.getversion();
-
-                if not (ver.majorversion >= 10 and ver.minorversion >= 5) then
-                    defines {"EFSW_FSEVENTS_NOT_SUPPORTED"}
-                end
-            end
-        end
-
-		kind "StaticLib"
-		targetdir "lib"
-		includedirs {"../src/efsw/include", "../src/efsw/src"}
-		files {"../src/efsw/src/efsw/*.cpp", osfiles}
-        conf_excludes()
-
-		configuration "debug"
-			buildoptions {"-pedantic -Wno-long-long"}
