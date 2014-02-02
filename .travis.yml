@@ -5,9 +5,9 @@ before_install:
   - sudo add-apt-repository ppa:codegear/release -y
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo add-apt-repository ppa:dns/gnu -y
-  - sudo add-apt-repository ppa:ondrej/php5-experimental -y
+  - sudo add-apt-repository ppa:ondrej/php5 -y
   - sudo apt-get update -qq
-  - sudo apt-get install -qq libevent-dev libtag1-dev nettle-dev libdb++-dev premake4 gcc-4.8 g++-4.8 libjson-c-dev
+  - sudo apt-get install -qq libevent-dev libtag1-dev nettle-dev premake4 gcc-4.8 g++-4.8 libjson-c-dev sqlite3
   - curl -L -o cpputest-3.5.tar.gz https://github.com/cpputest/cpputest.github.io/blob/master/releases/cpputest-3.5.tar.gz?raw=true
   - tar xvzf cpputest-3.5.tar.gz
   - cd cpputest-3.5
