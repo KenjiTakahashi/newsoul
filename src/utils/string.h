@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ namespace string {
     /*!
      * Splits given string on specified delimiter.
      * Note that "delimiter" is actually a "list of delimiting chars",
-     * so "s=b,a.r,delim=,." will return {b,a,r}.
+     * so s="b,a.r", delim=",." will return {b,a,r}.
      * Possible empty strings are omitted in the result.
      * \param s String to split.
      * \param delim Delimiter string to split on.

@@ -18,7 +18,7 @@ before_install:
 before_script:
   - cd build/
   - premake4 gmake
-  - make CXX=g++-4.8
+  - make CXX=g++-4.8 newsoul-tests
 script: ./bin/newsoul-tests
 branches:
   only:

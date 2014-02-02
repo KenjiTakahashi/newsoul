@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,10 +19,10 @@
 #ifndef __NEWSOUL_SHARESDB_H__
 #define __NEWSOUL_SHARESDB_H__
 
-#include <db_cxx.h>
 #include <initializer_list>
 #include <ftw.h>
 #include <map>
+#include <sqlite3.h>
 #include <stdint.h>
 #include <sys/stat.h>
 #include <taglib/fileref.h>
@@ -57,32 +57,19 @@ namespace newsoul {
 
     class SharesDB {
         static SharesDB *_this;
-        /*!
-         * Stores shared directory structure.
-         * It is a K/V storage with duplicates.
-         * Keys are FS paths and values are dirs and files inside them
-         * (thus we need duplicated keys).
-         */
-        Db dirsdb;
-        /*!
-         * Stores info about a file.
-         * It is a K/V storage with a little trickery.
-         * Keys are:
-         * 1) Filepath + "s" for size value,
-         * 2) Filepath + "e" for ext value,
-         * 3) Filepath + "a" for attrs array,
-         * 3) Filepath + "l" for 3) size,
-         * 4) Filepath + "m" for modification time,
-         * where values are corresponding with these in File structure.
-         */
-        Db attrdb;
         //FIXME: This is silly and will have to go.
         std::function<void(void)> updateApp;
         std::vector<unsigned char> compressed;
 
+        unsigned int getSingleValue(char *sql);
+        unsigned int getCount(int type);
+
     protected:
+        sqlite3 *db;
+
+        SharesDB() { }
+        void createDB();
         static int add(const char *path, const struct stat *st, int type, struct FTW *ftwbuf);
-        SharesDB() : dirsdb(NULL, DB_CXX_NO_EXCEPTIONS), attrdb(NULL, DB_CXX_NO_EXCEPTIONS) { }
         /*!
          * Retrieves file attributes from database.
          * \param fn Path to file.
@@ -94,32 +81,17 @@ namespace newsoul {
          * Adds file to database.
          * Also used to update existing file entries.
          * \param dir Directory in which the file lies.
-         * \param fn Filename.
          * \param path Whole path (usually dir+fn).
          * \param st Statistics structure.
          */
-        void addFile(const std::string &dir, const std::string &fn, const std::string &path, struct stat &st);
-        /*!
-         * Removes file from database.
-         * \param dir Directory in which the file lies.
-         * \param fn Filename.
-         * \param path Whole path (usually dir+fn).
-         */
-        void removeFile(const std::string &dir, const std::string &fn, const std::string &path);
+        void addFile(const std::string &dir, const std::string &path, const struct stat &st);
         /*!
          * Adds directory to database.
          * It is used to take care of empty dirs (we need to know about them).
-         * \param dir Directory in which the dir lies.
-         * \param fn Basename.
          * \param path Whole path (usually dir+fn).
          */
-        void addDir(const std::string &dir, const std::string &fn, const std::string &path);
-        /*!
-         * Removes directory from database.
-         * \see newsoul::Config::addDir for some details.
-         * \param path Path to directory (dir+basename).
-         */
-        void removeDir(const std::string &path);
+        void addDir(const std::string &path);
+
         template<typename T> void pack(std::vector<unsigned char> &data, T i);
         void pack(std::vector<unsigned char> &data, std::string s);
         void compress();
@@ -147,7 +119,8 @@ namespace newsoul {
          */
         inline const std::vector<unsigned char> &shares() const { return this->compressed; }
         /*!
-         * Retrieves files contained within given directory.
+         * Retrieves files contained within all directories
+         * inside the given one.
          * \param fn Directory.
          * \return Files within fn.
          */

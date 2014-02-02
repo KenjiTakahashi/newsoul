@@ -1,7 +1,7 @@
 /* Mucipher - Cryptograhic library for Museek
  *
  * Copyright (C) 2003-2004 Hyriand <hyriand@thegraveyard.org>
- * Karol 'Kenji Takahashi' Woźniak © 2013
+ * Karol 'Kenji Takahashi' Woźniak © 2013 - 2014
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __CIPHER_H__
-#define __CIPHER_H__
+#ifndef __UTILS_CIPHER_H__
+#define __UTILS_CIPHER_H__
 
 #include <nettle/aes.h>
 #include <nettle/md5.h>
@@ -46,4 +46,4 @@ void blockDecipher(CipherContext* ctx, unsigned char* dataIn, int length, unsign
 
 void hexDigest(unsigned char *digest, int length, char* digestOut);
 
-#endif /* __CIPHER_H__ */
+#endif /* __UTILS_CIPHER_H__ */

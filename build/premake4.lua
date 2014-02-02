@@ -29,24 +29,16 @@ newaction {
     end
 }
 
-function include()
-    if os.is("bsd") then
-        includedirs {"/usr/local/include/db5"}
-    end
-end
-
 function link(tests)
-    include()
-    links {"z", "event", "nettle", "json-c"}
+    links {"z", "event", "nettle", "json-c", "sqlite3"}
     if not tests then
-        links {"db_cxx", "tag"}
+        links {"tag"}
     else
         includedirs {"../tests/mocks"}
         links {"CppUTest", "CppUTestExt"}
     end
 
     if os.is("bsd") then
-        libdirs {"/usr/local/lib/db5"}
         links {"iconv"}
     end
 end

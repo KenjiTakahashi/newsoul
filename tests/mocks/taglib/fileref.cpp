@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ TagLib::FileRef::~FileRef() {
 }
 TagLib::AudioProperties *TagLib::FileRef::audioProperties() {
     if(this->ap == NULL) {
-        this->ap = new TagLib::AudioProperties(10, 1);
+        this->ap = new TagLib::AudioProperties(10, 192);
     }
     return this->ap;
 }

@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,33 +20,79 @@
 
 newsoul::SharesDB *newsoul::SharesDB::_this;
 
-newsoul::SharesDB::SharesDB(const std::string &fn, std::function<void(void)> func) : dirsdb(NULL, DB_CXX_NO_EXCEPTIONS), attrdb(NULL, DB_CXX_NO_EXCEPTIONS) {
+newsoul::SharesDB::SharesDB(const std::string &fn, std::function<void(void)> func) {
     this->updateApp = func;
     const std::string efn = path::expand(fn);
     os::_mkdir(efn);
-    std::string dfn = path::join({efn, "dirs.db"});
-    std::string afn = path::join({efn, "attr.db"});
-    this->dirsdb.set_flags(DB_DUPSORT);
+    std::string dfn = path::join({efn, "shares.db"});
+    int res = sqlite3_open(dfn.c_str(), &this->db);
+    this->createDB();
     //TODO: Handle errors. Really
-    this->dirsdb.open(NULL, afn.c_str(), NULL, DB_HASH, DB_CREATE, 0);
-    this->attrdb.open(NULL, dfn.c_str(), NULL, DB_HASH, DB_CREATE, 0);
     this->compress();
 }
 
 newsoul::SharesDB::~SharesDB() {
-    this->attrdb.close(0);
-    this->dirsdb.close(0);
+    sqlite3_close(this->db);
+}
+
+void newsoul::SharesDB::createDB() {
+    int res = sqlite3_exec(this->db,
+        "PRAGMA foreign_keys = ON; "
+        "PRAGMA recursive_triggers = ON; "
+
+        "CREATE TABLE IF NOT EXISTS DIR( "
+        "ID INTEGER PRIMARY KEY, "
+        "path TEXT NOT NULL UNIQUE, "
+        "parentID INTEGER, "
+        "type INTEGER NOT NULL); "
+        //type: 0 - file, 1 - directory
+
+        "CREATE TABLE IF NOT EXISTS CLOSURE( "
+        "parentID INTEGER NOT NULL, "
+        "childID INTEGER NOT NULL, "
+        "depth INTEGER NOT NULL, "
+        "PRIMARY KEY(parentID, childID), "
+        "UNIQUE(parentID, depth, childID), "
+        "UNIQUE(childID, parentID, depth)); "
+
+        "CREATE TABLE IF NOT EXISTS FILE( "
+        "dirID INTEGER PRIMARY KEY, "
+        "size INTEGER, "
+        "ext CHAR(5), "
+        "mtime INTEGER, "
+        "bitrate INTEGER, "
+        "length INTEGER, "
+        "vbr INTEGER, "
+        "FOREIGN KEY(dirID) REFERENCES DIR(ID) "
+        "ON DELETE CASCADE ON UPDATE CASCADE); "
+
+        "CREATE TRIGGER insert_closure AFTER INSERT ON DIR "
+        "BEGIN "
+        "INSERT INTO CLOSURE(parentID, childID, depth) "
+        "VALUES(new.ID, new.ID, 0);"
+        "INSERT INTO CLOSURE(parentId, childID, depth) "
+        "SELECT parent.parentID, child.childID, parent.depth+child.depth+1 "
+        "FROM CLOSURE parent, CLOSURE child "
+        "WHERE parent.childID=new.parentID and child.parentID=new.ID; "
+        "END; "
+
+        "CREATE TRIGGER delete_closure AFTER DELETE ON DIR "
+        "BEGIN "
+        "DELETE FROM CLOSURE WHERE childID=old.ID; "
+        "DELETE FROM DIR "
+        "WHERE ID in (SELECT childID FROM CLOSURE WHERE parentID=old.ID); "
+        "END; "
+    , NULL, NULL, NULL);
 }
 
 int newsoul::SharesDB::add(const char *path, const struct stat *st, int type, struct FTW *ftwbuf) {
     std::string dir(path, 0, ftwbuf->base - 1);
-    struct stat *mst = const_cast<struct stat*>(st);
     switch(type) {
         case FTW_F:
-            SharesDB::_this->addFile(dir, path + ftwbuf->base, path, *mst);
+            SharesDB::_this->addFile(dir, path + ftwbuf->base, *st);
             break;
         case FTW_D:
-            SharesDB::_this->addDir(dir, path + ftwbuf->base, path);
+            SharesDB::_this->addDir(path);
             break;
         default: //TODO: report error
             break;
@@ -56,148 +102,78 @@ int newsoul::SharesDB::add(const char *path, const struct stat *st, int type, st
 
 void newsoul::SharesDB::add(std::initializer_list<const std::string> paths) {
     SharesDB::_this = this;
+
     for(auto path : paths) {
         nftw(path.c_str(), SharesDB::add, 20, 0);
     }
 }
 
 void newsoul::SharesDB::remove(std::initializer_list<const std::string> paths) {
-    struct stat st;
+    char *sql;
 
     for(auto path : paths) {
-        const char *path_c = path.c_str();
-        stat(path_c, &st);
-
-        if(S_ISREG(st.st_mode)) {
-            unsigned int index = path.find_last_of(os::separator());
-            this->removeFile(path.substr(0, index), path.substr(index), path);
-        } else if(S_ISDIR(st.st_mode)) {
-            this->removeDir(path);
-        } else {
-            //TODO: report error
-        }
+        sql = sqlite3_mprintf("DELETE FROM DIR WHERE path=%Q;", path.c_str());
+        int res = sqlite3_exec(this->db, sql, NULL, NULL, NULL);
+        sqlite3_free(sql);
     }
 }
 
-void newsoul::SharesDB::addFile(const std::string &dir, const std::string &fn, const std::string &path, struct stat &st) {
-    std::vector<int> attrs;
-    unsigned int size = 0;
-    std::string ext;
-    TagLib::FileRef fp(path.c_str());
+void newsoul::SharesDB::addFile(const std::string &dir, const std::string &path, const struct stat &st) {
+    std::string ext = string::tolower(path.substr(path.rfind('.') + 1));
+    int bitrate = 0;
+    int length = 0;
+    int vbr = 0;
 
+    TagLib::FileRef fp(path.c_str());
     if(!fp.isNull() && fp.audioProperties()) {
         TagLib::AudioProperties *props = fp.audioProperties();
-
-        ext = string::tolower(fn.substr(fn.rfind('.') + 1));
-        size = 3;
-        attrs.push_back(props->bitrate());
-        attrs.push_back(props->length());
-        attrs.push_back(0); //FIXME: vbr
+        bitrate = props->bitrate();
+        length = props->length();
     }
 
-    std::string e = path + "e";
-    Dbt extkey(const_cast<char*>(e.c_str()), e.size() + 1);
-    Dbt extdat(const_cast<char*>(ext.c_str()), ext.size() + 1);
+    this->addDir(dir);
 
-    std::string l = path + "l";
-    Dbt asizekey(const_cast<char*>(l.c_str()), l.size() + 1);
-    Dbt asizedat(&size, sizeof(unsigned int));
-
-    std::string a = path + "a";
-    Dbt attrskey(const_cast<char*>(a.c_str()), a.size() + 1);
-    Dbt attrsdat(attrs.data(), attrs.size() * sizeof(unsigned int));
-
-    std::string s = path + "s";
-    Dbt sizekey(const_cast<char*>(s.c_str()), path.size() + 2);
-    Dbt sizedat(&st.st_size, sizeof(unsigned int));
-
-    std::string m = path + "m";
-    Dbt mtimekey(const_cast<char*>(m.c_str()), path.size() + 2);
-    Dbt mtimedat(&st.st_mtime, sizeof(time_t));
-
-    this->attrdb.put(NULL, &extkey, &extdat, 0);
-    this->attrdb.put(NULL, &asizekey, &asizedat, 0);
-    this->attrdb.put(NULL, &attrskey, &attrsdat, 0);
-    this->attrdb.put(NULL, &sizekey, &sizedat, 0);
-    this->attrdb.put(NULL, &mtimekey, &mtimedat, 0);
-
-    Dbt dkey(const_cast<char*>(dir.c_str()), dir.size() + 1);
-    Dbt ddat(const_cast<char*>(fn.c_str()), fn.size() + 1);
-    this->dirsdb.put(NULL, &dkey, &ddat, DB_OVERWRITE_DUP);
+    char *sql = sqlite3_mprintf(
+        "BEGIN TRANSACTION; "
+        "INSERT OR REPLACE INTO DIR(path, parentID, type) "
+        "VALUES(%Q, COALESCE((SELECT ID FROM DIR WHERE path=%Q), 0), 0); "
+        "INSERT OR REPLACE INTO "
+        "FILE(dirID, size, ext, mtime, bitrate, length, vbr) "
+        "VALUES(last_insert_rowid(), %d, %Q, %d, %d, %d, %d); "
+        "COMMIT TRANSACTION; "
+        , path.c_str(), dir.c_str()
+        , st.st_size, ext.c_str(), st.st_mtime, bitrate, length, vbr
+    );
+    int res = sqlite3_exec(this->db, sql, NULL, NULL, NULL);
+    sqlite3_free(sql);
 }
 
-void newsoul::SharesDB::removeFile(const std::string &dir, const std::string &fn, const std::string &path) {
-    for(auto k : {"e", "l", "a", "s", "m"}) {
-        std::string key_s = path + k;
-        Dbt key(const_cast<char*>(key_s.c_str()), key_s.size() + 1);
-        this->attrdb.del(NULL, &key, 0);
+void newsoul::SharesDB::addDir(const std::string &path) {
+    char *sql = sqlite3_mprintf(
+        "INSERT INTO DIR(path, parentID, type) "
+        "VALUES(?, COALESCE((SELECT ID FROM DIR WHERE path=?), 0), 1); "
+    );
+    sqlite3_stmt *stmt;
+
+    //TODO: REFACTOR
+    std::vector<std::string> pieces = string::split(path, "/"); //TODO: Write proper path:split
+    std::string recreated_path = "/" + pieces[0]; //FIXME: Use proper separator
+    int res = sqlite3_exec(this->db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+    res = sqlite3_prepare_v2(this->db, sql, -1, &stmt, NULL);
+    sqlite3_bind_text(stmt, 1, recreated_path.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_null(stmt, 2);
+    res = sqlite3_step(stmt);
+    for(unsigned int i = 1; i < pieces.size(); ++i) {
+        sqlite3_reset(stmt);
+        std::string parent(recreated_path);
+        sqlite3_bind_text(stmt, 2, parent.c_str(), -1, SQLITE_STATIC);
+        recreated_path = path::join({recreated_path, pieces[i]});
+        sqlite3_bind_text(stmt, 1, recreated_path.c_str(), -1, SQLITE_STATIC);
+        sqlite3_step(stmt);
     }
-
-    Dbt dkey(const_cast<char*>(dir.c_str()), dir.size() + 1);
-    Dbt ddat(const_cast<char*>(fn.c_str()), fn.size() + 1);
-    Dbc *cursor;
-
-    this->dirsdb.cursor(NULL, &cursor, 0);
-    cursor->get(&dkey, &ddat, DB_GET_BOTH);
-    cursor->del(0);
-
-    cursor->close();
-}
-
-void newsoul::SharesDB::addDir(const std::string &dir, const std::string &fn, const std::string &path) {
-    Dbt key(const_cast<char*>(dir.c_str()), dir.size() + 1);
-    Dbt dat(const_cast<char*>(fn.c_str()), fn.size() + 1);
-    Dbt pkey(const_cast<char*>(path.c_str()), path.size() + 1);
-    std::string empty = "";
-    Dbt pdat(const_cast<char*>(empty.c_str()), 1);
-
-    this->dirsdb.put(NULL, &key, &dat, DB_OVERWRITE_DUP);
-    this->dirsdb.put(NULL, &pkey, &pdat, DB_OVERWRITE_DUP);
-}
-
-void newsoul::SharesDB::removeDir(const std::string &path) {
-    Dbc *cursor;
-    Dbt key;
-    struct stat st;
-
-    std::queue<std::string> queue;
-    std::string k;
-
-    std::string spath(path);
-    if(spath[spath.length() - 1] == os::separator()) {
-        spath.resize(spath.length() - 1);
-    }
-
-    queue.push(spath);
-    this->dirsdb.cursor(NULL, &cursor, 0);
-    while(!queue.empty()) {
-        k = queue.front();
-
-        key.set_data(const_cast<char*>(k.c_str()));
-        key.set_size(k.size() + 1);
-
-        Dbt dat;
-        int ret = cursor->get(&key, &dat, DB_SET);
-        while(ret != DB_NOTFOUND) {
-            std::string d((char*)dat.get_data());
-
-            if(!d.empty()) {
-                std::string kd = path::join({k, d});
-
-                stat(kd.c_str(), &st);
-                if(S_ISREG(st.st_mode)) {
-                    this->removeFile(k, d, kd);
-                } else if(S_ISDIR(st.st_mode)) {
-                    queue.push(kd);
-                }
-            }
-
-            cursor->del(0);
-            ret = cursor->get(&key, &dat, DB_NEXT_DUP);
-        }
-
-        queue.pop();
-    }
+    sqlite3_finalize(stmt);
+    res = sqlite3_exec(this->db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
+    sqlite3_free(sql);
 }
 
 template<typename T> void newsoul::SharesDB::pack(std::vector<unsigned char> &data, T i) {
@@ -215,16 +191,26 @@ void newsoul::SharesDB::pack(std::vector<unsigned char> &data, std::string s) {
 }
 
 void newsoul::SharesDB::compress() {
-    Dbc *cursor1, *cursor2;
-    Dbt key, dat1;
-    struct stat st;
-    std::vector<unsigned char> inBuf;
+    const char *sql1 = "SELECT ID, path FROM DIR WHERE type=1";
+    const char *sql2 =
+        "SELECT COUNT(*) FROM DIR AS d JOIN CLOSURE AS c ON d.ID=c.childID "
+        "WHERE c.parentID=? AND d.type=0 AND c.depth=1; ";
+    const char *sql3 =
+        "SELECT d.path, f.* FROM DIR AS d JOIN FILE AS f ON d.ID=f.dirID "
+        "WHERE d.parentID=?; ";
+    sqlite3_stmt *stmt1;
+    sqlite3_stmt *stmt2;
+    sqlite3_stmt *stmt3;
 
-    this->dirsdb.cursor(NULL, &cursor1, 0);
-    this->dirsdb.cursor(NULL, &cursor2, 0);
+    std::vector<unsigned char> inBuf;
     this->pack<uint32_t>(inBuf, this->dirsCount());
-    while(cursor1->get(&key, &dat1, DB_NEXT_NODUP) != DB_NOTFOUND) {
-        std::string path((char*)key.get_data());
+    sqlite3_prepare_v2(this->db, sql1, -1, &stmt1, NULL);
+    sqlite3_prepare_v2(this->db, sql2, -1, &stmt2, NULL);
+    sqlite3_prepare_v2(this->db, sql3, -1, &stmt3, NULL);
+    while(sqlite3_step(stmt1) == SQLITE_ROW) {
+        int id = sqlite3_column_int(stmt1, 0);
+        const unsigned char *p = sqlite3_column_text(stmt1, 1);
+        std::string path(reinterpret_cast<const char*>(p));
         this->pack<uint32_t>(inBuf, path.size());
         for(const char &c : path) {
             if(c == '/') {
@@ -234,40 +220,38 @@ void newsoul::SharesDB::compress() {
             }
         }
 
-        Dbt dat2;
-        int ret = cursor2->get(&key, &dat2, DB_SET);
-        ret = cursor2->get(&key, &dat2, DB_NEXT_DUP);
-        unsigned int length = 0;
-        while(ret != DB_NOTFOUND) {
-            length += 1;
-            ret = cursor2->get(&key, &dat2, DB_NEXT_DUP);
+        sqlite3_bind_int(stmt2, 1, id);
+        if(sqlite3_step(stmt2) == SQLITE_ROW) {
+            this->pack<uint32_t>(inBuf, sqlite3_column_int(stmt2, 0));
         }
-        this->pack<uint32_t>(inBuf, length);
+        sqlite3_reset(stmt2);
 
-        Dbt dat3;
-        ret = cursor2->get(&key, &dat3, DB_SET);
-        while(ret != DB_NOTFOUND) {
-            std::string file((char*)dat3.get_data());
-            std::string fpath = path::join({path, file});
-            stat(fpath.c_str(), &st);
-            if(S_ISREG(st.st_mode)) {
-                File fe;
-                if(this->getAttrs(fpath, &fe) == 0) {
-                    inBuf.push_back(1);
-                    this->pack(inBuf, file);
-                    this->pack<uint64_t>(inBuf, fe.size);
-                    this->pack(inBuf, fe.ext);
-                    this->pack<uint32_t>(inBuf, fe.attrs.size());
-                    auto ait = fe.attrs.begin();
-                    for(unsigned int j = 0; ait != fe.attrs.end(); ++ait) {
-                        this->pack<uint32_t>(inBuf, j++);
-                        this->pack<uint32_t>(inBuf, *ait);
-                    }
-                }
-            }
-            ret = cursor2->get(&key, &dat3, DB_NEXT_DUP);
+        sqlite3_bind_int(stmt3, 1, id);
+        while(sqlite3_step(stmt3) == SQLITE_ROW) {
+            const unsigned char *p = sqlite3_column_text(stmt3, 0);
+            const std::string fpath(reinterpret_cast<const char*>(p));
+            //FIXME: Implement path::split
+            std::string basename = fpath.substr(fpath.rfind('/') + 1);
+
+            inBuf.push_back(1);
+            this->pack(inBuf, basename);
+            this->pack<uint64_t>(inBuf, sqlite3_column_int64(stmt3, 2));
+            const unsigned char *e = sqlite3_column_text(stmt3, 3);
+            std::string ext(reinterpret_cast<const char*>(e));
+            this->pack(inBuf, ext);
+            this->pack<uint32_t>(inBuf, 3);
+            this->pack<uint32_t>(inBuf, 0);
+            this->pack<uint32_t>(inBuf, sqlite3_column_int(stmt3, 5));
+            this->pack<uint32_t>(inBuf, 1);
+            this->pack<uint32_t>(inBuf, sqlite3_column_int(stmt3, 6));
+            this->pack<uint32_t>(inBuf, 2);
+            this->pack<uint32_t>(inBuf, sqlite3_column_int(stmt3, 7));
         }
+        sqlite3_reset(stmt3);
     }
+    sqlite3_finalize(stmt3);
+    sqlite3_finalize(stmt2);
+    sqlite3_finalize(stmt1);
 
     uLong outLen = compressBound(inBuf.size());
     char *outBuf = new char[outLen];
@@ -281,90 +265,67 @@ void newsoul::SharesDB::compress() {
 }
 
 int newsoul::SharesDB::getAttrs(const std::string &fn, File *fe) {
-    Dbc *cursor;
-    Dbt dat;
-    std::string s = fn + "s";
-    Dbt sizekey(const_cast<char*>(s.c_str()), fn.size() + 2);
-    std::string e = fn + "e";
-    Dbt extkey(const_cast<char*>(e.c_str()), fn.size() + 2);
-    std::string l = fn + "l";
-    Dbt asizekey(const_cast<char*>(l.c_str()), fn.size() + 2);
-    std::string a = fn + "a";
-    Dbt attrskey(const_cast<char*>(a.c_str()), fn.size() + 2);
-    std::string m = fn + "m";
-    Dbt mtimekey(const_cast<char*>(m.c_str()), fn.size() + 2);
+    char *sql = sqlite3_mprintf(
+        "SELECT * FROM FILE WHERE dirID=("
+        "SELECT ID FROM DIR WHERE path=%Q)"
+        "LIMIT 1;"
+        , fn.c_str()
+    );
+    sqlite3_stmt *stmt;
 
-    this->attrdb.cursor(NULL, &cursor, 0);
-    if(cursor->get(&sizekey, &dat, DB_SET) != 0) {
-        cursor->close();
-        return 1;
+    sqlite3_prepare_v2(this->db, sql, -1, &stmt, NULL);
+    sqlite3_free(sql);
+    if(sqlite3_step(stmt) == SQLITE_ROW) {
+        fe->size = sqlite3_column_int(stmt, 1);
+        const unsigned char *ext = sqlite3_column_text(stmt, 2);
+        fe->ext = std::string(reinterpret_cast<const char*>(ext));
+        fe->mtime = sqlite3_column_int(stmt, 3);
+        fe->attrs = std::vector<unsigned int>({
+            (unsigned int)sqlite3_column_int(stmt, 4),
+            (unsigned int)sqlite3_column_int(stmt, 5),
+            (unsigned int)sqlite3_column_int(stmt, 6)
+        });
+        sqlite3_finalize(stmt);
+        return 0;
     }
-    fe->size = *(unsigned int*)dat.get_data();
-    if(cursor->get(&extkey, &dat, DB_SET) != 0) {
-        cursor->close();
-        return 1;
-    }
-    fe->ext = std::string((char*)dat.get_data());
-    if(cursor->get(&asizekey, &dat, DB_SET) != 0) {
-        cursor->close();
-        return 1;
-    }
-    unsigned int len = *(unsigned int*)dat.get_data();
-    if(cursor->get(&attrskey, &dat, DB_SET) != 0) {
-        cursor->close();
-        return 1;
-    }
-    unsigned int *attrs = (unsigned int*)dat.get_data();
-    fe->attrs = std::vector<unsigned int>(attrs, attrs + len);
-    if(cursor->get(&mtimekey, &dat, DB_SET) != 0) {
-        cursor->close();
-        return 1;
-    }
-    fe->mtime = *(time_t*)dat.get_data();
-    cursor->close();
-
-    return 0;
+    sqlite3_finalize(stmt);
+    return 1;
 }
 
 newsoul::Dirs newsoul::SharesDB::contents(const std::string &fn) {
+    char *sql1 = sqlite3_mprintf(
+        "SELECT d.* FROM DIR AS d JOIN CLOSURE AS c ON d.ID=c.childID "
+        "WHERE c.parentID=(SELECT ID FROM DIR WHERE path=%Q) "
+        "ORDER BY d.type DESC; "
+        , fn.c_str()
+    );
+    const char *sql2 = "SELECT * FROM FILE WHERE path=?;";
+    sqlite3_stmt *stmt1;
+    sqlite3_stmt *stmt2;
+
     Dirs results;
-    Dbc *cursor;
-    Dbt key, dat;
-    struct stat st;
+    sqlite3_prepare_v2(this->db, sql1, -1, &stmt1, NULL);
+    sqlite3_prepare_v2(this->db, sql2, -1, &stmt2, NULL);
+    while(sqlite3_step(stmt1) == SQLITE_ROW) {
+        int type = sqlite3_column_int(stmt1, 3);
+        const unsigned char *p = sqlite3_column_text(stmt1, 1);
+        const std::string path(reinterpret_cast<const char*>(p));
+        if(type == 0) {
+            //FIXME: Implement path::split
+            int index = path.rfind('/');
+            std::string basedir = path.substr(0, index);
+            std::string basename = path.substr(index + 1);
 
-    std::queue<std::string> queue;
-    std::string k;
-
-    queue.push(fn);
-    this->dirsdb.cursor(NULL, &cursor, 0);
-    while(!queue.empty()) {
-        k = queue.front();
-
-        key.set_data(const_cast<char*>(k.c_str()));
-        key.set_size(k.size() + 1);
-
-        while(cursor->get(&key, &dat, DB_NEXT) == 0) {
-            results[k];
-
-            std::string d((char*)dat.get_data());
-
-            stat(d.c_str(), &st);
-            if(S_ISREG(st.st_mode)) {
-                File fe;
-                if(this->getAttrs(path::join({k, d}), &fe) == 0) {
-                    results[k][d] = fe;
-                }
+            File fe;
+            if(this->getAttrs(path, &fe) == 0) {
+                results[basedir][basename] = fe;
             }
-
-            if(!d.empty()) {
-                queue.push(d);
-            }
+        } else {
+            results[path];
         }
-
-        queue.pop();
     }
-    cursor->close();
 
+    sqlite3_free(sql1);
     return results;
 }
 
@@ -372,41 +333,60 @@ newsoul::Dir newsoul::SharesDB::query(const std::string &query) const {
 }
 
 std::string newsoul::SharesDB::toProperCase(const std::string &lower) {
-    Dbc *cursor;
-    Dbt key, dat;
+    char *sql = sqlite3_mprintf(
+        "SELECT path FROM DIR WHERE LOWER(path)=%Q;"
+        , lower.c_str()
+    );
+    sqlite3_stmt *stmt;
 
-    this->attrdb.cursor(NULL, &cursor, 0);
-    while(cursor->get(&key, &dat, DB_NEXT) == 0) {
-        std::string s((char*)key.get_data());
-        if(string::tolower(s) == lower) {
-            return s;
-        }
+    std::string result;
+    sqlite3_prepare_v2(this->db, sql, -1, &stmt, NULL);
+    if(sqlite3_step(stmt) == SQLITE_ROW) {
+        result = std::string(
+            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))
+        );
     }
-    cursor->close();
+    sqlite3_finalize(stmt);
 
-    return std::string();
+    sqlite3_free(sql);
+    return result;
+}
+
+unsigned int newsoul::SharesDB::getSingleValue(char *sql) {
+    sqlite3_stmt *stmt;
+
+    int value = 0;
+    sqlite3_prepare_v2(this->db, sql, -1, &stmt, NULL);
+    if(sqlite3_step(stmt) == SQLITE_ROW) {
+        value = sqlite3_column_int(stmt, 0);
+    }
+    sqlite3_finalize(stmt);
+
+    sqlite3_free(sql);
+    return value;
+}
+
+unsigned int newsoul::SharesDB::getCount(int type) {
+    char *sql = sqlite3_mprintf(
+        "SELECT COUNT(*) FROM DIR WHERE type=%d;", type
+    );
+
+    return this->getSingleValue(sql);
 }
 
 bool newsoul::SharesDB::isShared(const std::string &fn) {
-    Dbt key(const_cast<char*>(fn.c_str()), fn.size() + 1);
+    char *sql = sqlite3_mprintf(
+        "SELECT EXISTS(SELECT 1 FROM DIR WHERE path=%Q LIMIT 1);"
+        , fn.c_str()
+    );
 
-    return this->attrdb.exists(NULL, &key, 0) != DB_NOTFOUND;
+    return this->getSingleValue(sql);
 }
 
 unsigned int newsoul::SharesDB::filesCount() {
-    //FIXME: This might be slow
-    DB_HASH_STAT *stats = (DB_HASH_STAT*)malloc(sizeof(DB_HASH_STAT));
-    this->attrdb.stat(NULL, &stats, 0);
-    unsigned int res = stats->hash_nkeys / 5;
-    free(stats);
-    return res;
+    return this->getCount(0);
 }
 
 unsigned int newsoul::SharesDB::dirsCount() {
-    //FIXME: This might be slow
-    DB_HASH_STAT *stats = (DB_HASH_STAT*)malloc(sizeof(DB_HASH_STAT));
-    this->dirsdb.stat(NULL, &stats, 0);
-    unsigned int res = stats->hash_nkeys;
-    free(stats);
-    return res;
+    return this->getCount(1);
 }
