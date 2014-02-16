@@ -264,7 +264,7 @@ void newsoul::SharesDB::compress() {
     delete [] outBuf;
 }
 
-int newsoul::SharesDB::getAttrs(const std::string &fn, File *fe) {
+int newsoul::SharesDB::getAttrs(const std::string &fn, File *fe) const {
     char *sql = sqlite3_mprintf(
         "SELECT * FROM FILE WHERE dirID=("
         "SELECT ID FROM DIR WHERE path=%Q)"
@@ -330,6 +330,29 @@ newsoul::Dirs newsoul::SharesDB::contents(const std::string &fn) {
 }
 
 newsoul::Dir newsoul::SharesDB::query(const std::string &query) const {
+    std::string sql("SELECT path FROM DIR WHERE type=0");
+    sqlite3_stmt *stmt;
+
+    for(const std::string &partial : string::split(query, " ")) {
+        if(partial[0] == '-') {
+            sql += " AND path NOT LIKE '%" + partial.substr(1);
+        } else {
+            sql += " AND path LIKE '%" + partial;
+        }
+        sql += "%'";
+    }
+
+    Dir results;
+    sqlite3_prepare_v2(this->db, sql.c_str(), -1, &stmt, NULL);
+    while(sqlite3_step(stmt) == SQLITE_ROW) {
+        const unsigned char *p = sqlite3_column_text(stmt, 0);
+        const std::string path(reinterpret_cast<const char*>(p));
+        File fe;
+        this->getAttrs(path, &fe);
+        results[path] = fe;
+    }
+
+    return results;
 }
 
 std::string newsoul::SharesDB::toProperCase(const std::string &lower) {

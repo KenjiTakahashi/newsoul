@@ -76,7 +76,7 @@ namespace newsoul {
          * \param fe File structure to fill.
          * \return 0 on success, 1 on error.
          */
-        int getAttrs(const std::string &fn, File *fe);
+        int getAttrs(const std::string &fn, File *fe) const;
         /*!
          * Adds file to database.
          * Also used to update existing file entries.
