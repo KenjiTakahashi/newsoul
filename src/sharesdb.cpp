@@ -89,10 +89,10 @@ int newsoul::SharesDB::add(const char *path, const struct stat *st, int type, st
     std::string dir(path, 0, ftwbuf->base - 1);
     switch(type) {
         case FTW_F:
-            SharesDB::_this->addFile(dir, path + ftwbuf->base, *st);
+            SharesDB::_this->addFile(dir, path + ftwbuf->base, *st, false);
             break;
         case FTW_D:
-            SharesDB::_this->addDir(path);
+            SharesDB::_this->addDir(path, false);
             break;
         default: //TODO: report error
             break;
@@ -103,9 +103,11 @@ int newsoul::SharesDB::add(const char *path, const struct stat *st, int type, st
 void newsoul::SharesDB::add(std::initializer_list<const std::string> paths) {
     SharesDB::_this = this;
 
+    int res = sqlite3_exec(this->db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
     for(auto path : paths) {
         nftw(path.c_str(), SharesDB::add, 20, 0);
     }
+    res = sqlite3_exec(this->db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
 }
 
 void newsoul::SharesDB::remove(std::initializer_list<const std::string> paths) {
@@ -118,7 +120,7 @@ void newsoul::SharesDB::remove(std::initializer_list<const std::string> paths) {
     }
 }
 
-void newsoul::SharesDB::addFile(const std::string &dir, const std::string &path, const struct stat &st) {
+void newsoul::SharesDB::addFile(const std::string &dir, const std::string &path, const struct stat &st, bool commit) {
     std::string ext = string::tolower(path.substr(path.rfind('.') + 1));
     int bitrate = 0;
     int length = 0;
@@ -131,24 +133,29 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &path,
         length = props->length();
     }
 
-    this->addDir(dir);
+    this->addDir(dir, commit);
 
+    int res;
+    if(commit) {
+        res = sqlite3_exec(this->db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+    }
     char *sql = sqlite3_mprintf(
-        "BEGIN TRANSACTION; "
         "INSERT OR REPLACE INTO DIR(path, parentID, type) "
         "VALUES(%Q, COALESCE((SELECT ID FROM DIR WHERE path=%Q), 0), 0); "
         "INSERT OR REPLACE INTO "
         "FILE(dirID, size, ext, mtime, bitrate, length, vbr) "
         "VALUES(last_insert_rowid(), %d, %Q, %d, %d, %d, %d); "
-        "COMMIT TRANSACTION; "
         , path.c_str(), dir.c_str()
         , st.st_size, ext.c_str(), st.st_mtime, bitrate, length, vbr
     );
-    int res = sqlite3_exec(this->db, sql, NULL, NULL, NULL);
+    res = sqlite3_exec(this->db, sql, NULL, NULL, NULL);
+    if(commit) {
+        res = sqlite3_exec(this->db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
+    }
     sqlite3_free(sql);
 }
 
-void newsoul::SharesDB::addDir(const std::string &path) {
+void newsoul::SharesDB::addDir(const std::string &path, bool commit) {
     char *sql = sqlite3_mprintf(
         "INSERT INTO DIR(path, parentID, type) "
         "VALUES(?, COALESCE((SELECT ID FROM DIR WHERE path=?), 0), 1); "
@@ -158,7 +165,10 @@ void newsoul::SharesDB::addDir(const std::string &path) {
     //TODO: REFACTOR
     std::vector<std::string> pieces = string::split(path, "/"); //TODO: Write proper path:split
     std::string recreated_path = "/" + pieces[0]; //FIXME: Use proper separator
-    int res = sqlite3_exec(this->db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+    int res;
+    if(commit) {
+        res = sqlite3_exec(this->db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+    }
     res = sqlite3_prepare_v2(this->db, sql, -1, &stmt, NULL);
     sqlite3_bind_text(stmt, 1, recreated_path.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_null(stmt, 2);
@@ -172,7 +182,9 @@ void newsoul::SharesDB::addDir(const std::string &path) {
         sqlite3_step(stmt);
     }
     sqlite3_finalize(stmt);
-    res = sqlite3_exec(this->db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
+    if(commit) {
+        res = sqlite3_exec(this->db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
+    }
     sqlite3_free(sql);
 }
 

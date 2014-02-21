@@ -83,14 +83,16 @@ namespace newsoul {
          * \param dir Directory in which the file lies.
          * \param path Whole path (usually dir+fn).
          * \param st Statistics structure.
+         * \param commit Do commit the changes immediately.
          */
-        void addFile(const std::string &dir, const std::string &path, const struct stat &st);
+        void addFile(const std::string &dir, const std::string &path, const struct stat &st, bool commit=true);
         /*!
          * Adds directory to database.
          * It is used to take care of empty dirs (we need to know about them).
          * \param path Whole path (usually dir+fn).
+         * \param commit Do commit the changes immediately.
          */
-        void addDir(const std::string &path);
+        void addDir(const std::string &path, bool commit=true);
 
         template<typename T> void pack(std::vector<unsigned char> &data, T i);
         void pack(std::vector<unsigned char> &data, std::string s);
