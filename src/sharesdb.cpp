@@ -330,16 +330,41 @@ newsoul::Dirs newsoul::SharesDB::contents(const std::string &fn) {
 }
 
 newsoul::Dir newsoul::SharesDB::query(const std::string &query) const {
+    //This implementation does not follow soulseek conventions on
+    //quotes, because they honestly make no sense.
+    //
+    //Instead, it aims at providing result sets in fashion similar
+    //to "normal" search engines, e.g. Google.
     std::string sql("SELECT path FROM DIR WHERE type=0");
     sqlite3_stmt *stmt;
 
-    for(const std::string &partial : string::split(query, " ")) {
-        if(partial[0] == '-') {
-            sql += " AND path NOT LIKE '%" + partial.substr(1);
-        } else {
-            sql += " AND path LIKE '%" + partial;
+    bool phrase = false;
+    for(std::string partial : string::split(query, " ")) {
+        if(!phrase) {
+            sql += " AND path ";
+            if(partial[0] == '-') {
+                partial = partial.substr(1);
+                sql += "NOT ";
+            }
+            sql += "LIKE '%";
+            if(partial[0] == '"') {
+                partial = partial.substr(1);
+                phrase = true;
+            }
+            if(partial[partial.length() - 1] == '"') {
+                partial = partial.substr(0, partial.length() - 1);
+                phrase = false;
+            }
         }
-        sql += "%'";
+        if(phrase && partial[partial.length() - 1] == '"') {
+            partial = partial.substr(0, partial.length() - 1);
+            sql += " ";
+            phrase = false;
+        }
+        sql += partial;
+        if(!phrase) {
+            sql += "%'";
+        }
     }
 
     Dir results;
