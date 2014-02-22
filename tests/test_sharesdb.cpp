@@ -315,12 +315,11 @@ TEST(query, two_words) {
     mockDB.insertAttrs("/dir0/file1", 1);
     mockDB.insertAttrs("/dir1/file0", 2);
 
-    newsoul::Dir result = shares.query("dir0 file");
+    newsoul::Dir result = shares.query("dir0 file0");
 
     newsoul::File fe = {.size=20, .ext="ext", .attrs={192, 10, 0}, .mtime=600};
     newsoul::Dir expected({
-        {"/dir0/file0", fe},
-        {"/dir0/file1", fe}
+        {"/dir0/file0", fe}
     });
     CHECK(expected == result);
 }
@@ -333,12 +332,11 @@ TEST(query, negation) {
     mockDB.insertAttrs("/dir1/file0", 2);
     mockDB.insertAttrs("/dir1/file1", 2);
 
-    newsoul::Dir result = shares.query("file -dir0");
+    newsoul::Dir result = shares.query("file0 -dir0");
 
     newsoul::File fe = {.size=20, .ext="ext", .attrs={192, 10, 0}, .mtime=600};
     newsoul::Dir expected({
-        {"/dir1/file0", fe},
-        {"/dir1/file1", fe}
+        {"/dir1/file0", fe}
     });
     CHECK(expected == result);
 }
@@ -355,16 +353,15 @@ TEST(query, phrase1) {
     mockDB.insertAttrs("/dir0/space file0", 1);
     mockDB.insertAttrs("/dir0/space file1", 1);
     mockDB.insertAttrs("/dir0/spacefile0", 1);
-    mockDB.insertAttrs("/dir1/space file2", 2);
+    mockDB.insertAttrs("/dir1/space file0", 2);
     mockDB.insertAttrs("/dir1/spacefile2", 2);
 
-    newsoul::Dir result = shares.query("\"space file\"");
+    newsoul::Dir result = shares.query("\"space file0\"");
 
     newsoul::File fe = {.size=20, .ext="ext", .attrs={192, 10, 0}, .mtime=600};
     newsoul::Dir expected({
         {"/dir0/space file0", fe},
-        {"/dir0/space file1", fe},
-        {"/dir1/space file2", fe}
+        {"/dir1/space file0", fe}
     });
     CHECK(expected == result);
 }
@@ -377,22 +374,6 @@ TEST(query, phrase2) {
     mockDB.insertAttrs("/dir0/file1", 1);
 
     newsoul::Dir result = shares.query("\"file0\"");
-
-    newsoul::File fe = {.size=20, .ext="ext", .attrs={192, 10, 0}, .mtime=600};
-    newsoul::Dir expected({
-        {"/dir0/file0", fe}
-    });
-    CHECK(expected == result);
-}
-TEST(query, phrase3) {
-    TSharesDB shares;
-
-    mocks::SqliteMock mockDB(&shares);
-    mockDB.insertDirs(1);
-    mockDB.insertAttrs("/dir0/file0", 1);
-    mockDB.insertAttrs("/dir0/space file0", 1);
-
-    newsoul::Dir result = shares.query("file0 -\"space file\"");
 
     newsoul::File fe = {.size=20, .ext="ext", .attrs={192, 10, 0}, .mtime=600};
     newsoul::Dir expected({

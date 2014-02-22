@@ -82,6 +82,20 @@ void newsoul::SharesDB::createDB() {
         "DELETE FROM DIR "
         "WHERE ID in (SELECT childID FROM CLOSURE WHERE parentID=old.ID); "
         "END; "
+
+        "CREATE VIRTUAL TABLE IF NOT EXISTS PATHS USING fts4(path); "
+
+        "CREATE TRIGGER insert_paths AFTER INSERT ON DIR "
+        "WHEN new.type=0 "
+        "BEGIN "
+        "INSERT INTO PATHS(docid, path) VALUES(new.ID, new.path); "
+        "END; "
+
+        "CREATE TRIGGER delete_paths AFTER DELETE ON DIR "
+        "WHEN old.type=0 "
+        "BEGIN "
+        "DELETE FROM PATHS WHERE docid=old.ID; "
+        "END; "
     , NULL, NULL, NULL);
 }
 
@@ -342,45 +356,19 @@ newsoul::Dirs newsoul::SharesDB::contents(const std::string &fn) {
 }
 
 newsoul::Dir newsoul::SharesDB::query(const std::string &query) const {
-    //This implementation does not follow soulseek conventions on
-    //quotes, because they honestly make no sense.
+    //This implementation probably does not follow soulseek
+    //conventions on quotes/asterisks, because they honestly make no sense.
     //
     //Instead, it aims at providing result sets in fashion similar
     //to "normal" search engines, e.g. Google.
-    std::string sql("SELECT path FROM DIR WHERE type=0");
+    //TODO: Support new fts syntax? It is not enabled anywhere FWIK.
+    const char *sql = sqlite3_mprintf(
+        "SELECT path FROM PATHS WHERE path MATCH %Q LIMIT 500;", query.c_str()
+    );
     sqlite3_stmt *stmt;
 
-    bool phrase = false;
-    for(std::string partial : string::split(query, " ")) {
-        if(!phrase) {
-            sql += " AND path ";
-            if(partial[0] == '-') {
-                partial = partial.substr(1);
-                sql += "NOT ";
-            }
-            sql += "LIKE '%";
-            if(partial[0] == '"') {
-                partial = partial.substr(1);
-                phrase = true;
-            }
-            if(partial[partial.length() - 1] == '"') {
-                partial = partial.substr(0, partial.length() - 1);
-                phrase = false;
-            }
-        }
-        if(phrase && partial[partial.length() - 1] == '"') {
-            partial = partial.substr(0, partial.length() - 1);
-            sql += " ";
-            phrase = false;
-        }
-        sql += partial;
-        if(!phrase) {
-            sql += "%'";
-        }
-    }
-
     Dir results;
-    sqlite3_prepare_v2(this->db, sql.c_str(), -1, &stmt, NULL);
+    sqlite3_prepare_v2(this->db, sql, -1, &stmt, NULL);
     while(sqlite3_step(stmt) == SQLITE_ROW) {
         const unsigned char *p = sqlite3_column_text(stmt, 0);
         const std::string path(reinterpret_cast<const char*>(p));
