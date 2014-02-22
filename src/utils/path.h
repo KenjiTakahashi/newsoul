@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,12 +19,15 @@
 #ifndef __UTILS_PATH_H__
 #define __UTILS_PATH_H__
 
+#include <cstring>
 #include <initializer_list>
 #include <string>
+#include <vector>
 #ifndef _WIN32
 #include <wordexp.h>
 #endif
 #include "os.h"
+#include "string.h"
 
 namespace path {
     /*!
@@ -35,6 +38,17 @@ namespace path {
      * \return All paths joined into one.
      */
     std::string join(std::initializer_list<const std::string> paths);
+    /*!
+     * Splits given path into separate directories/file names.
+     * The input path should be normalized (so not contain '..', etc.).
+     * The second argument specifies maximum number of splits to perform,
+     * counting right to left. This enables getting e.g. dirname/basename
+     * split by calling `split(<path>, 1)`.
+     * \param path Path to split.
+     * \param no Maximum number of pieces
+     * \return Vector of split pieces.
+     */
+    std::vector<std::string> split(const std::string path, int no=-1);
     /*!
      * Expands environment variables and other things, like '~' char.
      * Does not, however, expand commands.

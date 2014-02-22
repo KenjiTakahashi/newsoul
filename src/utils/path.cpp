@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,29 @@ std::string path::join(std::initializer_list<const std::string> paths) {
     }
 
     return result;
+}
+
+std::vector<std::string> path::split(const std::string path, int no) {
+    std::vector<std::string> results;
+    std::string dirname(path);
+    size_t index;
+    int it = 0;
+    do {
+        if(no > 0 && it++ >= no) {
+            index = std::string::npos;
+        } else {
+            index = dirname.rfind(os::separator());
+        }
+
+        std::string basename = dirname.substr(index + 1);
+        if(!basename.empty()) {
+            results.push_back(basename);
+        }
+
+        dirname = dirname.substr(0, index);
+    } while(index != std::string::npos);
+    std::reverse(results.begin(), results.end());
+    return results;
 }
 
 std::string path::expand(const std::string &path) {

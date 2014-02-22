@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -28,45 +28,79 @@ std::string expected = "f/s";
 #endif
 
 TEST_GROUP(join) { };
-
 TEST(join, empty) {
     std::string result = path::join({});
 
     CHECK(result.empty());
 }
-
 TEST(join, ends_with_sep_and_does_not_end_with_sep) {
     std::string result = path::join({std::string("f") + sep, "s"});
 
     CHECK_EQUAL(expected, result);
 }
-
 TEST(join, does_not_end_with_sep_and_ends_with_sep) {
     std::string result = path::join({"f", sep + std::string("s")});
 
     CHECK_EQUAL(expected, result);
 }
-
 TEST(join, ends_with_sep_and_ends_with_sep) {
     std::string result = path::join({std::string("f") + sep, sep + std::string("s")});
 
     CHECK_EQUAL(expected, result);
 }
-
 TEST(join, does_not_end_with_sep_and_does_not_end_with_sep) {
     std::string result = path::join({"f", "s"});
 
     CHECK_EQUAL(expected, result);
 }
-
 TEST(join, starts_with_sep) {
     std::string result = path::join({sep + std::string("f")});
 
     CHECK_EQUAL("/f", result);
 }
 
-TEST_GROUP(isAbsolute) { };
+TEST_GROUP(path_split) { };
+TEST(path_split, empty) {
+    std::vector<std::string> result = path::split("");
 
+    CHECK(result.empty());
+}
+TEST(path_split, root_dir) {
+    std::vector<std::string> result = path::split("/");
+
+    CHECK(result.empty());
+}
+TEST(path_split, single_dir_absolute) {
+    std::vector<std::string> result = path::split(sep + std::string("f"));
+
+    std::vector<std::string> expected({"f"});
+
+    CHECK(expected == result);
+}
+TEST(path_split, single_dir_relative) {
+    std::vector<std::string> result = path::split("f");
+
+    std::vector<std::string> expected({"f"});
+
+    CHECK(expected == result);
+}
+TEST(path_split, two_dirs) {
+    std::vector<std::string> result = path::split(expected);
+
+    std::vector<std::string> expected({"f", "s"});
+
+    CHECK(expected == result);
+}
+TEST(path_split, dirname_basename) {
+    std::string path = std::string("/dir/name") + sep + "basename";
+    std::vector<std::string> result = path::split(path, 1);
+
+    std::vector<std::string> expected({"/dir/name", "basename"});
+
+    CHECK(expected == result);
+}
+
+TEST_GROUP(isAbsolute) { };
 TEST(isAbsolute, absolute) {
     std::string s;
 #ifdef _WIN32
@@ -78,7 +112,6 @@ TEST(isAbsolute, absolute) {
 
     CHECK_EQUAL(true, result);
 }
-
 TEST(isAbsolute, relative) {
     std::string s = std::string("relative") + sep + "path";
 

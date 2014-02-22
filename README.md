@@ -10,7 +10,7 @@ This is *only* the daemon/server part, no clients (besides CLI) are developed he
 * libevent
 * taglib
 * nettle
-* sqlite3 >= 3.6.19
+* sqlite3 >= 3.7.4
 * C++11 capable compiler (for compilation)
 * premake4 (for compilation)
 * CppUTest (for test-suite)

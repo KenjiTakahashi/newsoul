@@ -83,7 +83,7 @@ void newsoul::SharesDB::createDB() {
         "WHERE ID in (SELECT childID FROM CLOSURE WHERE parentID=old.ID); "
         "END; "
 
-        "CREATE VIRTUAL TABLE IF NOT EXISTS PATHS USING fts4(path); "
+        "CREATE VIRTUAL TABLE PATHS USING fts4(path); "
 
         "CREATE TRIGGER insert_paths AFTER INSERT ON DIR "
         "WHEN new.type=0 "
@@ -103,7 +103,7 @@ int newsoul::SharesDB::add(const char *path, const struct stat *st, int type, st
     std::string dir(path, 0, ftwbuf->base - 1);
     switch(type) {
         case FTW_F:
-            SharesDB::_this->addFile(dir, path + ftwbuf->base, *st, false);
+            SharesDB::_this->addFile(dir, path, *st, false);
             break;
         case FTW_D:
             SharesDB::_this->addDir(path, false);
@@ -176,9 +176,8 @@ void newsoul::SharesDB::addDir(const std::string &path, bool commit) {
     );
     sqlite3_stmt *stmt;
 
-    //TODO: REFACTOR
-    std::vector<std::string> pieces = string::split(path, "/"); //TODO: Write proper path:split
-    std::string recreated_path = "/" + pieces[0]; //FIXME: Use proper separator
+    std::vector<std::string> pieces = path::split(path);
+    std::string recreated_path = os::separator() + pieces[0];
     int res;
     if(commit) {
         res = sqlite3_exec(this->db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
@@ -217,7 +216,7 @@ void newsoul::SharesDB::pack(std::vector<unsigned char> &data, std::string s) {
 }
 
 void newsoul::SharesDB::compress() {
-    const char *sql1 = "SELECT ID, path FROM DIR WHERE type=1";
+    const char *sql1 = "SELECT ID, path FROM DIR WHERE type=1;";
     const char *sql2 =
         "SELECT COUNT(*) FROM DIR AS d JOIN CLOSURE AS c ON d.ID=c.childID "
         "WHERE c.parentID=? AND d.type=0 AND c.depth=1; ";
@@ -256,8 +255,7 @@ void newsoul::SharesDB::compress() {
         while(sqlite3_step(stmt3) == SQLITE_ROW) {
             const unsigned char *p = sqlite3_column_text(stmt3, 0);
             const std::string fpath(reinterpret_cast<const char*>(p));
-            //FIXME: Implement path::split
-            std::string basename = fpath.substr(fpath.rfind('/') + 1);
+            std::string basename = path::split(fpath, 1)[1];
 
             inBuf.push_back(1);
             this->pack(inBuf, basename);
@@ -337,14 +335,13 @@ newsoul::Dirs newsoul::SharesDB::contents(const std::string &fn) {
         const unsigned char *p = sqlite3_column_text(stmt1, 1);
         const std::string path(reinterpret_cast<const char*>(p));
         if(type == 0) {
-            //FIXME: Implement path::split
-            int index = path.rfind('/');
-            std::string basedir = path.substr(0, index);
-            std::string basename = path.substr(index + 1);
+            std::vector<std::string> split = path::split(path, 1);
+            std::string dirname = split[0];
+            std::string basename = split[1];
 
             File fe;
             if(this->getAttrs(path, &fe) == 0) {
-                results[basedir][basename] = fe;
+                results[dirname][basename] = fe;
             }
         } else {
             results[path];

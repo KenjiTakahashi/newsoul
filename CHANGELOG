@@ -15,3 +15,4 @@ This file tracks changes since the last Museek+ svn trunk revision.
 -Fixed compilation on FreeBSD.
 -Completely redesigned configuration file, using JSON instead of XML.
 -New CLI configuration utility to supersede nssetup.
+-New DB backend using SQLite instead of hand-baked serialization.
