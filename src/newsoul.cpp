@@ -163,7 +163,12 @@ bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
     for(; *i < argc; ++*i) {
         std::string carg(argv[*i]);
         if(carg == "rescan") {
-            //TODO
+            for(const std::string &dir : this->_config->getVec({"database", "global", "paths"})) {
+                this->_globalShares->add({dir});
+            }
+            for(const std::string &dir : this->_config->getVec({"database", "local", "paths"})) {
+                this->_buddyShares->add({dir});
+            }
         } else if(carg == "global") {
             this->parsePart({
                 {"list", [this](const std::string &sarg){
@@ -197,11 +202,11 @@ bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
                 }},
                 {"add", [this, i, argc, argv](const std::string &sarg){
                     this->parsePAdd({"database", "buddy", "paths"}, i, argc, argv);
-                    //TODO: add to db
+                    this->_buddyShares->add({argv[*i]});
                 }},
                 {"remove", [this, i, argc, argv](const std::string &sarg){
                     this->parsePDel({"database", "buddy", "paths"}, i, argc, argv);
-                    //TODO: remove from db
+                    this->_buddyShares->remove({argv[*i]});
                 }},
                 {"enabled", [this, i, argc, argv](const std::string &sarg){
                     this->parsePSetBool({"database", "buddy", "enabled"}, i, argc, argv);
