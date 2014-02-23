@@ -1,7 +1,7 @@
 /*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
-    Karol 'Kenji Takahashi' Woźniak © 2013
+    Karol 'Kenji Takahashi' Woźniak © 2013 - 2014
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,12 +29,16 @@ newsoul::Newsoul::Newsoul() {
     srand(time(NULL));
     m_Token = rand();
 
+    this->_buddyShares = NULL;
+
     Newsoul::_instance = this;
 }
 
 newsoul::Newsoul::~Newsoul() {
     delete this->_globalShares;
-    //delete this->_buddyShares;
+    if(this->_buddyShares != NULL) {
+        delete this->_buddyShares;
+    }
     delete this->_config;
 }
 
@@ -127,6 +131,23 @@ bool newsoul::Newsoul::parseSet(int *i, int argc, char *argv[]) {
                 {"complete", nullptr},
                 {"incomplete", nullptr}
             }, carg, i, argc, argv);
+        } else if(carg == "help") {
+            std::cout << "Usage: newsoul [--debug(-d)] set(s) [<args>], where <args> are:" << std::endl << std::endl;
+            std::cout << "from <config file> \t\t\tReads values from file [default: ~/.config/newsoul/config.json]" << std::endl;
+            std::cout << "server <arg>, where <arg> is one of:" << std::endl;
+            std::cout << "  host <name>\t\t\t\tSets Soulseek's server host name [default: server.slsknet.org]" <<std::endl;
+            std::cout << "  port <number>\t\t\t\tSets Soulseek's server port number [default: 2242]" << std::endl;
+            std::cout << "  username <name>\t\t\tSets name of the user [default: anonymous]" << std::endl;
+            std::cout << "  password <pass>\t\t\tSets user's password [default: <empty>]" << std::endl;
+            std::cout << "p2p <arg>, where <arg> is one of:" << std::endl;
+            std::cout << "  ports <first> <last>\t\t\tSets port range for peer connections [default: 2235-2236]" << std::endl;
+            std::cout << "  mode <passive|active>\t\t\tSets connection mode [default: passive]" << std::endl;
+            std::cout << "encoding <arg>, where <arg> is one of:" << std::endl;
+            std::cout << "  network <encoding>\t\t\tSets encoding used in network messages [default: UTF-8]" << std::endl;
+            std::cout << "  local <encoding>\t\t\tSets encoding used in filesystem [default: UTF-8]" << std::endl;
+            std::cout << "downloads <arg>, where <arg> is one of:" << std::endl;
+            std::cout << "  complete <dir>\t\t\tSets directory for complete downloads [default: ~/.config/newsoul/complete]" << std::endl;
+            std::cout << "  incomplete <dir>\t\t\tSets directory for incomplete downloads [default: <empty>]" << std::endl;
         } else {
             std::cout << "set: Unrecognized argument [" << carg << "]." << std::endl;
         }
@@ -186,6 +207,18 @@ bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
                     this->parsePSetBool({"database", "buddy", "enabled"}, i, argc, argv);
                 }}
             }, carg, i, argc, argv);
+        } else if(carg == "help") {
+            std::cout << "Usage: newsoul [--debug(-d)] database(d) [<args>], where <args> are:" << std::endl << std::endl;
+            std::cout << "rescan\t\t\t\t\tUpdates database NOW" << std::endl;
+            std::cout << "global <arg>, where <arg> is one of:" << std::endl;
+            std::cout << "  list\t\t\t\t\tLists shared directories" << std::endl;
+            std::cout << "  add <dir>\t\t\t\tAdds new shared directory" << std::endl;
+            std::cout << "  remove <index>\t\t\tRemoves a shared directory" << std::endl;
+            std::cout << "buddy <arg>, where <arg> is one of:" << std::endl;
+            std::cout << "  list\t\t\t\t\tLists shared directories" << std::endl;
+            std::cout << "  add <dir>\t\t\t\tAdds new shared directory" << std::endl;
+            std::cout << "  remove <index>\t\t\tRemoves a shared directory" << std::endl;
+            std::cout << "  enabled <yes|no>\t\t\tTurns buddies only shares on or off [default: no]" << std::endl;
         } else {
             std::cout << "database: Unrecognized argument [" << carg << "]." << std::endl;
         }
@@ -195,6 +228,13 @@ bool newsoul::Newsoul::parseDatabase(int *i, int argc, char *argv[]) {
 
 bool newsoul::Newsoul::parseListeners(int *i, int argc, char *argv[]) {
     this->parsePart({
+        {"help", [this](const std::string &sarg){
+            std::cout << "Usage: newsoul [--debug(-d)] listeners(l) [<args>], where <args> are:" << std::endl << std::endl;
+            std::cout << "list\t\t\tLists all existing listeners" << std::endl;
+            std::cout << "add <addr:port|fn>\tAdds new listener" << std::endl;
+            std::cout << "remove <addr:port|fn>\tRemoves existing listener" << std::endl;
+            std::cout << "password <pass>\t\tSets listeners password [default: p]" << std::endl;
+        }},
         {"list", [this](const std::string &sarg){
             std::vector<std::string> items = this->_config->getVec({"listeners", "paths"});
             for(unsigned int i = 0; i < items.size(); ++i) {
@@ -245,60 +285,21 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
         } else if(arg == "listeners" || arg == "l") {
             return this->parseListeners(&i, argc, argv);
         } else if(arg == "help" || arg == "h") {
-            if(++i == argc) {
-                std::cout << "Usage: newsoul [--debug(-d)] [version(v)|help(h)|set(s)|database(d)] [<args>]" << std::endl << std::endl;
-                std::cout << "Main options:" << std::endl;
-                std::cout << "  version\t\tPrints version number and exists." << std::endl;
-                std::cout << "  help [cmd]\t\tPrints detailed info about [cmd]. This screen if no cmd specified." << std::endl;
-                std::cout << "  set\t\t\tChanges configuration values. See [newsoul help set]." << std::endl;
-                std::cout << "  database\t\tManages shares database. See [newsoul help database]." << std::endl;
-                std::cout << "  listeners\t\tManages listening interfaces. See [newsoul help listeners]." << std::endl;
-                std::cout << std::endl << "Additional options:" << std::endl;
-                std::cout << "  --debug(-d) \t\tPrints some more informations about what is going on" << std::endl;
-                std::cout << std::endl << "Signals:" << std::endl;
-                std::cout << "  HUP\t\t\tReloads database(s)" << std::endl;
-                std::cout << "  ALRM\t\t\tReconnects to server" << std::endl;
-            } else {
-                std::string carg(argv[i]);
-                if(carg == "set") {
-                    std::cout << "Usage: newsoul [--debug(-d)] set(s) [<args>], where <args> are:" << std::endl << std::endl;
-                    std::cout << "from <config file> \t\t\tReads values from file [default: ~/.config/newsoul/config.json]" << std::endl;
-                    std::cout << "server <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  host <name>\t\t\t\tSets Soulseek's server host name [default: server.slsknet.org]" <<std::endl;
-                    std::cout << "  port <number>\t\t\t\tSets Soulseek's server port number [default: 2242]" << std::endl;
-                    std::cout << "  username <name>\t\t\tSets name of the user [default: anonymous]" << std::endl;
-                    std::cout << "  password <pass>\t\t\tSets user's password [default: <empty>]" << std::endl;
-                    std::cout << "p2p <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  ports <first> <last>\t\t\tSets port range for peer connections [default: 2235-2236]" << std::endl;
-                    std::cout << "  mode <passive|active>\t\t\tSets connection mode [default: passive]" << std::endl;
-                    std::cout << "encoding <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  network <encoding>\t\t\tSets encoding used in network messages [default: UTF-8]" << std::endl;
-                    std::cout << "  local <encoding>\t\t\tSets encoding used in filesystem [default: UTF-8]" << std::endl;
-                    std::cout << "downloads <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  complete <dir>\t\t\tSets directory for complete downloads [default: ~/.config/newsoul/complete]" << std::endl;
-                    std::cout << "  incomplete <dir>\t\t\tSets directory for incomplete downloads [default: <empty>]" << std::endl;
-                } else if(carg == "database") {
-                    std::cout << "Usage: newsoul [--debug(-d)] database(d) [<args>], where <args> are:" << std::endl << std::endl;
-                    std::cout << "rescan\t\t\t\t\tUpdates database NOW" << std::endl;
-                    std::cout << "global <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  list\t\t\t\t\tLists shared directories" << std::endl;
-                    std::cout << "  add <dir>\t\t\t\tAdds new shared directory" << std::endl;
-                    std::cout << "  remove <index>\t\t\tRemoves a shared directory" << std::endl;
-                    std::cout << "buddy <arg>, where <arg> is one of:" << std::endl;
-                    std::cout << "  list\t\t\t\t\tLists shared directories" << std::endl;
-                    std::cout << "  add <dir>\t\t\t\tAdds new shared directory" << std::endl;
-                    std::cout << "  remove <index>\t\t\tRemoves a shared directory" << std::endl;
-                    std::cout << "  enabled <yes|no>\t\t\tTurns buddies only shares on or off [default: no]" << std::endl;
-                } else if(carg == "listeners") {
-                    std::cout << "Usage: newsoul [--debug(-d)] listeners(l) [<args>], where <args> are:" << std::endl << std::endl;
-                    std::cout << "list\t\t\tLists all existing listeners" << std::endl;
-                    std::cout << "add <addr:port|fn>\tAdds new listener" << std::endl;
-                    std::cout << "remove <addr:port|fn>\tRemoves existing listener" << std::endl;
-                    std::cout << "password <pass>\t\tSets listeners password [default: p]" << std::endl;
-                } else {
-                    std::cout << "help: Unrecognized command [" << carg << "]." << std::endl;
-                }
+            if(++i != argc) {
+                std::cout << "Ignoring unrecognized argument: [" << argv[i] << std::endl;
             }
+            std::cout << "Usage: newsoul [--debug(-d)] [version(v)|help(h)|set(s)|database(d)] [<args>]" << std::endl << std::endl;
+            std::cout << "Main options:" << std::endl;
+            std::cout << "  version\t\tPrints version number and exists." << std::endl;
+            std::cout << "  [cmd] help\t\tPrints detailed info about [cmd]. This screen if no cmd specified." << std::endl;
+            std::cout << "  set\t\t\tChanges configuration values. See [newsoul set help]." << std::endl;
+            std::cout << "  database\t\tManages shares database. See [newsoul database help]." << std::endl;
+            std::cout << "  listeners\t\tManages listening interfaces. See [newsoul listeners help]." << std::endl;
+            std::cout << std::endl << "Additional options:" << std::endl;
+            std::cout << "  --debug(-d) \t\tPrints some more informations about what is going on" << std::endl;
+            std::cout << std::endl << "Signals:" << std::endl;
+            std::cout << "  HUP\t\t\tReloads database(s)" << std::endl;
+            std::cout << "  ALRM\t\t\tReconnects to server" << std::endl;
             return false;
         } else {
             std::cout << "newsoul: Unrecognized command [" << arg << "]." << std::endl;
