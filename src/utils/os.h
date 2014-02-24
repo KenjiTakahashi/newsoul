@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef __UTILS_OS_H__
 #define __UTILS_OS_H__
 
-#include <cstdlib>
+#include <errno.h>
 #include <string>
 #ifndef _WIN32
 #include <sys/stat.h>
