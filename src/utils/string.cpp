@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -58,4 +58,15 @@ std::string string::replace(const std::string &s, const std::string &from, const
     }
 
     return replaced;
+}
+
+std::string string::join(const std::vector<std::string> &strings, const std::string &delim) {
+    std::stringstream stream;
+    for(size_t i = 0; i < strings.size(); ++i) {
+        if(i != 0) {
+            stream << delim;
+        }
+        stream << strings[i];
+    }
+    return stream.str();
 }

@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -57,6 +58,13 @@ namespace string {
      * \return Copy of s with from replaced by to.
      */
     std::string replace(const std::string &s, const std::string &from, const std::string &to);
+    /*!
+     * Joins a vector of strings using given delimiter.
+     * \param strings Vector of strings to join.
+     * \param delim Delimiter string to join on.
+     * \return Joined string.
+     */
+    std::string join(const std::vector<std::string> &strings, const std::string &delim);
 }
 
 #endif /* __UTILS_STRING_H__ */
