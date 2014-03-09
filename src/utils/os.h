@@ -57,4 +57,4 @@ namespace os {
     const std::string config();
 }
 
-#endif // __UTILS_OS_H__
+#endif /* __UTILS_OS_H__ */
