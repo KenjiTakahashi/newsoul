@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -23,10 +23,12 @@
 #include <initializer_list>
 #include <json-c/json.h>
 #include <fstream>
+#include <map>
 #include <streambuf>
 #include <vector>
-#include "utils/path.h"
 #include "utils/os.h"
+#include "utils/path.h"
+#include "utils/string.h"
 
 namespace newsoul {
     class Config {
@@ -146,6 +148,13 @@ namespace newsoul {
          * \return False if no such key was found (i.e. nothing got deleted).
          */
         bool del(std::initializer_list<const std::string> keys, const std::string &key);
+
+        /*!
+         * Compatibility layer for clients using old-style
+         * configuration structure.
+         */
+        typedef std::map<std::string, std::map<std::string, std::string>> CompatConfig;
+        const CompatConfig compatData();
     };
 }
 

@@ -63,7 +63,7 @@
             "hate": [],
             "like": []
         },
-        "defaultTicker": "ticker",
+        "defaultTicker": "",
         "tickers": {}
     },
     "users": {
