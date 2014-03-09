@@ -1,7 +1,7 @@
 /*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
-    Karol 'Kenji Takahashi' Woźniak © 2013
+    Karol 'Kenji Takahashi' Woźniak © 2013 - 2014
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -479,10 +479,88 @@ newsoul::IfaceManager::onIfaceNewPassword(const INewPassword * message)
   SEND_MESSAGE(newsoul()->server(), SNewPassword(message->newPass));
 }
 
-void
-newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet * message)
-{
-  newsoul()->config()->set({message->domain, message->key}, message->value);
+void newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet *message) {
+    Config *c = this->newsoul()->config();
+    const std::string d = message->domain;
+    std::string k = message->key;
+    const std::string v = message->value;
+    if(message->domain == "autojoin") {
+        c->add({"server", "join"}, k);
+    } else if(d == "banned" || d == "buddies" || d == "ignored" || d == "trusted") {
+        c->add({"users", d}, k);
+    } else if(d == "clients") {
+        c->set({"p2p", "mode"}, v);
+    } else if(d == "clients.bind") {
+        c->set({"p2p", "ports", k}, convert::string2int(v));
+    } else if(d == "encoding") {
+        if(k == "filesystem") {
+            k = "local";
+        }
+        c->set({d, k}, v);
+    } else if(d == "encoding.rooms") {
+        c->set({"encoding", "rooms"}, v);
+    } else if(d == "encoding.users") {
+        c->set({"encoding", "users"}, v);
+    } else if(d == "interests.hate") {
+        c->set({"info", "interests", "hate"}, v);
+    } else if(d == "interests.like") {
+        c->set({"info", "interests", "like"}, v);
+    } else if(d == "interfaces") {
+        c->set({"listeners", d}, v);
+    } else if(d == "interfaces.bind") {
+        c->add({"listeners", "paths"}, k);
+    } else if(d == "server") {
+        c->set({d, k}, v);
+    } else if(d == "shares") {
+        c->set({"database", "global", "dbpath"}, v);
+    } else if(d == "buddy.shares") {
+        c->set({"database", "buddy", "dbpath"}, v);
+    } else if(d == "transfers") {
+        if(k == "download-dir") {
+            c->set({"downloads", "complete"}, v);
+        } else if(k == "downloads") {
+            c->set({"downloads", "queue"}, v);
+        } else if(k == "incomplete-dir") {
+            c->set({"downloads", "incomplete"}, v);
+        } else if(k == "only_buddies") {
+            c->set({"uploads", "buddiesOnly"}, convert::string2bool(v));
+        } else if(k == "user_warnings") {
+        } else if(k == "privilege_buddies") {
+            c->set({"uploads", "buddiesFirst"}, convert::string2bool(v));
+        } else if(k == "upload_slots") {
+            c->set({"uploads", "slots"}, convert::string2int(v));
+        } else if(k == "download_slots") {
+            c->set({"downloads", "slots"}, convert::string2int(v));
+        } else if(k == "upload_rate") {
+            c->set({"uploads", "maxspeed"}, convert::string2int(v));
+        } else if(k == "download_rate") {
+            c->set({"downloads", "maxspeed"}, convert::string2int(v));
+        } else if(k == "have_buddy_shares") {
+            c->set({"database", "buddy", "enabled"}, convert::string2bool(v));
+        } else if(k == "trusting_uploads") {
+            c->set({"uploads", "allowTrusted"}, convert::string2bool(v));
+        } else if(k == "download_blacklist") {
+            for(const std::string &bl : string::split(v, ";")) {
+                c->add({"downloads", "blacklist"}, bl);
+            }
+        } else if(k == "autoclear_finished_downloads") {
+            c->set({"downloads", "autoclear"}, convert::string2bool(v));
+        } else if(k == "autoclear_finished_uploads") {
+            c->set({"uploads", "autoclear"}, convert::string2bool(v));
+        } else if(k == "autoretry_downloads") {
+            c->set({"downloads", "autoretry"}, v);
+        }
+    } else if(d == "userinfo") {
+        c->set({"info", d, k}, v);
+    } else if(d == "default-ticker") {
+        c->set({"info", "defaultTicker"}, k);
+    } else if(d == "tickers") {
+        c->set({"info", "tickers", k}, v);
+    } else if(d == "wishlist") {
+        c->set({"downloads", "wishes", k}, v);
+    } else if(d == "priv_rooms") {
+        c->set({"privateRooms", "enabled"}, convert::string2bool(v));
+    }
 }
 
 void

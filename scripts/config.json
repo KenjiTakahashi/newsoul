@@ -28,7 +28,7 @@
     },
     "downloads": {
         "queue": "~/.config/newsoul/downloads",
-        "complete": "~/.config/newsoul/complete",
+        "complete": "~/Downloads",
         "incomplete": "",
         "wishes": {},
         "blacklist": [],
@@ -63,6 +63,7 @@
             "hate": [],
             "like": []
         },
+        "defaultTicker": "ticker",
         "tickers": {}
     },
     "users": {

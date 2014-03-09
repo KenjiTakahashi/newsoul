@@ -1,6 +1,7 @@
 /*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
+    Karol 'Kenji Takahashi' Woźniak © 2014
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,6 +24,7 @@
 
 #include "ifacesocket.h"
 #include "searchmanager.h"
+#include "utils/convert.h"
 #include "utils/string.h"
 #include "NewNet/nnlog.h"
 #include "NewNet/nnobject.h"
