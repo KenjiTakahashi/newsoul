@@ -21,7 +21,3 @@
 bool convert::string2bool(const std::string &str) {
     return string::tolower(str) == "true";
 }
-
-int convert::string2int(const std::string &str) {
-    return atoi(str.c_str());
-}

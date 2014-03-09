@@ -484,27 +484,27 @@ void newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet *message) {
     const std::string d = message->domain;
     std::string k = message->key;
     const std::string v = message->value;
-    if(message->domain == "autojoin") {
+    if(d == "autojoin") {
         c->add({"server", "join"}, k);
     } else if(d == "banned" || d == "buddies" || d == "ignored" || d == "trusted") {
         c->add({"users", d}, k);
     } else if(d == "clients") {
         c->set({"p2p", "mode"}, v);
     } else if(d == "clients.bind") {
-        c->set({"p2p", "ports", k}, convert::string2int(v));
+        c->set({"p2p", "ports", k}, std::stoi(v));
     } else if(d == "encoding") {
         if(k == "filesystem") {
             k = "local";
         }
         c->set({d, k}, v);
     } else if(d == "encoding.rooms") {
-        c->set({"encoding", "rooms"}, v);
+        c->set({"encoding", "rooms", k}, v);
     } else if(d == "encoding.users") {
-        c->set({"encoding", "users"}, v);
+        c->set({"encoding", "users", k}, v);
     } else if(d == "interests.hate") {
-        c->set({"info", "interests", "hate"}, v);
+        c->set({"info", "interests", "hate"}, k);
     } else if(d == "interests.like") {
-        c->set({"info", "interests", "like"}, v);
+        c->set({"info", "interests", "like"}, k);
     } else if(d == "interfaces") {
         c->set({"listeners", d}, v);
     } else if(d == "interfaces.bind") {
@@ -524,17 +524,16 @@ void newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet *message) {
             c->set({"downloads", "incomplete"}, v);
         } else if(k == "only_buddies") {
             c->set({"uploads", "buddiesOnly"}, convert::string2bool(v));
-        } else if(k == "user_warnings") {
         } else if(k == "privilege_buddies") {
             c->set({"uploads", "buddiesFirst"}, convert::string2bool(v));
         } else if(k == "upload_slots") {
-            c->set({"uploads", "slots"}, convert::string2int(v));
+            c->set({"uploads", "slots"}, std::stoi(v));
         } else if(k == "download_slots") {
-            c->set({"downloads", "slots"}, convert::string2int(v));
+            c->set({"downloads", "slots"}, std::stoi(v));
         } else if(k == "upload_rate") {
-            c->set({"uploads", "maxspeed"}, convert::string2int(v));
+            c->set({"uploads", "maxspeed"}, std::stoi(v));
         } else if(k == "download_rate") {
-            c->set({"downloads", "maxspeed"}, convert::string2int(v));
+            c->set({"downloads", "maxspeed"}, std::stoi(v));
         } else if(k == "have_buddy_shares") {
             c->set({"database", "buddy", "enabled"}, convert::string2bool(v));
         } else if(k == "trusting_uploads") {
@@ -548,7 +547,7 @@ void newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet *message) {
         } else if(k == "autoclear_finished_uploads") {
             c->set({"uploads", "autoclear"}, convert::string2bool(v));
         } else if(k == "autoretry_downloads") {
-            c->set({"downloads", "autoretry"}, v);
+            c->set({"downloads", "autoretry"}, convert::string2bool(v));
         }
     } else if(d == "userinfo") {
         c->set({"info", d, k}, v);

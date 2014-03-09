@@ -31,12 +31,6 @@ namespace convert {
      * \return true or false.
      */
     bool string2bool(const std::string &str);
-    /*!
-     * Converts string to integer.
-     * \param str String to convert.
-     * \return An integer.
-     */
-    int string2int(const std::string &str);
 }
 
 #endif /* __UTILS_CONVERT_H__ */

@@ -35,15 +35,3 @@ TEST(string2bool, false_) {
 
     CHECK_EQUAL(false, result);
 }
-
-TEST_GROUP(string2int) { };
-TEST(string2int, succcess) {
-    int result = convert::string2int("123456");
-
-    CHECK_EQUAL(123456, result);
-}
-TEST(string2int, failure) {
-    int result = convert::string2int("NaN");
-
-    CHECK_EQUAL(0, result);
-}
