@@ -21,3 +21,7 @@
 bool convert::string2bool(const std::string &str) {
     return string::tolower(str) == "true";
 }
+
+const std::string convert::bool2string(bool value) {
+    return value ? "true" : "false";
+}

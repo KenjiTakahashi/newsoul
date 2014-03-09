@@ -31,6 +31,12 @@ namespace convert {
      * \return true or false.
      */
     bool string2bool(const std::string &str);
+    /*!
+     * Converts bool to string, i.e. true == "true" and false == "false".
+     * \param value Boolean to convert.
+     * \return Stringified version of value.
+     */
+    const std::string bool2string(bool value);
 }
 
 #endif /* __UTILS_CONVERT_H__ */

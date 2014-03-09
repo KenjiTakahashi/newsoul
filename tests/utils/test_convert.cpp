@@ -35,3 +35,15 @@ TEST(string2bool, false_) {
 
     CHECK_EQUAL(false, result);
 }
+
+TEST_GROUP(bool2string) { };
+TEST(bool2string, true_) {
+    const std::string result = convert::bool2string(true);
+
+    CHECK_EQUAL("true", result);
+}
+TEST(bool2string, false_) {
+    const std::string result = convert::bool2string(false);
+
+    CHECK_EQUAL("false", result);
+}
