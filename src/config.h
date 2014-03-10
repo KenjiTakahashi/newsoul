@@ -26,6 +26,7 @@
 #include <map>
 #include <streambuf>
 #include <vector>
+#include "utils/convert.h"
 #include "utils/os.h"
 #include "utils/path.h"
 #include "utils/string.h"

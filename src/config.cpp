@@ -217,6 +217,7 @@ bool newsoul::Config::del(std::initializer_list<const std::string> keys, const s
 
 const newsoul::Config::CompatConfig newsoul::Config::compatData() {
     newsoul::Config::CompatConfig compatConfig;
+    struct json_object *data;
 
     for(const std::string &val : this->getVec({"server", "join"})) {
         compatConfig["autojoin"][val];
@@ -233,8 +234,11 @@ const newsoul::Config::CompatConfig newsoul::Config::compatData() {
     compatConfig["encoding"]["filesystem"] = this->getStr({"encoding", "local"});
     compatConfig["encoding"]["network"] = this->getStr({"encoding", "network"});
     {for(const std::string &type : {"rooms", "users"}) {
-        json_object_object_foreach(this->get({"encoding", type}), key, val) {
-            compatConfig["encoding." + type][key] = std::string(json_object_get_string(val));
+        data = this->get({"encoding", type});
+        if(data != NULL) {
+            json_object_object_foreach(data, key, val) {
+                compatConfig["encoding." + type][key] = std::string(json_object_get_string(val));
+            }
         }
     }}
     for(const std::string &type : {"hate", "like"}) {
@@ -246,38 +250,49 @@ const newsoul::Config::CompatConfig newsoul::Config::compatData() {
     for(const std::string &val : this->getVec({"listeners", "paths"})) {
         compatConfig["interfaces.bind"][val];
     }
-    {json_object_object_foreach(this->get({"server"}), key, val) {
-        if(json_object_get_type(val) == json_type_string) {
-            compatConfig["server"][key] = std::string(json_object_get_string(val));
+    data = this->get({"server"});
+    if(data != NULL) {
+        json_object_object_foreach(data, key, val) {
+            if(json_object_get_type(val) == json_type_string) {
+                compatConfig["server"][key] = std::string(json_object_get_string(val));
+            } else if(json_object_get_type(val) == json_type_int) {
+                compatConfig["server"][key] = std::to_string(json_object_get_int(val));
+            }
         }
-    }}
+    }
     compatConfig["shares"]["database"] = this->getStr({"database", "global", "dbpath"});
     compatConfig["buddy.shares"]["database"] = this->getStr({"database", "buddy", "dbpath"});
     compatConfig["transfers"]["download-dir"] = this->getStr({"downloads", "complete"});
     compatConfig["transfers"]["downloads"] = this->getStr({"downloads", "queue"});
     compatConfig["transfers"]["incomplete-dir"] = this->getStr({"downloads", "incomplete"});
-    compatConfig["transfers"]["only_buddies"] = std::to_string(this->getBool({"uploads", "buddiesOnly"}));
-    compatConfig["transfers"]["privilege_buddies"] = std::to_string(this->getBool({"uploads", "buddiesFirst"}));
+    compatConfig["transfers"]["only_buddies"] = convert::bool2string(this->getBool({"uploads", "buddiesOnly"}));
+    compatConfig["transfers"]["privilege_buddies"] = convert::bool2string(this->getBool({"uploads", "buddiesFirst"}));
     compatConfig["transfers"]["upload_slots"] = std::to_string(this->getInt({"uploads", "slots"}));
     compatConfig["transfers"]["download_slots"] = std::to_string(this->getInt({"downloads", "slots"}));
     compatConfig["transfers"]["upload_rate"] = std::to_string(this->getInt({"uploads", "maxspeed"}));
     compatConfig["transfers"]["download_rate"] = std::to_string(this->getInt({"downloads", "maxspeed"}));
-    compatConfig["transfers"]["have_buddy_shares"] = std::to_string(this->getBool({"database", "buddy", "enabled"}));
-    compatConfig["transfers"]["trusting_uploads"] = std::to_string(this->getBool({"uploads", "allowTrusted"}));
+    compatConfig["transfers"]["have_buddy_shares"] = convert::bool2string(this->getBool({"database", "buddy", "enabled"}));
+    compatConfig["transfers"]["trusting_uploads"] = convert::bool2string(this->getBool({"uploads", "allowTrusted"}));
     compatConfig["transfers"]["download_blacklist"] = string::join(this->getVec({"downloads", "blacklist"}), ";");
-    compatConfig["transfers"]["autoclear_finished_downloads"] = std::to_string(this->getBool({"downloads", "autoclear"}));
-    compatConfig["transfers"]["autoclear_finished_uploads"] = std::to_string(this->getBool({"uploads", "autoclear"}));
-    compatConfig["transfers"]["autoretry_downloads"] = std::to_string(this->getBool({"downloads", "autoretry"}));
+    compatConfig["transfers"]["autoclear_finished_downloads"] = convert::bool2string(this->getBool({"downloads", "autoclear"}));
+    compatConfig["transfers"]["autoclear_finished_uploads"] = convert::bool2string(this->getBool({"uploads", "autoclear"}));
+    compatConfig["transfers"]["autoretry_downloads"] = convert::bool2string(this->getBool({"downloads", "autoretry"}));
     compatConfig["userinfo"]["image"] = this->getStr({"info", "image"});
     compatConfig["userinfo"]["text"] = this->getStr({"info", "text"});
     compatConfig["default-ticker"]["ticker"] = this->getStr({"info", "defaultTicker"});
-    {json_object_object_foreach(this->get({"info", "tickers"}), key, val) {
-        compatConfig["tickers"][key] = std::string(json_object_get_string(val));
-    }}
-    {json_object_object_foreach(this->get({"info", "wishes"}), key, val) {
-        compatConfig["wishlist"][key] = std::string(json_object_get_string(val));
-    }}
-    compatConfig["priv_rooms"]["enable_priv_room"] = std::to_string(this->getBool({"privateRooms", "enabled"}));
+    data = this->get({"info", "tickers"});
+    if(data != NULL) {
+        json_object_object_foreach(data, key, val) {
+            compatConfig["tickers"][key] = std::string(json_object_get_string(val));
+        }
+    }
+    data = this->get({"downloads", "wishes"});
+    if(data != NULL) {
+        json_object_object_foreach(data, key, val) {
+            compatConfig["wishlist"][key] = std::string(json_object_get_string(val));
+        }
+    }
+    compatConfig["priv_rooms"]["enable_priv_room"] = convert::bool2string(this->getBool({"privateRooms", "enabled"}));
 
     return compatConfig;
 }

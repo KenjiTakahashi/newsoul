@@ -432,7 +432,7 @@ newsoul::IfaceManager::onIfaceLogin(const ILogin * message)
     if(socket->mask() & EM_PRIVATE)
       flushPrivateMessages();
     if(socket->mask() & EM_CONFIG)
-        //SEND_MESSAGE(socket, IConfigState(socket->cipherContext(), newsoul()->config())); //FIXME
+        SEND_MESSAGE(socket, IConfigState(socket->cipherContext(), newsoul()->config()->compatData()));
     if(newsoul()->server()->loggedIn())
       SEND_MESSAGE(message->ifaceSocket(), ISetStatus(m_AwayState));
 
@@ -502,15 +502,19 @@ void newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet *message) {
     } else if(d == "encoding.users") {
         c->set({"encoding", "users", k}, v);
     } else if(d == "interests.hate") {
-        c->set({"info", "interests", "hate"}, k);
+        c->add({"info", "interests", "hate"}, k);
     } else if(d == "interests.like") {
-        c->set({"info", "interests", "like"}, k);
+        c->add({"info", "interests", "like"}, k);
     } else if(d == "interfaces") {
         c->set({"listeners", d}, v);
     } else if(d == "interfaces.bind") {
         c->add({"listeners", "paths"}, k);
     } else if(d == "server") {
-        c->set({d, k}, v);
+        if(k == "port") {
+            c->set({d, k}, std::stoi(v));
+        } else {
+            c->set({d, k}, v);
+        }
     } else if(d == "shares") {
         c->set({"database", "global", "dbpath"}, v);
     } else if(d == "buddy.shares") {
@@ -552,7 +556,7 @@ void newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet *message) {
     } else if(d == "userinfo") {
         c->set({"info", d, k}, v);
     } else if(d == "default-ticker") {
-        c->set({"info", "defaultTicker"}, k);
+        c->set({"info", "defaultTicker"}, v);
     } else if(d == "tickers") {
         c->set({"info", "tickers", k}, v);
     } else if(d == "wishlist") {
@@ -562,10 +566,84 @@ void newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet *message) {
     }
 }
 
-void
-newsoul::IfaceManager::onIfaceRemoveConfig(const IConfigRemove * message)
-{
-  newsoul()->config()->del({message->domain}, message->key);
+void newsoul::IfaceManager::onIfaceRemoveConfig(const IConfigRemove *message) {
+    Config *c = this->newsoul()->config();
+    const std::string d = message->domain;
+    std::string k = message->key;
+    if(d == "autojoin") {
+        c->del({"server", "join"}, k);
+    } else if(d == "banned" || d == "buddies" || d == "ignored" || d == "trusted") {
+        c->del({"users", d}, k);
+    } else if(d == "clients") {
+        c->del({"p2p"}, "mode");
+    } else if(d == "clients.bind") {
+        c->del({"p2p", "ports"}, k);
+    } else if(d == "encoding") {
+        if(k == "filesystem") {
+            k = "local";
+        }
+        c->del({d}, k);
+    } else if(d == "encoding.rooms") {
+        c->del({"encoding", "rooms"}, k);
+    } else if(d == "encoding.users") {
+        c->del({"encoding", "users"}, k);
+    } else if(d == "interests.hate") {
+        c->del({"info", "interests", "hate"}, k);
+    } else if(d == "interests.like") {
+        c->del({"info", "interests", "like"}, k);
+    } else if(d == "interfaces") {
+        c->del({"listeners", d}, k);
+    } else if(d == "interfaces.bind") {
+        c->del({"listeners", "paths"}, k);
+    } else if(d == "server") {
+        c->del({d}, k);
+    } else if(d == "shares") {
+        c->del({"database", "global"}, "dbpath");
+    } else if(d == "buddy.shares") {
+        c->del({"database", "buddy"}, "dbpath");
+    } else if(d == "transfers") {
+        if(k == "download-dir") {
+            c->del({"downloads"}, "complete");
+        } else if(k == "downloads") {
+            c->del({"downloads"}, "queue");
+        } else if(k == "incomplete-dir") {
+            c->del({"downloads"}, "incomplete");
+        } else if(k == "only_buddies") {
+            c->del({"uploads"}, "buddiesOnly");
+        } else if(k == "privilege_buddies") {
+            c->del({"uploads"}, "buddiesFirst");
+        } else if(k == "upload_slots") {
+            c->del({"uploads"}, "slots");
+        } else if(k == "download_slots") {
+            c->del({"downloads"}, "slots");
+        } else if(k == "upload_rate") {
+            c->del({"uploads"}, "maxspeed");
+        } else if(k == "download_rate") {
+            c->del({"downloads"}, "maxspeed");
+        } else if(k == "have_buddy_shares") {
+            c->del({"database", "buddy"}, "enabled");
+        } else if(k == "trusting_uploads") {
+            c->del({"uploads"}, "allowTrusted");
+        } else if(k == "download_blacklist") {
+            c->del({"downloads"}, "blacklist");
+        } else if(k == "autoclear_finished_downloads") {
+            c->del({"downloads"}, "autoclear");
+        } else if(k == "autoclear_finished_uploads") {
+            c->del({"uploads"}, "autoclear");
+        } else if(k == "autoretry_downloads") {
+            c->del({"downloads"}, "autoretry");
+        }
+    } else if(d == "userinfo") {
+        c->del({"info", d}, k);
+    } else if(d == "default-ticker") {
+        c->del({"info"}, "defaultTicker");
+    } else if(d == "tickers") {
+        c->del({"info", "tickers"}, k);
+    } else if(d == "wishlist") {
+        c->del({"downloads", "wishes"}, k);
+    } else if(d == "priv_rooms") {
+        c->del({"privateRooms"}, "enabled");
+    }
 }
 
 void
