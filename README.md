@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/KenjiTakahashi/newsoul.png?branch=master)](https://travis-ci.org/KenjiTakahashi/newsoul)
+
 **newsoul** is a daemon/server based [Soulseek](http://www.slsknet.org) client, a successor of Museek+.
 
 It is basically my attempt to resurrect Museek+, which development ceased few years ago.
@@ -6,7 +8,7 @@ This is *only* the daemon/server part, no clients (besides CLI) are developed he
 
 ## requirements
 
-* json-c
+* json-c >= 0.10
 * libevent
 * taglib
 * nettle
@@ -28,13 +30,11 @@ $ make newsoul
 
 ## usage
 
-**Museek+ users:** Copy your configuration files (usually stored in `~/.museekd`) into `~/.newsoul` and you should be all set.
+* Use `$ newsoul set` command for first time configuration. See `$ newsoul set help` for detailed information.
+* Run `$ newsoul`.
+* Use your favourite client (Museek+ clients like Museeq should still work).
 
-* Use nssetup for first time configuration.
-* Run newsoul.
-* Use your favourite client (museek+ clients like Museeq still work).
-
-**Note:** Unfortunately, you cannot refresh shares from client applications anymore. Use **nsscan** directly instead.
+**Note:** Unfortunately, it is not possible to manage shares from client applications anymore. Please use `$ newsoul database` command instead.
 
 ## bindings
 
