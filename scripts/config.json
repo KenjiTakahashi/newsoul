@@ -1,7 +1,7 @@
 {
     "server": {
         "host": "server.slsknet.org",
-        "port": "2242",
+        "port": 2242,
         "username": "anonymous",
         "password": "",
         "join": []

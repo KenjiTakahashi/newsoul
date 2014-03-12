@@ -36,6 +36,13 @@ $ make newsoul
 
 **Note:** Unfortunately, it is not possible to manage shares from client applications anymore. Please use `$ newsoul database` command instead.
 
+**Note:** Version 0.2 is meant as a transitional release and suffers from a few known bugs:
+
+* Some configuration options might not get applied before the server is restarted.
+* Application startup might become slow when the shares database grows bigger. This also affects using `newsoul` as a CLI utility.
+
+Both of these issues require significant changes to be properly fixed. It is the main course of the 0.3 release.
+
 ## bindings
 
 There are python2.x bindings available inside python-bindings directory. They can be installed with

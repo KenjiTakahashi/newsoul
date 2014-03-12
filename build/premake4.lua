@@ -23,8 +23,9 @@ newaction {
             os.mkdir(syspath)
             os.copyfile("../scripts/newsoul@.service", syspath)
             print("Installing default configuration")
-            os.mkdir("/etc/newsoul")
-            os.copyfile("../scripts/config.json", "/etc/newsoul")
+            etcpath = path.join(prefix, "etc/newsoul")
+            os.mkdir(etcpath)
+            os.copyfile("../scripts/config.json", etcpath)
         end
     end
 }
