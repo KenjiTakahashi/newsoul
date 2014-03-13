@@ -166,7 +166,7 @@ static inline bool wildcmp(const std::string & wildStr, const std::string & stri
           return false;
     }
 
-    NNLOG("newsoul.util.warn", "Error while using regex %s.", regex.c_str());
+    //NNLOG("newsoul.util.warn", "Error while using regex %s.", regex.c_str());
 
     return false;
 

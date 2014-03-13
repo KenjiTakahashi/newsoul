@@ -22,6 +22,7 @@
 #ifndef NEWSOUL_CODESETMANAGER_H
 #define NEWSOUL_CODESETMANAGER_H
 
+#include <assert.h>
 #include <iconv.h>
 #include <map>
 #include "newsoul.h"

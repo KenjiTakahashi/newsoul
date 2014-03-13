@@ -313,20 +313,19 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
     }
 
     if(!debug) {
-        NNLOG.disable("ALL");
     }
 
     return true;
 }
 
 int newsoul::Newsoul::run(int argc, char *argv[]) {
+    //google::InstallFailureFunction(&handleSignals); //FIXME: Make better func
     bool run = this->parseArgs(argc, argv);
     if(!run) {
         return 0;
     }
 
     m_Reactor = new NewNet::Reactor();
-
     /* Instantiate the various components. Order can be important here. */
     m_Codeset = new CodesetManager(this);
     m_Server = new ServerManager(this);
@@ -425,14 +424,14 @@ unsigned int newsoul::Newsoul::downSlots() {
 void newsoul::Newsoul::addPrivilegedUser(const std::string & user) {
     if (!isPrivileged(user)) {
         mPrivilegedUsers.push_back(user);
-        NNLOG("newsoul.debug", "%u privileged users", mPrivilegedUsers.size());
+        VLOG(1) << "Privileged users no: " << mPrivilegedUsers.size();
     }
 }
 
 // Replace the privileged users list with this new one
 void newsoul::Newsoul::setPrivilegedUsers(const std::vector<std::string> & users) {
     mPrivilegedUsers = users;
-    NNLOG("newsoul.debug", "%u privileged users", mPrivilegedUsers.size());
+    VLOG(1) << "Privileged users no:" << mPrivilegedUsers.size();
 }
 
 void newsoul::Newsoul::sendSharedNumber() {
@@ -454,14 +453,14 @@ bool newsoul::Newsoul::isEnabledPrivRoom() {
 
 void newsoul::Newsoul::handleSignals(int signal) {
     if(signal == SIGINT) {
-        NNLOG("newsoul.debug", "Got %i, stopping the reactor.", signal);
+        LOG(INFO) << "Got SIGINT, stopping the reactor";
         _instance->m_Reactor->stop();
 #ifndef _WIN32
     } else if(signal == SIGHUP) {
-        NNLOG("newsoul.debug", "Got %i, reloading shares.", signal);
+        LOG(INFO) << "Got SIGHUP, reloading shares";
         _instance->LoadShares();
     } else if(signal == SIGALRM) {
-        NNLOG("newsoul.debug", "Got %i, reconnecting.", signal);
+        LOG(INFO) << "Got SIGALRM, reconnecting";
         if(!_instance->m_Server->loggedIn()) {
             _instance->m_Server->connect();
         }

@@ -26,7 +26,6 @@
 #include "searchmanager.h"
 #include "utils/convert.h"
 #include "utils/string.h"
-#include "NewNet/nnlog.h"
 #include "NewNet/nnobject.h"
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnserversocket.h"
@@ -71,7 +70,7 @@ namespace newsoul
     void flushPrivateMessages();
 
     // Log event handler:
-    void onLog(const NewNet::Log::LogNotify * notice);
+    //void onLog(const NewNet::Log::LogNotify * notice);
 
     // Config changed listener events:
     //void onConfigKeySet(const ConfigManager::ChangeNotify * data);

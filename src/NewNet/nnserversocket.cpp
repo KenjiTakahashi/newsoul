@@ -19,7 +19,6 @@
  */
 
 #include "nnserversocket.h"
-#include "nnlog.h"
 #include "util.h"
 #include <iostream>
 
@@ -28,7 +27,7 @@ NewNet::ServerSocket::disconnect()
 {
   if((descriptor() == -1) || (socketState() != SocketListening))
   {
-    NNLOG("newnet.net.warn", "Trying to disconnect an uninitialized server socket.");
+    //NNLOG("newnet.net.warn", "Trying to disconnect an uninitialized server socket.");
     return;
   }
 
@@ -48,12 +47,12 @@ NewNet::ServerSocket::process()
     {
       if ((WSAGetLastError() == EAGAIN) || (WSAGetLastError() == EMFILE))
         setReadyState(readyState() & ~StateReceive);
-      else
-        NNLOG("newnet.net.warn", "Ignoring error '%i' in ServerSocket::accept().", errno);
+      //else
+        //NNLOG("newnet.net.warn", "Ignoring error '%i' in ServerSocket::accept().", errno);
     }
     else {
       if (!setnonblocking(client))
-        NNLOG("newnet.net.warn", "Couldn't set socket %i to non blocking (errno: %i)", client, errno);
+        //NNLOG("newnet.net.warn", "Couldn't set socket %i to non blocking (errno: %i)", client, errno);
       acceptedEvent(client);
     }
   }

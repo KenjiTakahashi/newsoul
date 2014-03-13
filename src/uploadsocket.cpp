@@ -41,7 +41,7 @@ newsoul::UploadSocket::UploadSocket(newsoul::Newsoul * newsoul, newsoul::Upload 
 
 newsoul::UploadSocket::~UploadSocket()
 {
-    NNLOG("newsoul.up.debug", "UploadSocket destroyed");
+    //NNLOG("newsoul.up.debug", "UploadSocket destroyed");
 }
 
 /*
@@ -53,7 +53,7 @@ newsoul::UploadSocket::onDisconnected(ClientSocket * socket)
 	if(m_Upload->state() == TS_RemoteError || m_Upload->state() == TS_LocalError)
 		return;
 
-	NNLOG("newsoul.up.debug", "UploadSocket disconnected");
+	//NNLOG("newsoul.up.debug", "UploadSocket disconnected");
 
 	if(m_Upload->position() >= m_Upload->size())
 		m_Upload->setState(TS_Finished);
@@ -70,7 +70,7 @@ newsoul::UploadSocket::onCannotConnect(ClientSocket * socket)
 	if(m_Upload->state() == TS_RemoteError || m_Upload->state() == TS_LocalError)
 		return;
 
-	NNLOG("newsoul.up.debug", "UploadSocket connection cannot be established");
+	//NNLOG("newsoul.up.debug", "UploadSocket connection cannot be established");
 	m_Upload->setState(TS_CannotConnect);
 	disconnect();
 }
@@ -101,7 +101,7 @@ newsoul::UploadSocket::wait()
 void
 newsoul::UploadSocket::stop()
 {
-    NNLOG("newsoul.up.debug", "Disconnecting upload socket...");
+    //NNLOG("newsoul.up.debug", "Disconnecting upload socket...");
     disconnect();
 }
 
@@ -126,7 +126,7 @@ void newsoul::UploadSocket::sendTicket() {
 
     send((const unsigned char *) &buf, 4);
     m_Upload->setState(TS_Waiting);
-    NNLOG("newsoul.ticket.debug", "Ticket %u has been sent", ticket);
+    //NNLOG("newsoul.ticket.debug", "Ticket %u has been sent", ticket);
 }
 
 /*
@@ -134,7 +134,7 @@ void newsoul::UploadSocket::sendTicket() {
 */
 void newsoul::UploadSocket::onDataReceived(NewNet::ClientSocket * socket) {
     if(m_Upload->state() == TS_Waiting) {
-        NNLOG("newsoul.up.debug", "got %u bytes in uploadsocket", receiveBuffer().count());
+        //NNLOG("newsoul.up.debug", "got %u bytes in uploadsocket", receiveBuffer().count());
 
         findPosition();
     }
@@ -159,7 +159,7 @@ void newsoul::UploadSocket::onDataSent(NewNet::ClientSocket * socket) {
 
         if(sendBuffer().count() < 10240 && (m_Upload->position() + (uint64) sendBuffer().count() < m_Upload->size())) {
             if(! m_Upload->read(sendBuffer())) {
-                NNLOG("newsoul.up.debug", "read error");
+                //NNLOG("newsoul.up.debug", "read error");
                 m_Upload->setLocalError("File error");
                 stop();
             }
@@ -181,7 +181,7 @@ newsoul::UploadSocket::onTransferTicketReceived(TicketSocket * socket)
         receiveBuffer() = socket->receiveBuffer();
         sendBuffer() = socket->sendBuffer();
 
-        NNLOG("newsoul.up.debug", "got %u bytes in uploadsocket", receiveBuffer().count());
+        //NNLOG("newsoul.up.debug", "got %u bytes in uploadsocket", receiveBuffer().count());
 
         findPosition();
     }
@@ -199,11 +199,11 @@ newsoul::UploadSocket::findPosition() {
             pos += receiveBuffer().data()[0] << (i*8);
             receiveBuffer().seek(1);
         }
-        NNLOG("newsoul.up.debug", "Uploading from pos %i", pos);
+        //NNLOG("newsoul.up.debug", "Uploading from pos %i", pos);
 
         // Try to seek
         if(! m_Upload->seek(pos)) {
-            NNLOG("newsoul.up.warn", "seek error");
+            //NNLOG("newsoul.up.warn", "seek error");
             m_Upload->setLocalError("File error");
             stop();
             return;
@@ -214,12 +214,12 @@ newsoul::UploadSocket::findPosition() {
 
         // Try to send the data
         if(! m_Upload->read(sendBuffer())) {
-            NNLOG("newsoul.up.warn", "read error");
+            //NNLOG("newsoul.up.warn", "read error");
             m_Upload->setLocalError("File error");
             stop();
             return;
         }
-        NNLOG("newsoul.up.debug", "have %i in sending buffer", sendBuffer().count());
+        //NNLOG("newsoul.up.debug", "have %i in sending buffer", sendBuffer().count());
 
         // Change the state.
         m_Upload->setState(TS_Transferring);
@@ -235,6 +235,6 @@ newsoul::UploadSocket::findPosition() {
 */
 void
 newsoul::UploadSocket::dataTimeout(long) {
-    NNLOG("newsoul.up.debug", "Data timeout while uploading.");
+    //NNLOG("newsoul.up.debug", "Data timeout while uploading.");
     stop();
 }

@@ -21,14 +21,16 @@
 newsoul::SharesDB *newsoul::SharesDB::_this;
 
 newsoul::SharesDB::SharesDB(const std::string &fn, std::function<void(void)> func) {
+    LOG(INFO) << "Started loading shares database";
     this->updateApp = func;
     const std::string efn = path::expand(fn);
     os::_mkdir(efn);
     std::string dfn = path::join({efn, "shares.db"});
     int res = sqlite3_open(dfn.c_str(), &this->db);
+    PLOG_IF(FATAL, res != SQLITE_OK) << "Error opening shares database";
     this->createDB();
-    //TODO: Handle errors. Really
     this->compress();
+    LOG(INFO) << "Finished loading shares database";
 }
 
 newsoul::SharesDB::~SharesDB() {
@@ -66,7 +68,7 @@ void newsoul::SharesDB::createDB() {
         "FOREIGN KEY(dirID) REFERENCES DIR(ID) "
         "ON DELETE CASCADE ON UPDATE CASCADE); "
 
-        "CREATE TRIGGER insert_closure AFTER INSERT ON DIR "
+        "CREATE TRIGGER IF NOT EXISTS insert_closure AFTER INSERT ON DIR "
         "BEGIN "
         "INSERT INTO CLOSURE(parentID, childID, depth) "
         "VALUES(new.ID, new.ID, 0);"
@@ -76,27 +78,28 @@ void newsoul::SharesDB::createDB() {
         "WHERE parent.childID=new.parentID and child.parentID=new.ID; "
         "END; "
 
-        "CREATE TRIGGER delete_closure AFTER DELETE ON DIR "
+        "CREATE TRIGGER IF NOT EXISTS delete_closure AFTER DELETE ON DIR "
         "BEGIN "
         "DELETE FROM CLOSURE WHERE childID=old.ID; "
         "DELETE FROM DIR "
         "WHERE ID in (SELECT childID FROM CLOSURE WHERE parentID=old.ID); "
         "END; "
 
-        "CREATE VIRTUAL TABLE PATHS USING fts4(path); "
+        "CREATE VIRTUAL TABLE IF NOT EXISTS PATHS USING fts4(path); "
 
-        "CREATE TRIGGER insert_paths AFTER INSERT ON DIR "
+        "CREATE TRIGGER IF NOT EXISTS insert_paths AFTER INSERT ON DIR "
         "WHEN new.type=0 "
         "BEGIN "
         "INSERT INTO PATHS(docid, path) VALUES(new.ID, new.path); "
         "END; "
 
-        "CREATE TRIGGER delete_paths AFTER DELETE ON DIR "
+        "CREATE TRIGGER IF NOT EXISTS delete_paths AFTER DELETE ON DIR "
         "WHEN old.type=0 "
         "BEGIN "
         "DELETE FROM PATHS WHERE docid=old.ID; "
         "END; "
     , NULL, NULL, NULL);
+    PLOG_IF(FATAL, res != SQLITE_OK) << "Error creating shares database";
 }
 
 int newsoul::SharesDB::add(const char *path, const struct stat *st, int type, struct FTW *ftwbuf) {
@@ -108,7 +111,8 @@ int newsoul::SharesDB::add(const char *path, const struct stat *st, int type, st
         case FTW_D:
             SharesDB::_this->addDir(path, false);
             break;
-        default: //TODO: report error
+        default:
+            LOG(WARNING) << "Error reading '" << dir << "': Unknown type";
             break;
     }
     return 0;
@@ -121,7 +125,9 @@ void newsoul::SharesDB::add(std::initializer_list<const std::string> paths) {
     for(auto path : paths) {
         nftw(path.c_str(), SharesDB::add, 20, 0);
     }
+    PLOG_IF(ERROR, res != SQLITE_OK) << "Error starting add transaction";
     res = sqlite3_exec(this->db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
+    PLOG_IF(ERROR, res != SQLITE_OK) << "Error ending add transaction";
 }
 
 void newsoul::SharesDB::remove(std::initializer_list<const std::string> paths) {
@@ -130,6 +136,7 @@ void newsoul::SharesDB::remove(std::initializer_list<const std::string> paths) {
     for(auto path : paths) {
         sql = sqlite3_mprintf("DELETE FROM DIR WHERE path=%Q;", path.c_str());
         int res = sqlite3_exec(this->db, sql, NULL, NULL, NULL);
+        PLOG_IF(ERROR, res != SQLITE_OK) << "Error removing '" << path << "'";
         sqlite3_free(sql);
     }
 }
@@ -152,6 +159,7 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &path,
     int res;
     if(commit) {
         res = sqlite3_exec(this->db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+        PLOG_IF(ERROR, res != SQLITE_OK) << "Error starting addFile transaction";
     }
     char *sql = sqlite3_mprintf(
         "INSERT OR REPLACE INTO DIR(path, parentID, type) "
@@ -163,8 +171,10 @@ void newsoul::SharesDB::addFile(const std::string &dir, const std::string &path,
         , st.st_size, ext.c_str(), st.st_mtime, bitrate, length, vbr
     );
     res = sqlite3_exec(this->db, sql, NULL, NULL, NULL);
+    PLOG_IF(ERROR, res != SQLITE_OK) << "Error adding '" << path << "'";
     if(commit) {
         res = sqlite3_exec(this->db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
+        PLOG_IF(ERROR, res != SQLITE_OK) << "Error ending addFile transaction";
     }
     sqlite3_free(sql);
 }
@@ -181,22 +191,26 @@ void newsoul::SharesDB::addDir(const std::string &path, bool commit) {
     int res;
     if(commit) {
         res = sqlite3_exec(this->db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+        PLOG_IF(ERROR, res != SQLITE_OK) << "Error starting addDir transaction";
     }
-    res = sqlite3_prepare_v2(this->db, sql, -1, &stmt, NULL);
+    sqlite3_prepare_v2(this->db, sql, -1, &stmt, NULL);
     sqlite3_bind_text(stmt, 1, recreated_path.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_null(stmt, 2);
     res = sqlite3_step(stmt);
+    PLOG_IF(ERROR, res != SQLITE_ROW && res != SQLITE_DONE && res != SQLITE_CONSTRAINT) << "Error adding '" << recreated_path << "'";
     for(unsigned int i = 1; i < pieces.size(); ++i) {
         sqlite3_reset(stmt);
         std::string parent(recreated_path);
         sqlite3_bind_text(stmt, 2, parent.c_str(), -1, SQLITE_STATIC);
         recreated_path = path::join({recreated_path, pieces[i]});
         sqlite3_bind_text(stmt, 1, recreated_path.c_str(), -1, SQLITE_STATIC);
-        sqlite3_step(stmt);
+        res = sqlite3_step(stmt);
+        PLOG_IF(ERROR, res != SQLITE_ROW && res != SQLITE_DONE && res != SQLITE_CONSTRAINT) << "Error adding '" << recreated_path << "'";
     }
     sqlite3_finalize(stmt);
     if(commit) {
         res = sqlite3_exec(this->db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
+        PLOG_IF(ERROR, res != SQLITE_OK) << "Error ending addDir transaction";
     }
     sqlite3_free(sql);
 }
@@ -282,7 +296,8 @@ void newsoul::SharesDB::compress() {
     if(::compress((Bytef*)outBuf, &outLen, (Bytef*)inBuf.data(), inBuf.size()) == Z_OK) {
         this->compressed = std::vector<unsigned char>(outBuf, outBuf + outLen);
     } else {
-        //TODO: report error
+        LOG(ERROR) << "Error compressing shares database";
+        LOG(ERROR) << "Others will not be able to browse your shares";
     }
 
     delete [] outBuf;

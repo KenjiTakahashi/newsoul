@@ -26,7 +26,6 @@
 #include <zlib.h>
 #include "mutypes.h"
 #include "NewNet/nnbuffer.h"
-#include "NewNet/nnlog.h"
 
 /* This declares a GenericMessage. It's not used at the moment, but it could
    be in the future. */
@@ -78,7 +77,7 @@ public:
     }
     catch(std::bad_alloc e)
     {
-      NNLOG("newsoul.warn", "Ran out of memory while unpacking message!");
+      //NNLOG("newsoul.warn", "Ran out of memory while unpacking message!");
     }
   }
 
@@ -127,7 +126,7 @@ protected:
     else
     {
       // Buffer was empty, message is invalid, print message
-      NNLOG("newsoul.warn", "Corrupted message encountered (unpack from empty buffer).");
+      //NNLOG("newsoul.warn", "Corrupted message encountered (unpack from empty buffer).");
     }
     // Return the value.
     return c;

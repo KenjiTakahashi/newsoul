@@ -1,7 +1,7 @@
 /*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
-    Karol 'Kenji Takahashi' Woźniak © 2013
+    Karol 'Kenji Takahashi' Woźniak © 2013 - 2014
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,49 +19,36 @@
 
  */
 
+#include <glog/logging.h>
 #include "newsoul.h"
 
 /* Returns 0 if newsoul is already running, 1 otherwise. */
-int get_lock(void)
-{
-# ifdef HAVE_FCNTL_H
-  struct flock fl;
-  int fdlock;
+int get_lock(void) {
+#ifdef HAVE_FCNTL_H
+    struct flock fl;
+    int fdlock;
 
-  fl.l_type = F_WRLCK;
-  fl.l_whence = SEEK_SET;
-  fl.l_start = 0;
-  fl.l_len = 1;
+    fl.l_type = F_WRLCK;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 1;
 
-  if((fdlock = open("/tmp/newsoul.lock", O_WRONLY|O_CREAT, 0666)) == -1)
-    return 0;
+    if((fdlock = open("/tmp/newsoul.lock", O_WRONLY|O_CREAT, 0666)) == -1)
+        return 0;
 
-  if(fcntl(fdlock, F_SETLK, &fl) == -1)
-    return 0;
-
+    if(fcntl(fdlock, F_SETLK, &fl) == -1)
+        return 0;
 # endif // HAVE_FCNTL_H
-
-  return 1;
+    return 1;
 }
 
 int main(int argc, char *argv[]) {
-  if(!get_lock())
-  {
-    std::cerr << "newsoul already running!" << std::endl;
-    return 1;
-  }
+    google::InitGoogleLogging(argv[0]);
+    FLAGS_logtostderr = true;
 
-  /* Enable various interesting logging domains. */
-  NNLOG.logEvent.connect(new NewNet::ConsoleOutput);
-  NNLOG.enable("ALL");
+    LOG_IF(FATAL, !get_lock()) << "Another instance is already running, aborting.";
+    LOG_IF(WARNING, sizeof(off_t) < 8) << "No large file support. Will not be able to download files with size >4GB";
 
-  /* Check size of off_t */
-  if(sizeof(off_t) < 8)
-  {
-    NNLOG("newsoul.warn", "Warning: No large file support. This means you can't download files larger than 4GB.");
-  }
-
-  /* Create our newsoul Daemon instance. */
-  newsoul::Newsoul app;
-  return app.run(argc, argv);
+    newsoul::Newsoul app;
+    return app.run(argc, argv);
 }

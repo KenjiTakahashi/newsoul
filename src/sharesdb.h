@@ -21,6 +21,7 @@
 
 #include <initializer_list>
 #include <ftw.h>
+#include <glog/logging.h>
 #include <map>
 #include <sqlite3.h>
 #include <stdint.h>

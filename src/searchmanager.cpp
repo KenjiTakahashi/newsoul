@@ -46,7 +46,7 @@ newsoul::SearchManager::~SearchManager()
 {
     if (m_WishlistTimeout.isValid())
         newsoul()->reactor()->removeTimeout(m_WishlistTimeout);
-    NNLOG("newsoul.peers.debug", "Search Manager destroyed");
+    //NNLOG("newsoul.peers.debug", "Search Manager destroyed");
 }
 
 /**
@@ -72,7 +72,7 @@ void newsoul::SearchManager::setChild(DistributedSocket * socket, uint depth) {
     if (socket) {
         bool isUpdate = m_Children.find(socket->user()) != m_Children.end();
         if ((parent() || isUpdate) && acceptChildren()) {
-            NNLOG("newsoul.peers.debug", "Setting child: %s, depth %d", socket->user().c_str(), depth);
+            //NNLOG("newsoul.peers.debug", "Setting child: %s, depth %d", socket->user().c_str(), depth);
 
             uint oldDepth = childDepth();
 
@@ -80,7 +80,7 @@ void newsoul::SearchManager::setChild(DistributedSocket * socket, uint depth) {
             uint newDepth = childDepth();
 
             if (oldDepth != newDepth) {
-                NNLOG("newsoul.peers.debug", "Our child depth is now %d", newDepth);
+                //NNLOG("newsoul.peers.debug", "Our child depth is now %d", newDepth);
                 SChildDepth msg(newDepth);
                 newsoul()->server()->sendMessage(msg.make_network_packet());
 
@@ -115,7 +115,7 @@ void newsoul::SearchManager::setChild(DistributedSocket * socket, uint depth) {
   * Removes a child from our tree
   */
 void newsoul::SearchManager::removeChild(const std::string & user) {
-    NNLOG("newsoul.peers.debug", "Removing child: %s", user.c_str());
+    //NNLOG("newsoul.peers.debug", "Removing child: %s", user.c_str());
 
     uint oldDepth = childDepth();
 
@@ -126,7 +126,7 @@ void newsoul::SearchManager::removeChild(const std::string & user) {
         // If we have a new child depth, inform the server and our parent
         uint newDepth = childDepth();
         if (oldDepth != newDepth) {
-            NNLOG("newsoul.peers.debug", "Our child depth is now %d", newDepth);
+            //NNLOG("newsoul.peers.debug", "Our child depth is now %d", newDepth);
             SChildDepth msg(newDepth);
             newsoul()->server()->sendMessage(msg.make_network_packet());
 
@@ -162,7 +162,7 @@ void newsoul::SearchManager::setParent(DistributedSocket * parentSocket) {
     m_Parent = parentSocket;
     if (parentSocket) {
         std::string parentName = parentSocket->user();
-        NNLOG("newsoul.peers.debug", "Found a parent : %s", parentName.c_str());
+        //NNLOG("newsoul.peers.debug", "Found a parent : %s", parentName.c_str());
         std::map<std::string, std::pair<NewNet::RefPtr<DistributedSocket>, std::string> >::iterator it;
 
         std::map<std::string, std::pair<NewNet::RefPtr<DistributedSocket>, std::string> > parents = m_PotentialParents;
@@ -189,7 +189,7 @@ void newsoul::SearchManager::setParent(DistributedSocket * parentSocket) {
   * We have a new branch root, store it and notify the server
   */
 void newsoul::SearchManager::setBranchRoot(const std::string & root) {
-    NNLOG("newsoul.peers.debug", "Our branch root is %s", root.c_str());
+    //NNLOG("newsoul.peers.debug", "Our branch root is %s", root.c_str());
     m_BranchRoot = root;
 
     // Tell our new parent how many children we've got
@@ -223,7 +223,7 @@ void newsoul::SearchManager::onNetInfoReceived(const SNetInfo * msg) {
 
     std::map<std::string, std::pair<std::string, uint32> >::const_iterator it;
     for (it = msg->users.begin(); it != msg->users.end(); it++) {
-        NNLOG("newsoul.peers.debug", "Potential parent: %s (%s:%i)", it->first.c_str(), it->second.first.c_str(), it->second.second);
+        //NNLOG("newsoul.peers.debug", "Potential parent: %s (%s:%i)", it->first.c_str(), it->second.first.c_str(), it->second.second);
 
         DistributedSocket * socket = new DistributedSocket(newsoul());
         newsoul()->reactor()->add(socket);
@@ -259,7 +259,7 @@ void newsoul::SearchManager::branchLevelReceived(DistributedSocket * socket, uin
 void newsoul::SearchManager::onSearchRequested(const SSearchRequest * msg) {
     std::string query = newsoul()->codeset()->fromNet(msg->query);
 
-    NNLOG("newsoul.peers.debug", "Received search request from server: %s for %s", query.c_str(), msg->username.c_str());
+    //NNLOG("newsoul.peers.debug", "Received search request from server: %s for %s", query.c_str(), msg->username.c_str());
 
     transmitSearch(msg->unknown, msg->username, msg->token, msg->query);
     sendSearchResults(msg->username, query, msg->token);
@@ -271,7 +271,7 @@ void newsoul::SearchManager::onSearchRequested(const SSearchRequest * msg) {
 void newsoul::SearchManager::onFileSearchRequested(const SFileSearch * msg) {
     std::string query = newsoul()->codeset()->fromNet(msg->query);
 
-    NNLOG("newsoul.peers.debug", "Received file search request from server: %s for %s", query.c_str(), msg->user.c_str());
+    //NNLOG("newsoul.peers.debug", "Received file search request from server: %s for %s", query.c_str(), msg->user.c_str());
 
     sendSearchResults(msg->user, query, msg->ticket);
 }
@@ -281,7 +281,7 @@ void newsoul::SearchManager::onFileSearchRequested(const SFileSearch * msg) {
   */
 void newsoul::SearchManager::onAddUserReceived(const SAddUser * msg) {
     if (msg->user == newsoul()->server()->username()) {
-        NNLOG("newsoul.peers.debug", "Our transfer speed is %d", msg->userdata.avgspeed);
+        //NNLOG("newsoul.peers.debug", "Our transfer speed is %d", msg->userdata.avgspeed);
         setTransferSpeed(msg->userdata.avgspeed);
     }
 }
@@ -290,7 +290,7 @@ void newsoul::SearchManager::onAddUserReceived(const SAddUser * msg) {
   * The server sends us the wishlist interval
   */
 void newsoul::SearchManager::onWishlistIntervalReceived(const SWishlistInterval * msg) {
-    NNLOG("newsoul.peers.debug", "New wishlist interval: %d", msg->value);
+    //NNLOG("newsoul.peers.debug", "New wishlist interval: %d", msg->value);
     m_WishlistInterval = msg->value;
     if (m_WishlistTimeout.isValid())
         newsoul()->reactor()->removeTimeout(m_WishlistTimeout);
@@ -308,7 +308,7 @@ void newsoul::SearchManager::onWishlistTimeout(long) {
             if (it->second < oldest->second)
                 oldest = it;
         }
-        NNLOG("newsoul.peers.debug", "Sending wishlist search for '%s'", oldest->first.c_str());
+        //NNLOG("newsoul.peers.debug", "Sending wishlist search for '%s'", oldest->first.c_str());
         uint token = newsoul()->token();
 
         newsoul()->ifaces()->sendNewSearchToAll(oldest->first, token);
@@ -394,13 +394,13 @@ void newsoul::SearchManager::wishlistAdd(const std::string & query) {
     newsoul()->ifaces()->sendNewSearchToAll(query, token);
 
     if (m_Wishlist.find(query) != m_Wishlist.end()) {
-        NNLOG("newsoul.peers.debug", "'%s' is already in the wishlist", query.c_str());
+        //NNLOG("newsoul.peers.debug", "'%s' is already in the wishlist", query.c_str());
         // This item is already in wishlist, just do a normal search
         SFileSearch msg(token, newsoul()->codeset()->toNet(query));
         newsoul()->server()->sendMessage(msg.make_network_packet());
     }
     else {
-        NNLOG("newsoul.peers.debug", "Adding '%s' in the wishlist", query.c_str());
+        //NNLOG("newsoul.peers.debug", "Adding '%s' in the wishlist", query.c_str());
         // launch a wishlist search
         SWishlistSearch msg(token, newsoul()->codeset()->toNet(query));
         newsoul()->server()->sendMessage(msg.make_network_packet());
@@ -417,7 +417,7 @@ void newsoul::SearchManager::onPeerSocketReady(PeerSocket * socket) {
 
     std::map<std::string, std::map<uint, Dir> >::iterator pending = m_PendingResults.find(username);
     if (pending != m_PendingResults.end() && m_PendingResults[username].size()) {
-        NNLOG("newsoul.peers.debug", "Sending search results to %s", username.c_str());
+        //NNLOG("newsoul.peers.debug", "Sending search results to %s", username.c_str());
 
         std::map<uint, Dir>::const_iterator it;
         for (it = m_PendingResults[username].begin(); it != m_PendingResults[username].end(); it++) {
@@ -463,7 +463,7 @@ void newsoul::SearchManager::onParentDisconnected(NewNet::ClientSocket * socket_
 void newsoul::SearchManager::onChildDisconnected(NewNet::ClientSocket * socket_) {
     DistributedSocket * socket = (DistributedSocket *) socket_;
 
-    NNLOG("newsoul.peers.debug", "Child %s is gone", socket->user().c_str());
+    //NNLOG("newsoul.peers.debug", "Child %s is gone", socket->user().c_str());
 
     removeChild(socket->user());
 }
@@ -482,7 +482,7 @@ newsoul::SearchManager::onServerLoggedInStateChanged(bool loggedIn)
         if (parentSocket)
             parentName = parentSocket->user();
 
-        NNLOG("newsoul.peers.debug", "Asking parents (level: %d, root: %s, child depth:%d)", level, parentName.c_str(), depth);
+        //NNLOG("newsoul.peers.debug", "Asking parents (level: %d, root: %s, child depth:%d)", level, parentName.c_str(), depth);
 
         SHaveNoParents msgNoParents(true);
         newsoul()->server()->sendMessage(msgNoParents.make_network_packet());

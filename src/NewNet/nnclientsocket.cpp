@@ -19,7 +19,6 @@
  */
 
 #include "nnclientsocket.h"
-#include "nnlog.h"
 #include <iostream>
 
 void
@@ -27,7 +26,7 @@ NewNet::ClientSocket::disconnect(bool invoke)
 {
   if((socketState() == SocketUninitialized) || (descriptor() < 0))
   {
-    NNLOG("newnet.net.warn", "Trying to disconnect an uninitialized client socket.");
+    //NNLOG("newnet.net.warn", "Trying to disconnect an uninitialized client socket.");
     if (invoke)
       disconnectedEvent(this);
     return;
@@ -51,13 +50,13 @@ NewNet::ClientSocket::process()
       getsockopt(descriptor(), SOL_SOCKET, SO_ERROR, &so_error, &so_len);
       if(so_len != sizeof(int) || ! so_error)
       {
-        NNLOG("newnet.net.debug", "Connected to host");
+        //NNLOG("newnet.net.debug", "Connected to host");
         setSocketState(SocketConnected);
         connectedEvent(this);
       }
       else
       {
-        NNLOG("newnet.net.warn", "Cannot connect to host, error: %i.", so_error);
+        //NNLOG("newnet.net.warn", "Cannot connect to host, error: %i.", so_error);
         setSocketError(ErrorCannotConnect);
         cannotConnectEvent(this);
         return;
@@ -71,7 +70,7 @@ NewNet::ClientSocket::process()
     ssize_t received = ::recv(descriptor(), (char *)&buf, 1, MSG_OOB);
     if(received < 1)
     {
-      NNLOG("newnet.net.warn", "Socket %u encountered error %i. Closing it.", descriptor(), errno);
+      //NNLOG("newnet.net.warn", "Socket %u encountered error %i. Closing it.", descriptor(), errno);
       closesocket(descriptor());
       setSocketError(ErrorUnknown);
       disconnectedEvent(this);
@@ -88,12 +87,12 @@ NewNet::ClientSocket::process()
     if(received == -1)
     {
       if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
-        NNLOG("newnet.net.debug", "EAGAIN while receiving data on socket %i.", descriptor());
+        //NNLOG("newnet.net.debug", "EAGAIN while receiving data on socket %i.", descriptor());
         setReadyState(readyState() & ~StateReceive);
       }
       else
       {
-        NNLOG("newnet.net.warn", "Socket %u encountered error %i. Closing it.", descriptor(), errno);
+        //NNLOG("newnet.net.warn", "Socket %u encountered error %i. Closing it.", descriptor(), errno);
         closesocket(descriptor());
         setSocketError(ErrorUnknown);
         disconnectedEvent(this);
@@ -102,7 +101,7 @@ NewNet::ClientSocket::process()
     }
     else if(received == 0)
     {
-      NNLOG("newnet.net.debug", "Socket %u was disconnected.", descriptor());
+      //NNLOG("newnet.net.debug", "Socket %u was disconnected.", descriptor());
       closesocket(descriptor());
       setSocketState(SocketDisconnected);
       disconnectedEvent(this);
@@ -110,7 +109,7 @@ NewNet::ClientSocket::process()
     }
     else
     {
-      NNLOG("newnet.net.debug", "Received %i bytes on socket %u.", received, descriptor());
+      //NNLOG("newnet.net.debug", "Received %i bytes on socket %u.", received, descriptor());
       if(downRateLimiter())
         downRateLimiter()->transferred(received);
       m_ReceiveBuffer.append(buf, received);
@@ -128,7 +127,7 @@ NewNet::ClientSocket::process()
         setReadyState(readyState() & ~StateSend);
       else
       {
-        NNLOG("newnet.net.warn", "Socket %u encountered error %i. Closing it.", descriptor(), errno);
+        //NNLOG("newnet.net.warn", "Socket %u encountered error %i. Closing it.", descriptor(), errno);
         closesocket(descriptor());
         setSocketError(ErrorUnknown);
         disconnectedEvent(this);
@@ -136,7 +135,7 @@ NewNet::ClientSocket::process()
       }
     }
     else {
-        NNLOG("newnet.net.debug", "Sent %i bytes to socket %u.", sent, descriptor());
+        //NNLOG("newnet.net.debug", "Sent %i bytes to socket %u.", sent, descriptor());
         if(upRateLimiter())
           upRateLimiter()->transferred(sent);
         m_SendBuffer.seek(sent);

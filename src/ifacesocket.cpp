@@ -30,7 +30,7 @@ newsoul::IfaceSocket::IfaceSocket() : NewNet::ClientSocket(), MessageProcessor(4
 
 newsoul::IfaceSocket::~IfaceSocket()
 {
-  NNLOG("newsoul.iface.debug", "IfaceSocket destroyed");
+  //NNLOG("newsoul.iface.debug", "IfaceSocket destroyed");
   free(m_CipherContext);
 }
 
@@ -39,7 +39,7 @@ newsoul::IfaceSocket::sendMessage(const NewNet::Buffer & buffer)
 {
   if(socketState() != SocketConnected)
   {
-    NNLOG("newsoul.iface.warn", "Trying to send message over closed socket...");
+    //NNLOG("newsoul.iface.warn", "Trying to send message over closed socket...");
     return;
   }
 
@@ -57,17 +57,18 @@ newsoul::IfaceSocket::onMessageReceived(const MessageData * data)
 {
   if((! authenticated()) && (data->type != 2))
   {
-    NNLOG("newsoul.iface.warn", "Attempt to bypass security detected, disconnecting interface.");
+    //NNLOG("newsoul.iface.warn", "Attempt to bypass security detected, disconnecting interface.");
     data->socket->disconnect();
     return;
   }
 
   switch(data->type)
   {
+    //NNLOG("newsoul.messages.iface", "Received interface message " #TYPE ".");
+    //NNLOG("newsoul.messages.iface", "Received interface message " #TYPE ".");
     #define MAP_MESSAGE(ID, TYPE, EVENT) \
       case ID: \
       { \
-        NNLOG("newsoul.messages.iface", "Received interface message " #TYPE "."); \
         TYPE msg; \
         msg.setIfaceSocket(this); \
         msg.parse_network_packet(data->data, data->length); \
@@ -77,7 +78,6 @@ newsoul::IfaceSocket::onMessageReceived(const MessageData * data)
     #define MAP_C_MESSAGE(ID, TYPE, EVENT) \
       case ID: \
       { \
-        NNLOG("newsoul.messages.iface", "Received interface message " #TYPE "."); \
         TYPE msg(m_CipherContext); \
         msg.setIfaceSocket(this); \
         msg.parse_network_packet(data->data, data->length); \
@@ -89,7 +89,7 @@ newsoul::IfaceSocket::onMessageReceived(const MessageData * data)
     #undef MAP_C_MESSAGE
 
     default:
-        NNLOG("newsoul.iface.warn", "Received unknown interface message, type: %u, length: %u", data->type, data->length);
+        //NNLOG("newsoul.iface.warn", "Received unknown interface message, type: %u, length: %u", data->type, data->length);
         NetworkMessage msg;
         msg.parse_network_packet(data->data, data->length);
   }

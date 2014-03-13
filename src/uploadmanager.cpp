@@ -28,7 +28,7 @@
   */
 newsoul::Upload::Upload(newsoul::Newsoul * newsoul, const std::string & user, const std::string & localPath)
 {
-    NNLOG("newsoul.up.debug", "Creating upload for %s, %s", user.c_str(), localPath.c_str());
+    //NNLOG("newsoul.up.debug", "Creating upload for %s, %s", user.c_str(), localPath.c_str());
 
     m_Newsoul = newsoul;
     m_User = user;
@@ -56,7 +56,7 @@ newsoul::Upload::~Upload()
 {
     closeFile();
 
-    NNLOG("newsoul.up.debug", "Upload destroyed.");
+    //NNLOG("newsoul.up.debug", "Upload destroyed.");
     m_Newsoul->uploads()->uploadRemovedEvent(this);
 }
 
@@ -89,7 +89,7 @@ newsoul::Upload::setState(TrState state)
             closeFile();
 
             if(m_Position >= m_Size) {
-                NNLOG("newsoul.up.debug", "transfer speed for %s was %u", m_User.c_str(), m_Rate);
+                //NNLOG("newsoul.up.debug", "transfer speed for %s was %u", m_User.c_str(), m_Rate);
                 m_Newsoul->server()->sendMessage(SSendUploadSpeed(m_Rate).make_network_packet());
             }
             break;
@@ -191,7 +191,7 @@ newsoul::Upload::setPosition(uint64 position)
   */
 void newsoul::Upload::closeFile() {
     if (m_File) {
-        NNLOG("newsoul.up.debug", "Closing %s", m_LocalPath.c_str());
+        //NNLOG("newsoul.up.debug", "Closing %s", m_LocalPath.c_str());
         delete m_File;
         m_File = 0;
     }
@@ -207,7 +207,7 @@ bool newsoul::Upload::openFile()
 	m_File = new std::ifstream(m_LocalPath.c_str(), std::fstream::in | std::fstream::binary);
 
 	if(m_File->fail() || !m_File->is_open()) {
-	    NNLOG("newsoul.up.warn", "Error while opening %s", m_LocalPath.c_str());
+		//NNLOG("newsoul.up.warn", "Error while opening %s", m_LocalPath.c_str());
 		return false;
 	}
 
@@ -218,7 +218,7 @@ bool newsoul::Upload::openFile()
     // go back to previous position
     m_File->seekg( 0,  std::ios_base::beg ) ;
 
-    NNLOG("newsoul.up.debug", "Opening file %s (size: %i)", m_LocalPath.c_str(), size());
+    //NNLOG("newsoul.up.debug", "Opening file %s (size: %i)", m_LocalPath.c_str(), size());
 
 	return true;
 }
@@ -228,11 +228,11 @@ bool newsoul::Upload::openFile()
   */
 bool newsoul::Upload::seek(uint64 pos) {
     if (pos < 0 || pos > m_Size) {
-        NNLOG("newsoul.up.warn", "Wrong seeking position: %u (max size: %u)", pos, m_Size);
+        //NNLOG("newsoul.up.warn", "Wrong seeking position: %u (max size: %u)", pos, m_Size);
         return false;
     }
 
-	NNLOG("newsoul.up.debug", "seeking to %u", pos);
+	//NNLOG("newsoul.up.debug", "seeking to %u", pos);
 	setState(TS_Transferring);
 
 	m_File->seekg(pos, std::ios_base::beg);
@@ -249,7 +249,7 @@ bool newsoul::Upload::seek(uint64 pos) {
   * Reads some data in the file and put it in the send buffer
   */
 bool newsoul::Upload::read(NewNet::Buffer & buffer) {
-    NNLOG("newsoul.up.debug", "Reading from file");
+    //NNLOG("newsoul.up.debug", "Reading from file");
 
     if(!m_Socket)
         return false;
@@ -261,7 +261,7 @@ bool newsoul::Upload::read(NewNet::Buffer & buffer) {
 	if(count == -1)
 		return false;
 
-    NNLOG("newsoul.up.debug", "Appending %u bytes to the buffer", count);
+    //NNLOG("newsoul.up.debug", "Appending %u bytes to the buffer", count);
     m_Socket->send((const unsigned char *) &buf, count);
 
 	return true;
@@ -316,7 +316,7 @@ void newsoul::Upload::collect(uint bytes) {
 void newsoul::Upload::initiate(PeerSocket * socket) {
     if (!socket) {
         setState(TS_LocalError);
-        NNLOG("newsoul.up.warn", "Invalid PeerSocket in newsoul::Upload::initiate()");
+        //NNLOG("newsoul.up.warn", "Invalid PeerSocket in newsoul::Upload::initiate()");
         return;
     }
 
@@ -338,7 +338,7 @@ void newsoul::Upload::initiate(PeerSocket * socket) {
 	m_Ticket = m_Newsoul->token();
 	m_TicketValid = true;
 
-	NNLOG("newsoul.up.debug", "initiating upload sequence %u", m_Ticket);
+	//NNLOG("newsoul.up.debug", "initiating upload sequence %u", m_Ticket);
 
     newsoul()->uploads()->setTransferReplyCallback(socket->transferReplyReceivedEvent.connect(newsoul()->uploads(), &UploadManager::onPeerTransferReplyReceived));
 
@@ -356,7 +356,7 @@ void newsoul::Upload::initiate(PeerSocket * socket) {
   */
 void
 newsoul::Upload::replyTimeout(long) {
-    NNLOG("newsoul.up.debug", "No transfer reply for uploading.");
+    //NNLOG("newsoul.up.debug", "No transfer reply for uploading.");
     setSocket(0);
     setState(TS_CannotConnect);
 }
@@ -381,7 +381,7 @@ newsoul::UploadManager::UploadManager(Newsoul * newsoul) : m_Newsoul(newsoul)
 
 newsoul::UploadManager::~UploadManager()
 {
-    NNLOG("newsoul.up.debug", "Upload Manager destroyed");
+    //NNLOG("newsoul.up.debug", "Upload Manager destroyed");
 }
 
 /**
@@ -433,7 +433,7 @@ void newsoul::UploadManager::onUploadUpdated(Upload * upload) {
   */
 void newsoul::UploadManager::addUploading(Upload * upload) {
     if (isUploadingTo(upload->user()) != upload) {
-        NNLOG("newsoul.up.debug", "We're uploading to %s", upload->user().c_str());
+        //NNLOG("newsoul.up.debug", "We're uploading to %s", upload->user().c_str());
         m_Uploading[upload->user()] = upload;
     }
 }
@@ -444,7 +444,7 @@ void newsoul::UploadManager::addUploading(Upload * upload) {
 void newsoul::UploadManager::removeUploading(const std::string & user) {
     std::map<std::string, NewNet::WeakRefPtr<Upload> >::iterator it = m_Uploading.find(user);
     if (it != m_Uploading.end()) {
-        NNLOG("newsoul.up.debug", "Not uploading to %s", user.c_str());
+        //NNLOG("newsoul.up.debug", "Not uploading to %s", user.c_str());
         m_Uploading.erase(it);
         updateRates();
     }
@@ -455,7 +455,7 @@ void newsoul::UploadManager::removeUploading(const std::string & user) {
   */
 void newsoul::UploadManager::addInitiating(Upload * upload) {
     if (isInitiatingTo(upload->user()) != upload) {
-        NNLOG("newsoul.up.debug", "We're initiating the upload to %s", upload->user().c_str());
+        //NNLOG("newsoul.up.debug", "We're initiating the upload to %s", upload->user().c_str());
         m_Initiating[upload->user()] = upload;
     }
 }
@@ -466,7 +466,7 @@ void newsoul::UploadManager::addInitiating(Upload * upload) {
 void newsoul::UploadManager::removeInitiating(const std::string & user) {
     std::map<std::string, NewNet::WeakRefPtr<Upload> >::iterator it = m_Initiating.find(user);
     if (it != m_Initiating.end()) {
-        NNLOG("newsoul.up.debug", "Not initiating to %s", user.c_str());
+        //NNLOG("newsoul.up.debug", "Not initiating to %s", user.c_str());
         m_Initiating.erase(it);
     }
 }
@@ -511,11 +511,11 @@ newsoul::Upload * newsoul::UploadManager::isInitiatingTo(const std::string & use
   */
 void newsoul::UploadManager::checkUploads() {
 	if(! hasFreeSlots()) {
-        NNLOG("newsoul.up.debug", "No slot available for upload");
+        //NNLOG("newsoul.up.debug", "No slot available for upload");
 		return;
 	}
 
-    NNLOG("newsoul.up.debug", "Checking if there are some uploads to start");
+    //NNLOG("newsoul.up.debug", "Checking if there are some uploads to start");
 
 	Upload* candidate = 0;
 	std::vector<NewNet::RefPtr<Upload> >::iterator it = m_Uploads.begin();
@@ -532,7 +532,7 @@ void newsoul::UploadManager::checkUploads() {
 		}
 	}
 	if(candidate) {
-	    NNLOG("newsoul.up.debug", "Can start upload of %s to %s", candidate->localPath().c_str(), candidate->user().c_str());
+		//NNLOG("newsoul.up.debug", "Can start upload of %s to %s", candidate->localPath().c_str(), candidate->user().c_str());
         candidate->setState(TS_Initiating);
 	    newsoul()->peers()->peerSocket(candidate->user());
 	    checkUploads();
@@ -574,7 +574,7 @@ newsoul::UploadManager::add(const std::string & user, const std::string & localP
             upload->setTicket(ticket);
         upload->validateTicket();
         m_Uploads.push_back(upload);
-        NNLOG("newsoul.up.debug", "Created new upload entry, user=%s, localpath=%s, ticket=%u.", user.c_str(), localPath.c_str(), upload->ticket());
+        //NNLOG("newsoul.up.debug", "Created new upload entry, user=%s, localpath=%s, ticket=%u.", user.c_str(), localPath.c_str(), upload->ticket());
         uploadAddedEvent(upload);
 
         upload->setState(TS_QueuedLocally);
@@ -590,7 +590,7 @@ newsoul::UploadManager::add(const std::string & user, const std::string & localP
 void
 newsoul::UploadManager::addFolder(const std::string & user, const std::string & localPath)
 {
-    NNLOG("newsoul.up.debug", "Uploading folder %s to %s.", localPath.c_str(), user.c_str());
+    //NNLOG("newsoul.up.debug", "Uploading folder %s to %s.", localPath.c_str(), user.c_str());
     std::string dir = newsoul()->codeset()->toNet(localPath);
     std::string error;
     if (! newsoul()->isBanned(user)) {
@@ -605,7 +605,7 @@ newsoul::UploadManager::addFolder(const std::string & user, const std::string & 
         for (it = content.begin(); it != content.end(); it++) {
             for (fit = it->second.begin(); fit != it->second.end(); fit++) {
                 std::string pathFile = dir + '\\' + fit->first;
-                NNLOG("newsoul.up.debug", "Uploading the folder means uploading file %s", pathFile.c_str());
+                //NNLOG("newsoul.up.debug", "Uploading the folder means uploading file %s", pathFile.c_str());
                 if (newsoul()->uploads()->isUploadable(user, pathFile, &error))
                     newsoul()->uploads()->add(user, newsoul()->codeset()->fromNetToFS(pathFile), 0, false, true);
             }
@@ -629,7 +629,7 @@ newsoul::UploadManager::findUpload(const std::string & user, const std::string &
             return *it;
     }
 
-    NNLOG("newsoul.up.debug", "Upload %s not found", path.c_str());
+    //NNLOG("newsoul.up.debug", "Upload %s not found", path.c_str());
     return 0;
 }
 
@@ -646,7 +646,7 @@ newsoul::UploadManager::findUpload(const std::string & user, uint ticket)
             return *it;
     }
 
-    NNLOG("newsoul.up.debug", "Upload with ticket %d not found", ticket);
+    //NNLOG("newsoul.up.debug", "Upload with ticket %d not found", ticket);
     return 0;
 }
 
@@ -787,7 +787,7 @@ newsoul::UploadManager::onPeerTransferReplyReceived(const PTransferReply * messa
 
     if(message->allowed) {
         // Transfer can start immediately, no queue at remote end.
-        NNLOG("newsoul.up.debug", "Got transfer reply: user=%s,path=%s,ticket=%u,allowed=yes. Initiating upload.", user.c_str(), upload->localPath().c_str(), upload->ticket());
+        //NNLOG("newsoul.up.debug", "Got transfer reply: user=%s,path=%s,ticket=%u,allowed=yes. Initiating upload.", user.c_str(), upload->localPath().c_str(), upload->ticket());
         UploadSocket * uploadSocket = new UploadSocket(newsoul(), upload);
         upload->setSocket(uploadSocket);
         newsoul()->reactor()->add(uploadSocket);
@@ -796,7 +796,7 @@ newsoul::UploadManager::onPeerTransferReplyReceived(const PTransferReply * messa
     }
     else {
         // Transfer (currently) not possible.
-        NNLOG("newsoul.up.debug", "Got transfer reply: user=%s,path=%s,ticket=%u,allowed=no,reason=%s", user.c_str(), upload->localPath().c_str(), upload->ticket(), message->reason.c_str());
+        //NNLOG("newsoul.up.debug", "Got transfer reply: user=%s,path=%s,ticket=%u,allowed=no,reason=%s", user.c_str(), upload->localPath().c_str(), upload->ticket(), message->reason.c_str());
         upload->setRemoteError(message->reason);
     }
 }
@@ -820,7 +820,7 @@ void newsoul::UploadManager::onPeerSocketReady(PeerSocket * socket) {
     if(!userUpload || userUpload->state() != TS_Initiating)
 		return;
 
-    NNLOG("newsoul.up.debug", "Sending upload request to %s for file %s", userUpload->user().c_str(), userUpload->localPath().c_str());
+    //NNLOG("newsoul.up.debug", "Sending upload request to %s for file %s", userUpload->user().c_str(), userUpload->localPath().c_str());
     // If we have a socket, we can initiate the upload. Otherwise, peerSocket will create a socket and call checkUploads
     userUpload->initiate(socket);
     checkUploads();
@@ -898,7 +898,7 @@ bool newsoul::UploadManager::isUploadable(const std::string & user, const std::s
 
 
     if (!error->empty()) {
-        NNLOG("newsoul.up.debug", "File %s is not uploadable to %s because : %s", path.c_str(), user.c_str(), error->c_str());
+        //NNLOG("newsoul.up.debug", "File %s is not uploadable to %s because : %s", path.c_str(), user.c_str(), error->c_str());
         return false;
     }
     else
@@ -921,18 +921,18 @@ bool newsoul::UploadManager::findUploadableNoCase(const std::string & user, cons
 
     if (!normalShared.empty()) {
         *goodPath = normalShared;
-        NNLOG("newsoul.up.debug", "Found an uploadable file for %s to user %s: %s", path.c_str(), user.c_str(), goodPath->c_str());
+        //NNLOG("newsoul.up.debug", "Found an uploadable file for %s to user %s: %s", path.c_str(), user.c_str(), goodPath->c_str());
         return true;
     }
     else if (newsoul()->haveBuddyShares() && newsoul()->isBuddied(user)) {
         std::string buddyShared = newsoul()->buddyshares()->toProperCase(path);
         if (!buddyShared.empty()) {
             *goodPath = buddyShared;
-            NNLOG("newsoul.up.debug", "Found an uploadable file for %s to user %s: %s", path.c_str(), user.c_str(), goodPath->c_str());
+            //NNLOG("newsoul.up.debug", "Found an uploadable file for %s to user %s: %s", path.c_str(), user.c_str(), goodPath->c_str());
             return true;
         }
     }
 
-    NNLOG("newsoul.up.debug", "Couldn't find an uploadable file for %s to user %s", path.c_str(), user.c_str());
+    //NNLOG("newsoul.up.debug", "Couldn't find an uploadable file for %s to user %s", path.c_str(), user.c_str());
     return false;
 }

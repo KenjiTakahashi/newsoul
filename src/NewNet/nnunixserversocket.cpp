@@ -19,7 +19,6 @@
  */
 
 #include "nnunixserversocket.h"
-#include "nnlog.h"
 #include <iostream>
 
 void
@@ -27,7 +26,7 @@ NewNet::UnixServerSocket::listen(const std::string & path)
 {
   if(path.length() >= UNIX_PATH_MAX)
   {
-    NNLOG("newnet.net.warn", "Unix socket path too long: '%s'.", path.c_str());
+    //NNLOG("newnet.net.warn", "Unix socket path too long: '%s'.", path.c_str());
     setSocketError(ErrorInvalidPath);
     cannotListenEvent(this);
   }
@@ -48,7 +47,7 @@ NewNet::UnixServerSocket::listen(const std::string & path)
   umask(old_umask);
   if(ret != 0)
   {
-    NNLOG("newnet.net.warn", "Cannot bind unix socket to '%s', error: %i.", path.c_str(), errno);
+    //NNLOG("newnet.net.warn", "Cannot bind unix socket to '%s', error: %i.", path.c_str(), errno);
     closesocket(sock);
     setSocketError(ErrorCannotBind);
     cannotListenEvent(this);
@@ -57,7 +56,7 @@ NewNet::UnixServerSocket::listen(const std::string & path)
 
   if (::listen(sock, 3) != 0)
   {
-    NNLOG("newnet.net.warn", "Cannot listen on unix socket '%s', error: %i.", path.c_str(), errno);
+    //NNLOG("newnet.net.warn", "Cannot listen on unix socket '%s', error: %i.", path.c_str(), errno);
     closesocket(sock);
     setSocketError(ErrorCannotListen);
     cannotListenEvent(this);
@@ -69,7 +68,7 @@ NewNet::UnixServerSocket::listen(const std::string & path)
   setSocketState(SocketListening);
   listeningEvent(this);
 
-  NNLOG("newnet.net.debug", "Listening on unix socket '%s'.", path.c_str());
+  //NNLOG("newnet.net.debug", "Listening on unix socket '%s'.", path.c_str());
 }
 
 void
@@ -77,7 +76,7 @@ NewNet::UnixServerSocket::disconnect()
 {
   if((descriptor() == -1) || (socketState() != SocketListening))
   {
-    NNLOG("newnet.net.warn", "Trying to disconnect an uninitialized unix server socket.");
+    //NNLOG("newnet.net.warn", "Trying to disconnect an uninitialized unix server socket.");
     return;
   }
   ServerSocket::disconnect();

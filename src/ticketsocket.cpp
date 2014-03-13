@@ -34,7 +34,7 @@ newsoul::TicketSocket::TicketSocket(newsoul::Newsoul * newsoul) : UserSocket(new
 
 newsoul::TicketSocket::~TicketSocket()
 {
-  NNLOG("newsoul.ticket.debug", "TicketSocket destroyed");
+  //NNLOG("newsoul.ticket.debug", "TicketSocket destroyed");
 }
 
 void
@@ -47,7 +47,7 @@ newsoul::TicketSocket::findTicket() {
     if(receiveBuffer().count() < 4)
         return;
 
-    NNLOG("newsoul.ticket.debug", "TicketSocket got %u bytes", receiveBuffer().count());
+    //NNLOG("newsoul.ticket.debug", "TicketSocket got %u bytes", receiveBuffer().count());
     // Unpack the ticket
     if (receiveBuffer().count() >= 4 ) {
         unsigned char * data = receiveBuffer().data();
@@ -56,7 +56,7 @@ newsoul::TicketSocket::findTicket() {
     }
 
     // Notify our waiting downloadsockets
-    NNLOG("newsoul.ticket.debug", "Yay! We received ticket %u.. Now what..", m_Ticket);
+    //NNLOG("newsoul.ticket.debug", "Yay! We received ticket %u.. Now what..", m_Ticket);
     newsoul()->downloads()->transferTicketReceivedEvent(this);
     newsoul()->uploads()->transferTicketReceivedEvent(this);
 

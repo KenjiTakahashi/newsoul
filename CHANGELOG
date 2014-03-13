@@ -23,3 +23,5 @@ This file tracks changes since the last Museek+ svn trunk revision.
 -Adjusted nscontrol config dirs/files names (by @krobelus).
 -Reimplemented path::expand without wordexp (fixes #24 among other things).
 -Fixed compilation on OpenBSD.
+
+0.3:

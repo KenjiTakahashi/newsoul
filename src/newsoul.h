@@ -1,7 +1,7 @@
 /*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
-    Karol 'Kenji Takahashi' Woźniak © 2013
+    Karol 'Kenji Takahashi' Woźniak © 2013 - 2014
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,11 +22,12 @@
 #ifndef __NEWSOUL_NEWSOUL_H__
 #define __NEWSOUL_NEWSOUL_H__
 
+#include <glog/logging.h>
+#include <iostream>
 #include <signal.h>
 #include <string>
 #include "config.h"
 #include "sharesdb.h"
-#include "servermessages.h"
 #include "NewNet/nnreactor.h"
 #include "NewNet/nnrefptr.h"
 

@@ -254,7 +254,7 @@ void NetworkMessage::compress()
   else
   {
     // Ok, this might need some improvement.
-    NNLOG("newsoul.warn", "Corrupted message created (compression error).");
+    //NNLOG("newsoul.warn", "Corrupted message created (compression error).");
     buffer.seek(buffer.count());
   }
 
@@ -292,7 +292,7 @@ void NetworkMessage::decompress()
     delete [] outbuf;
     if (err != Z_MEM_ERROR)
       inflateEnd(&zst);
-    NNLOG("newsoul.warn", "Corrupted packet encountered (decompression error).");
+    //NNLOG("newsoul.warn", "Corrupted packet encountered (decompression error).");
     return;
   }
 
@@ -312,7 +312,7 @@ void NetworkMessage::decompress()
           inflateEnd(&zst);
           buffer.seek(buffer.count());
           delete [] outbuf;
-          NNLOG("newsoul.warn", "Corrupted packet encountered (decompression error).");
+          //NNLOG("newsoul.warn", "Corrupted packet encountered (decompression error).");
           return;
         }
       case Z_OK:
@@ -323,7 +323,7 @@ void NetworkMessage::decompress()
         break;
       default:
         // Bad stuff...
-        NNLOG("newsoul.warn", "Corrupted packet encountered (decompression error).");
+        //NNLOG("newsoul.warn", "Corrupted packet encountered (decompression error).");
         inflateEnd(&zst);
         buffer.seek(buffer.count());
         delete [] outbuf;
@@ -356,7 +356,7 @@ void NetworkMessage::garbage_collector() {
         for (; itraw != raw.end(); itraw++) {
             hexContent << ' ' << std::setw(2) << (uint16_t) *itraw;
         }
-        NNLOG("protocol.warn", "Unexpected message content for message %s: %s", get_name().c_str(), hexContent.str().c_str());
+        //NNLOG("protocol.warn", "Unexpected message content for message %s: %s", get_name().c_str(), hexContent.str().c_str());
     }
 }
 
@@ -370,5 +370,5 @@ void NetworkMessage::default_garbage_collector() {
     for (; itraw != raw.end(); itraw++) {
         hexContent << ' ' << std::setw(2) << (uint16_t) *itraw;
     }
-    NNLOG("protocol.warn", "Unexploited data in message: %s", hexContent.str().c_str());
+    //NNLOG("protocol.warn", "Unexploited data in message: %s", hexContent.str().c_str());
 }

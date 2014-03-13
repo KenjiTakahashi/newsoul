@@ -19,7 +19,6 @@
  */
 
 #include "nntcpserversocket.h"
-#include "nnlog.h"
 #include "util.h"
 #include <iostream>
 
@@ -37,7 +36,7 @@ NewNet::TcpServerSocket::listen(const std::string & host, unsigned int port)
     struct hostent *h = gethostbyname(host.c_str());
     if (! h)
     {
-      NNLOG("newnet.net.warn", "Cannot resolve '%s'.", host.c_str());
+      //NNLOG("newnet.net.warn", "Cannot resolve '%s'.", host.c_str());
       setSocketError(ErrorCannotResolve);
       cannotListenEvent(this);
       return;
@@ -48,15 +47,16 @@ NewNet::TcpServerSocket::listen(const std::string & host, unsigned int port)
     address.sin_addr.s_addr = INADDR_ANY;
 
   int sock = socket(PF_INET, SOCK_STREAM, 0);
-  if (!setnonblocking(sock))
-    NNLOG("newnet.net.warn", "Couldn't set socket %i to non blocking (errno: %i)", sock, errno);
+  if (!setnonblocking(sock)) {
+    //NNLOG("newnet.net.warn", "Couldn't set socket %i to non blocking (errno: %i)", sock, errno);
+  }
 
   sockopt_t socket_option = 1;
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &socket_option, sizeof(int));
 
   if(bind(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) != 0)
   {
-    NNLOG("newnet.net.warn", "Cannot bind to '%s:%u', error: %i.", host.c_str(), port, errno);
+    //NNLOG("newnet.net.warn", "Cannot bind to '%s:%u', error: %i.", host.c_str(), port, errno);
     closesocket(sock);
     setSocketError(ErrorCannotBind);
     cannotListenEvent(this);
@@ -65,7 +65,7 @@ NewNet::TcpServerSocket::listen(const std::string & host, unsigned int port)
 
   if (::listen(sock, 3) != 0)
   {
-    NNLOG("newnet.net.warn", "Cannot listen on '%s:%u', error: %i.", host.c_str(), port, errno);
+    //NNLOG("newnet.net.warn", "Cannot listen on '%s:%u', error: %i.", host.c_str(), port, errno);
     closesocket(sock);
     setSocketError(ErrorCannotListen);
     cannotListenEvent(this);
@@ -77,5 +77,5 @@ NewNet::TcpServerSocket::listen(const std::string & host, unsigned int port)
   setSocketState(SocketListening);
   listeningEvent(this);
 
-  NNLOG("newnet.net.debug", "Listening on socket '%s:%u'.", host.c_str(), port);
+  //NNLOG("newnet.net.debug", "Listening on socket '%s:%u'.", host.c_str(), port);
 }

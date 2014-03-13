@@ -52,7 +52,7 @@ newsoul::DistributedSocket::~DistributedSocket()
     if (m_DataTimeout.isValid())
         newsoul()->reactor()->removeTimeout(m_DataTimeout);
 
-    NNLOG("newsoul.distrib.debug", "DistributedSocket destroyed");
+    //NNLOG("newsoul.distrib.debug", "DistributedSocket destroyed");
 }
 
 /**
@@ -72,7 +72,7 @@ newsoul::DistributedSocket::initiateActiveWithIP(const std::string & user, const
     setUser(user);
     setToken(newsoul()->token());
 
-    NNLOG("newsoul.distrib.debug", "Initiating active distributed connection to %s (type %s, ip %s, port %d).", user.c_str(), type().c_str(), ip.c_str(), port);
+    //NNLOG("newsoul.distrib.debug", "Initiating active distributed connection to %s (type %s, ip %s, port %d).", user.c_str(), type().c_str(), ip.c_str(), port);
 
     HInitiate handshake(newsoul()->server()->username(), type(), token());
     sendMessage(handshake.make_network_packet());
@@ -112,7 +112,7 @@ newsoul::DistributedSocket::onDisconnected(NewNet::ClientSocket * socket) {
 }
 
 void newsoul::DistributedSocket::onCannotConnectActive(NewNet::ClientSocket * socket) {
-    NNLOG("newsoul.distrib.debug", "Cannot connect a distributed socket in active mode. Trying passive.");
+    //NNLOG("newsoul.distrib.debug", "Cannot connect a distributed socket in active mode. Trying passive.");
     socket->sendBuffer().clear(); // We have a HInitiate message still waiting in the buffer. We don't need it anymore
     disconnect();
     initiatePassive();
@@ -123,7 +123,7 @@ newsoul::DistributedSocket::onFirewallPierceTimedOut(long)
 {
     // Distributed socket tries first active mode, then passive (unlike usersocket).
     // So no need to retry active when passive fails.
-    NNLOG("newsoul.distrib.debug", "Passive connection failed: pierce firewall timed out.");
+    //NNLOG("newsoul.distrib.debug", "Passive connection failed: pierce firewall timed out.");
 
     disconnect();
 }
@@ -145,7 +145,7 @@ void newsoul::DistributedSocket::onChildDepthReceived(const DChildDepth * msg) {
 void newsoul::DistributedSocket::onSearchRequested(const DSearchRequest * msg) {
     std::string query = newsoul()->codeset()->fromNet(msg->query);
 
-    NNLOG("newsoul.distrib.debug", "Received search request from our parent: %s for %s", query.c_str(), msg->username.c_str());
+    //NNLOG("newsoul.distrib.debug", "Received search request from our parent: %s for %s", query.c_str(), msg->username.c_str());
 
     newsoul()->searches()->transmitSearch(msg->unknown, msg->username, msg->ticket, query);
     newsoul()->searches()->sendSearchResults(msg->username, query, msg->ticket);
@@ -159,10 +159,10 @@ newsoul::DistributedSocket::onMessageReceived(const MessageData * data)
 
   switch(data->type)
   {
+    //NNLOG("newsoul.messages.distributed", "Received distributed message " #TYPE ".");
     #define MAP_MESSAGE(ID, TYPE, EVENT) \
       case ID: \
       { \
-        NNLOG("newsoul.messages.distributed", "Received distributed message " #TYPE "."); \
         TYPE msg; \
         msg.setDistributedSocket(this); \
         msg.parse_network_packet(data->data, data->length); \
@@ -173,7 +173,7 @@ newsoul::DistributedSocket::onMessageReceived(const MessageData * data)
     #undef MAP_MESSAGE
 
     default:
-        NNLOG("newsoul.distrib.warn", "Received unknown distributed message, type: %u, length: %u", data->type, data->length);
+        //NNLOG("newsoul.distrib.warn", "Received unknown distributed message, type: %u, length: %u", data->type, data->length);
         NetworkMessage msg;
         msg.parse_network_packet(data->data, data->length);
   }
@@ -197,6 +197,6 @@ newsoul::DistributedSocket::onDisconnectNow(long) {
 void
 newsoul::DistributedSocket::stop()
 {
-    NNLOG("newsoul.distrib.debug", "Disconnecting distributed socket...");
+    //NNLOG("newsoul.distrib.debug", "Disconnecting distributed socket...");
     disconnect();
 }

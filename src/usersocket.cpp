@@ -71,7 +71,7 @@ newsoul::UserSocket::initiate(const std::string & user)
 void
 newsoul::UserSocket::initiateActive()
 {
-  NNLOG("newsoul.user.debug", "Initiating active user connection to %s (type %s).", m_User.c_str(), m_Type.c_str());
+  //NNLOG("newsoul.user.debug", "Initiating active user connection to %s (type %s).", m_User.c_str(), m_Type.c_str());
 
   HInitiate handshake(m_Newsoul->server()->username(), m_Type, m_Token);
   sendMessage(handshake.make_network_packet());
@@ -84,7 +84,7 @@ newsoul::UserSocket::initiateActive()
 void
 newsoul::UserSocket::initiatePassive()
 {
-  NNLOG("newsoul.user.debug", "Initiating passive user connection to %s (type %s).", m_User.c_str(), m_Type.c_str());
+  //NNLOG("newsoul.user.debug", "Initiating passive user connection to %s (type %s).", m_User.c_str(), m_Type.c_str());
 
   m_PassiveConnectTimeout = m_Newsoul->reactor()->addTimeout(60000, this, &UserSocket::onFirewallPierceTimedOut);
   m_Newsoul->peers()->waitingPassiveConnection(this);
@@ -96,7 +96,7 @@ newsoul::UserSocket::initiatePassive()
 void
 newsoul::UserSocket::firewallPierced(newsoul::HandshakeSocket * socket)
 {
-    NNLOG("newsoul.user.debug", "%s's firewall successfully pierced.", m_User.c_str());
+    //NNLOG("newsoul.user.debug", "%s's firewall successfully pierced.", m_User.c_str());
     if(m_PassiveConnectTimeout.isValid())
       m_Newsoul->reactor()->removeTimeout(m_PassiveConnectTimeout);
 
@@ -116,7 +116,7 @@ newsoul::UserSocket::onFirewallPierceTimedOut(long)
 
   if(socketState() == SocketUninitialized)
   {
-    NNLOG("newsoul.user.debug", "Passive connection failed: pierce firewall timed out. Trying an active connection.");
+    //NNLOG("newsoul.user.debug", "Passive connection failed: pierce firewall timed out. Trying an active connection.");
     initiateActive();
   }
 }
@@ -127,7 +127,7 @@ newsoul::UserSocket::onCannotConnectNotify(const SCannotConnect * msg)
     m_Newsoul->peers()->removePassiveConnectionWaiting(m_Token);
 
     if (msg->token == token()) {
-        NNLOG("newsoul.user.debug", "Cannot connect to the peer.");
+        //NNLOG("newsoul.user.debug", "Cannot connect to the peer.");
         disconnect();
     }
 }
@@ -137,7 +137,7 @@ newsoul::UserSocket::onServerPeerAddressReceived(const SGetPeerAddress * message
 {
   if((message->user != m_User) || (socketState() != SocketUninitialized))
     return;
-  NNLOG("newsoul.user.debug", "Received address of user %s: %s:%u", m_User.c_str(), message->ip.c_str(), message->port);
+  //NNLOG("newsoul.user.debug", "Received address of user %s: %s:%u", m_User.c_str(), message->ip.c_str(), message->port);
   if((message->ip == "0.0.0.0") || (message->port == 0))
   {
     cannotConnectEvent(this);
@@ -152,7 +152,7 @@ newsoul::UserSocket::onServerPeerAddressReceived(const SGetPeerAddress * message
 void
 newsoul::UserSocket::reverseConnect(const std::string & user, uint token, const std::string & ip, uint port)
 {
-  NNLOG("newsoul.user.debug", "Trying to reverse connect to %s at %s:%u, token=%u", user.c_str(), ip.c_str(), port, token);
+  //NNLOG("newsoul.user.debug", "Trying to reverse connect to %s at %s:%u, token=%u", user.c_str(), ip.c_str(), port, token);
 
   cannotConnectEvent.connect(this, &UserSocket::onCannotReverseConnect);
 
@@ -168,7 +168,7 @@ newsoul::UserSocket::reverseConnect(const std::string & user, uint token, const 
 void
 newsoul::UserSocket::onCannotReverseConnect(NewNet::ClientSocket *)
 {
-  NNLOG("newsoul.user.debug", "Could not fulfill %s's connection request.", m_User.c_str());
+  //NNLOG("newsoul.user.debug", "Could not fulfill %s's connection request.", m_User.c_str());
   if (m_Newsoul->server()->loggedIn()) {
     SCannotConnect msg(m_User, m_Token);
     m_Newsoul->server()->sendMessage(msg.make_network_packet());

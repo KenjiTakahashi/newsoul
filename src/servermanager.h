@@ -26,7 +26,6 @@
 #include "peermanager.h"
 #include "servermessages.h"
 #include "tcpmessagesocket.h"
-#include "NewNet/nnlog.h"
 #include "NewNet/nnobject.h"
 #include "NewNet/nnrefptr.h"
 #include "NewNet/nnweakrefptr.h"

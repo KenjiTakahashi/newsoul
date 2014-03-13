@@ -19,7 +19,6 @@
  */
 
 #include "nntcpclientsocket.h"
-#include "nnlog.h"
 #include "nnreactor.h"
 #include "util.h"
 #include <iostream>
@@ -31,11 +30,11 @@ NewNet::TcpClientSocket::connect(const std::string & host, unsigned int port)
 
   setSocketState(SocketConnecting);
 
-  NNLOG("newnet.net.debug", "Resolving host '%s'.", host.c_str());
+  //NNLOG("newnet.net.debug", "Resolving host '%s'.", host.c_str());
   struct hostent *h = gethostbyname(host.c_str());
   if(! h)
   {
-    NNLOG("newnet.net.warn", "Cannot resolve host '%s'.", host.c_str());
+    //NNLOG("newnet.net.warn", "Cannot resolve host '%s'.", host.c_str());
     setSocketError(ErrorCannotResolve);
     cannotConnectEvent(this);
     return;
@@ -47,16 +46,16 @@ NewNet::TcpClientSocket::connect(const std::string & host, unsigned int port)
   memcpy(&(address.sin_addr.s_addr), *(h->h_addr_list), sizeof(address.sin_addr.s_addr));
   address.sin_port = htons(port);
 
-  NNLOG("newnet.net.debug", "Connecting to host '%s:%u'.", host.c_str(), port);
+  //NNLOG("newnet.net.debug", "Connecting to host '%s:%u'.", host.c_str(), port);
 
   int s = socket(PF_INET, SOCK_STREAM, 0);
   if (!setnonblocking(s))
-    NNLOG("newnet.net.warn", "Couldn't set socket %i to non blocking (errno: %i)", s, errno);
+    //NNLOG("newnet.net.warn", "Couldn't set socket %i to non blocking (errno: %i)", s, errno);
   setDescriptor(s);
 
   if(s < 0)
     {
-      NNLOG("newnet.net.warn", "Cannot connect to host '%s:%u', error: %i.", host.c_str(), port, WSAGetLastError());
+      //NNLOG("newnet.net.warn", "Cannot connect to host '%s:%u', error: %i.", host.c_str(), port, WSAGetLastError());
       setSocketError(ErrorCannotConnect);
       cannotConnectEvent(this);
       return;
@@ -72,14 +71,14 @@ NewNet::TcpClientSocket::connect(const std::string & host, unsigned int port)
   if(::connect(s, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) == 0)
   {
     // When using non blocking socket (most of the time), we don't get here.
-    NNLOG("newnet.net.debug", "Connected to host '%s:%u'.", host.c_str(), port);
+    //NNLOG("newnet.net.debug", "Connected to host '%s:%u'.", host.c_str(), port);
     setSocketState(SocketConnected);
     connectedEvent(this);
   }
   else if(WSAGetLastError() != WSAEWOULDBLOCK)
   {
     // When using non blocking socket (most of the time), we don't get here.
-    NNLOG("newnet.net.warn", "Cannot connect to host '%s:%u', error: %i.", host.c_str(), port, WSAGetLastError());
+    //NNLOG("newnet.net.warn", "Cannot connect to host '%s:%u', error: %i.", host.c_str(), port, WSAGetLastError());
     setSocketError(ErrorCannotConnect);
     cannotConnectEvent(this);
   }

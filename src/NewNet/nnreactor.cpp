@@ -20,7 +20,6 @@
  */
 
 #include "nnreactor.h"
-#include "nnlog.h"
 #include "util.h"
 #include <algorithm>
 #include <iostream>
@@ -56,7 +55,7 @@ NewNet::Reactor::Reactor()
         m_maxSocketNo = rlim.rlim_cur;
 
 
-    NNLOG("newnet.net.debug", "%i file descriptors available for newsoul.", m_maxSocketNo);
+    //NNLOG("newnet.net.debug", "%i file descriptors available for newsoul.", m_maxSocketNo);
 
     event_init();
 }
@@ -146,7 +145,7 @@ void NewNet::Reactor::add(Socket * socket)
 void NewNet::Reactor::remove(Socket * socket)
 {
   int fd = socket->descriptor();
-  NNLOG("newnet.net.debug", "removing socket %u from reactor", socket->descriptor());
+  //NNLOG("newnet.net.debug", "removing socket %u from reactor", socket->descriptor());
   // Removing a socket from the wrong reactor is a programming error, trap it.
   assert(socket->reactor() == this);
 
@@ -174,7 +173,7 @@ void NewNet::Reactor::remove(Socket * socket)
 
 void NewNet::Reactor::run()
 {
-    NNLOG("newnet.net.debug", "Running reactor. Libevent is using %s method.", event_get_method());
+    //NNLOG("newnet.net.debug", "Running reactor. Libevent is using %s method.", event_get_method());
 
     bool loop = true;
     while (loop) {
@@ -227,17 +226,17 @@ NewNet::Reactor::prepareReactorData() {
       evtimer_add(&mEvTimeout, &timeout);
     }
 
-    if(timeout_set)
-      NNLOG("newnet.net.debug", "Waiting at most %li ms until one of %i sockets wakes up (max FD: %i).", (timeout.tv_sec * 1000) + (timeout.tv_usec / 1000), currentSocketNo(), maxFileDescriptor());
-    else
-      NNLOG("newnet.net.debug", "Waiting indefinitely until one of %i sockets wakes up (max FD: %i).", currentSocketNo(), maxFileDescriptor());
+    //if(timeout_set)
+      //NNLOG("newnet.net.debug", "Waiting at most %li ms until one of %i sockets wakes up (max FD: %i).", (timeout.tv_sec * 1000) + (timeout.tv_usec / 1000), currentSocketNo(), maxFileDescriptor());
+    //else
+      //NNLOG("newnet.net.debug", "Waiting indefinitely until one of %i sockets wakes up (max FD: %i).", currentSocketNo(), maxFileDescriptor());
 
     return false;
 }
 
 void
 NewNet::Reactor::eventCallback(int fd, short event, void *arg) {
-    NNLOG("newnet.net.debug", "Entering event callback for socket %i.", fd);
+    //NNLOG("newnet.net.debug", "Entering event callback for socket %i.", fd);
 
     bool loop = true;
     while (loop) {
@@ -326,7 +325,7 @@ NewNet::Reactor::checkSockets(struct timeval & timeout, bool & timeout_set) {
             evFlags = EV_READ;
           else
           {
-            NNLOG("newnet.net.debug", "Download limiter for socket %i recommends %li ms sleep.", fd, n);
+            //NNLOG("newnet.net.debug", "Download limiter for socket %i recommends %li ms sleep.", fd, n);
             fixtime(timeout, n, timeout_set);
           }
 
@@ -339,7 +338,7 @@ NewNet::Reactor::checkSockets(struct timeval & timeout, bool & timeout_set) {
                 evFlags |= EV_WRITE;
             else
             {
-              NNLOG("newnet.net.debug", "Upload rate limiter for socket %i reports next window in %li ms", fd, n);
+              //NNLOG("newnet.net.debug", "Upload rate limiter for socket %i reports next window in %li ms", fd, n);
               fixtime(timeout, n, timeout_set);
             }
           }

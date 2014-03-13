@@ -19,7 +19,6 @@
  */
 
 #include "nnunixclientsocket.h"
-#include "nnlog.h"
 #include "nnreactor.h"
 #include <iostream>
 
@@ -32,7 +31,7 @@ NewNet::UnixClientSocket::connect(const std::string & path)
 
   if(path.length() >= UNIX_PATH_MAX)
   {
-    NNLOG("newnet.net.warn", "Unix socket path too long: '%s'.", path.c_str());
+    //NNLOG("newnet.net.warn", "Unix socket path too long: '%s'.", path.c_str());
     setSocketError(ErrorInvalidPath);
     cannotConnectEvent(this);
     return;
@@ -43,7 +42,7 @@ NewNet::UnixClientSocket::connect(const std::string & path)
   address.sun_family = AF_UNIX;
   memcpy(address.sun_path, path.c_str(), path.length()+1);
 
-  NNLOG("newnet.net.debug", "Connecting to unix socket '%s'.", path.c_str());
+  //NNLOG("newnet.net.debug", "Connecting to unix socket '%s'.", path.c_str());
 
   int sock = socket(PF_UNIX, SOCK_STREAM, 0);
   fcntl(sock, F_SETFL, O_NONBLOCK);
@@ -59,7 +58,7 @@ NewNet::UnixClientSocket::connect(const std::string & path)
   if(::connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_un)) == 0)
   {
     // When using non blocking socket (most of the time), we don't get here.
-    NNLOG("newnet.net.debug", "Connected to unix socket '%s'.", path.c_str());
+    //NNLOG("newnet.net.debug", "Connected to unix socket '%s'.", path.c_str());
     setSocketState(SocketConnected);
     connectedEvent(this);
     return;
@@ -67,7 +66,7 @@ NewNet::UnixClientSocket::connect(const std::string & path)
   else if(errno != EINPROGRESS)
   {
     // When using non blocking socket (most of the time), we don't get here.
-    NNLOG("newnet.net.warn", "Cannot connect to unix socket '%s', error: %i.", path.c_str(), errno);
+    //NNLOG("newnet.net.warn", "Cannot connect to unix socket '%s', error: %i.", path.c_str(), errno);
     closesocket(sock);
     setSocketError(ErrorCannotConnect);
     cannotConnectEvent(this);

@@ -32,7 +32,7 @@ newsoul::HandshakeSocket::HandshakeSocket() : NewNet::ClientSocket(), newsoul::M
 
 newsoul::HandshakeSocket::~HandshakeSocket()
 {
-  NNLOG("newsoul.hand.debug", "HandshakeSocket %d destroyed", descriptor());
+  //NNLOG("newsoul.hand.debug", "HandshakeSocket %d destroyed", descriptor());
 }
 
 void
@@ -49,7 +49,7 @@ newsoul::HandshakeSocket::onMessageReceived(const MessageData * data)
     case 0:
     {
       // Apparently, we requested somebody to connect to us.
-      NNLOG("newsoul.messages.handshake", "Received peer handshake message HPierceFirewall");
+      //NNLOG("newsoul.messages.handshake", "Received peer handshake message HPierceFirewall");
       HPierceFirewall msg;
       msg.parse_network_packet(data->data, data->length);
       m_Token = msg.token;
@@ -63,10 +63,10 @@ newsoul::HandshakeSocket::onMessageReceived(const MessageData * data)
     case 1:
     {
       // Somebody wants to establish a connection.
-      NNLOG("newsoul.messages.handshake", "Received peer handshake message HInitiate");
+      //NNLOG("newsoul.messages.handshake", "Received peer handshake message HInitiate");
       HInitiate msg;
       msg.parse_network_packet(data->data, data->length);
-      NNLOG("newsoul.hand.debug", "HInitiate payload: %s %s %u", msg.user.c_str(), msg.type.c_str(), msg.token);
+      //NNLOG("newsoul.hand.debug", "HInitiate payload: %s %s %u", msg.user.c_str(), msg.type.c_str(), msg.token);
       // Set some variables.
       m_Token = msg.token;
       m_User = msg.user;
@@ -104,7 +104,7 @@ newsoul::HandshakeSocket::onMessageReceived(const MessageData * data)
       }
       else
       {
-        NNLOG("newsoul.hand.warn", "Invalid incoming connection type '%s'.", msg.type.c_str());
+        //NNLOG("newsoul.hand.warn", "Invalid incoming connection type '%s'.", msg.type.c_str());
       }
       // Clear our receive buffer so we stop processing data.
       receiveBuffer().clear();
@@ -113,7 +113,7 @@ newsoul::HandshakeSocket::onMessageReceived(const MessageData * data)
       return;
     }
     default:
-        NNLOG("newsoul.hand.warn", "Received unknown peer handshake message, type: %u, length: %u", data->type, data->length);
+        //NNLOG("newsoul.hand.warn", "Received unknown peer handshake message, type: %u, length: %u", data->type, data->length);
         NetworkMessage msg;
         msg.parse_network_packet(data->data, data->length);
   }
@@ -121,7 +121,7 @@ newsoul::HandshakeSocket::onMessageReceived(const MessageData * data)
 
 void
 newsoul::HandshakeSocket::onDisconnected(NewNet::ClientSocket * socket) {
-  NNLOG("newsoul.hand.debug", "Handshake socket for %s has been disconnected.", m_User.c_str());
+  //NNLOG("newsoul.hand.debug", "Handshake socket for %s has been disconnected.", m_User.c_str());
   if(reactor())
     reactor()->remove(this);
 }
@@ -129,6 +129,6 @@ newsoul::HandshakeSocket::onDisconnected(NewNet::ClientSocket * socket) {
 void
 newsoul::HandshakeSocket::onCannotConnect(NewNet::ClientSocket *)
 {
-  NNLOG("newsoul.hand.debug", "Could not connect handshake socket for user %s.", m_User.c_str());
+  //NNLOG("newsoul.hand.debug", "Could not connect handshake socket for user %s.", m_User.c_str());
   disconnect();
 }

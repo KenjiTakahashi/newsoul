@@ -57,7 +57,7 @@ newsoul::PeerManager::listen()
 
   if((first == 0) || (first > last))
   {
-    NNLOG("newsoul.peers.warn", "No valid client bind port set (range: %i - %i).", first, last);
+    //NNLOG("newsoul.peers.warn", "No valid client bind port set (range: %i - %i).", first, last);
     unlisten();
     return;
   }
@@ -73,7 +73,7 @@ newsoul::PeerManager::listen()
   unsigned int port = first;
   while(port <= last)
   {
-    NNLOG("newsoul.peers.debug", "Trying to bind to port %i...", port);
+    //NNLOG("newsoul.peers.debug", "Trying to bind to port %i...", port);
     m_Factory = new PeerFactory();
     m_Factory->clientAcceptedEvent.connect(this, &PeerManager::onClientAccepted);
 
@@ -82,14 +82,14 @@ newsoul::PeerManager::listen()
     if(m_Factory->serverSocket()->socketState() == NewNet::Socket::SocketListening)
     {
       onServerLoggedInStateChanged(m_Newsoul->server()->loggedIn());
-      NNLOG("newsoul.peers.debug", "Listening for peers on port %i", port);
+      //NNLOG("newsoul.peers.debug", "Listening for peers on port %i", port);
       return;
     }
     unlisten();
     ++port;
   }
 
-  NNLOG("newsoul.peers.warn", "Couldn't find port to listen for peers on (range: %i - %i).", first, last);
+  //NNLOG("newsoul.peers.warn", "Couldn't find port to listen for peers on (range: %i - %i).", first, last);
 }
 
 /**
@@ -97,7 +97,7 @@ newsoul::PeerManager::listen()
   */
 void
 newsoul::PeerManager::peerSocket(const std::string & user, bool force) {
-    NNLOG("newsoul.peers.debug", "Asking a peersocket for %s", user.c_str());
+    //NNLOG("newsoul.peers.debug", "Asking a peersocket for %s", user.c_str());
 
     // Check if this user is already registered.
     std::map<std::string, NewNet::WeakRefPtr<PeerSocket> >::iterator it;
@@ -108,7 +108,7 @@ newsoul::PeerManager::peerSocket(const std::string & user, bool force) {
         int currentSockets = newsoul()->reactor()->currentSocketNo();
 
         if (!force && (maxSocket > 0) && (currentSockets > (maxSocket - static_cast<int>(maxSocket*0.5)))) {
-            NNLOG("newsoul.peers.warn", "Too many opened peer socket, cannot open a new one with low priority");
+            //NNLOG("newsoul.peers.warn", "Too many opened peer socket, cannot open a new one with low priority");
             peerSocketUnavailableEvent(user);
             return;
         }
@@ -119,7 +119,7 @@ newsoul::PeerManager::peerSocket(const std::string & user, bool force) {
         if(newsoul()->server()->loggedIn()) {
             std::map<std::string, uint32>::iterator it = m_UserStatus.find(user);
             if (it == m_UserStatus.end()) {
-                NNLOG("newsoul.peers.debug", "No peer socket to %s, requesting status.", user.c_str());
+                //NNLOG("newsoul.peers.debug", "No peer socket to %s, requesting status.", user.c_str());
                 requestUserData(user);
             }
             else if (isUserConnected(user)) {
@@ -128,7 +128,7 @@ newsoul::PeerManager::peerSocket(const std::string & user, bool force) {
             }
             else {
                 // User is offline, cannot create the socket
-                NNLOG("newsoul.peers.debug", "User %s is offline", user.c_str());
+                //NNLOG("newsoul.peers.debug", "User %s is offline", user.c_str());
 
                 // Don't disconnect the peer socket if it exists: it will be disconnected if the user is completely offline.
                 // If he's only disconnected from the server, we can still talk to him directly.
@@ -153,7 +153,7 @@ void newsoul::PeerManager::requestUserData(const std::string& user) {
     std::map<std::string, struct timeval >::iterator tit;
     tit = m_LastStatusTime.find(user);
     if(tit == m_LastStatusTime.end() || difftime(now, (*tit).second) > 10000.0) {
-        NNLOG("newsoul.peers.debug", "Asking server for existence, status and stats of user %s", user.c_str());
+        //NNLOG("newsoul.peers.debug", "Asking server for existence, status and stats of user %s", user.c_str());
         m_LastStatusTime[user] = now;
 
         // Let the server know we want to track the status of this user.
@@ -167,11 +167,11 @@ void newsoul::PeerManager::requestUserData(const std::string& user) {
   */
 void newsoul::PeerManager::addPeerSocket(PeerSocket * socket) {
     if(socket->user() == std::string()) {
-        NNLOG("newsoul.peers.warn", "Cannot add a peer socket with no user associated.");
+        //NNLOG("newsoul.peers.warn", "Cannot add a peer socket with no user associated.");
         return;
     }
 
-    NNLOG("newsoul.peers.debug", "Adding peer socket for %s", socket->user().c_str());
+    //NNLOG("newsoul.peers.debug", "Adding peer socket for %s", socket->user().c_str());
 
     bool isOurself = (socket->user() == newsoul()->server()->username());
 
@@ -216,12 +216,12 @@ newsoul::PeerManager::onServerUserStatusReceived(const SGetStatus * message)
 
     // Is the user online?
     if(message->status > 0) {
-        NNLOG("newsoul.peers.debug", "User %s is now online", message->user.c_str());
+        //NNLOG("newsoul.peers.debug", "User %s is now online", message->user.c_str());
 
         createPeerSocket(message->user);
     }
     else {
-        NNLOG("newsoul.peers.debug", "User %s is now offline", message->user.c_str());
+        //NNLOG("newsoul.peers.debug", "User %s is now offline", message->user.c_str());
 
         peerOfflineEvent(message->user);
     }
@@ -276,12 +276,12 @@ newsoul::PeerManager::onServerAddUserReceived(const SAddUser * message)
 
     // Is the user online?
     if(message->userdata.status > 0) {
-        NNLOG("newsoul.peers.debug", "User %s is online", message->user.c_str());
+        //NNLOG("newsoul.peers.debug", "User %s is online", message->user.c_str());
 
         createPeerSocket(message->user);
     }
     else {
-        NNLOG("newsoul.peers.debug", "User %s is offline", message->user.c_str());
+        //NNLOG("newsoul.peers.debug", "User %s is offline", message->user.c_str());
 
         // Don't disconnect the peer socket if it exists: it will be disconnected if the user is completely offline.
         // If he's only disconnected from the server, we can still talk to him directly.
@@ -306,7 +306,7 @@ bool newsoul::PeerManager::isUserConnected(const std::string& user) {
 void
 newsoul::PeerManager::onPeerCannotConnect(NewNet::ClientSocket * socket_)
 {
-	NNLOG("newsoul.peers.debug", "Cannot connect to the peer");
+	//NNLOG("newsoul.peers.debug", "Cannot connect to the peer");
     // Cast the socket to a peer socket.
     PeerSocket * socket = (PeerSocket *)socket_;
     // Get the name of the user.
@@ -332,7 +332,7 @@ newsoul::PeerManager::onCannotConnectOurself(NewNet::ClientSocket * socket_) {
 
 void
 newsoul::PeerManager::onCannotConnectNotify(const SCannotConnect * msg) {
-	NNLOG("newsoul.peers.debug", "Cannot connect to the peer %s", msg->user.c_str());
+	//NNLOG("newsoul.peers.debug", "Cannot connect to the peer %s", msg->user.c_str());
 
     peerSocketUnavailableEvent(msg->user);
 }
@@ -343,7 +343,7 @@ newsoul::PeerManager::onCannotConnectNotify(const SCannotConnect * msg) {
 void
 newsoul::PeerManager::onDisconnected(NewNet::ClientSocket * socket_)
 {
-	NNLOG("newsoul.peers.debug", "Peer socket disconnected");
+	//NNLOG("newsoul.peers.debug", "Peer socket disconnected");
 
     // Cast the socket to a peer socket.
     PeerSocket * socket = (PeerSocket *)socket_;
@@ -439,7 +439,7 @@ newsoul::PeerManager::onFirewallPierced(newsoul::HandshakeSocket * socket)
         m_PassiveConnects.erase(it);
     }
     else {
-        NNLOG("newsoul.user.warn", "Received an unexpected HPierceFirewall message.");
+        //NNLOG("newsoul.user.warn", "Received an unexpected HPierceFirewall message.");
         socket->disconnect(false);
     }
 }

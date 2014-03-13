@@ -40,7 +40,7 @@ newsoul::PeerSocket::PeerSocket(newsoul::HandshakeSocket * that) : newsoul::User
 
 newsoul::PeerSocket::~PeerSocket()
 {
-    NNLOG("newsoul.peers.debug", "PeerSocket %d destroyed for %s", descriptor(), user().c_str());
+    //NNLOG("newsoul.peers.debug", "PeerSocket %d destroyed for %s", descriptor(), user().c_str());
 }
 
 void
@@ -114,10 +114,10 @@ newsoul::PeerSocket::onMessageReceived(const MessageData * data)
 
   switch(data->type)
   {
+    //NNLOG("newsoul.messages.peer", "Received peer message " #TYPE ".");
     #define MAP_MESSAGE(ID, TYPE, EVENT) \
       case ID: \
       { \
-        NNLOG("newsoul.messages.peer", "Received peer message " #TYPE "."); \
         TYPE msg; \
         msg.setPeerSocket(this); \
         msg.parse_network_packet(data->data, data->length); \
@@ -128,7 +128,7 @@ newsoul::PeerSocket::onMessageReceived(const MessageData * data)
     #undef MAP_MESSAGE
 
     default:
-        NNLOG("newsoul.peers.warn", "Received unknown peer message, type: %u, length: %u", data->type, data->length);
+        //NNLOG("newsoul.peers.warn", "Received unknown peer message, type: %u, length: %u", data->type, data->length);
         NetworkMessage msg;
         msg.parse_network_packet(data->data, data->length);
   }
@@ -199,7 +199,7 @@ newsoul::PeerSocket::onUploadQueueNotificationReceived(const PUploadQueueNotific
     state = " is a buddy";
 
   std::string isbuddy = user() + state;
-  NNLOG("newsoul.peers.debug", isbuddy.c_str());
+  //NNLOG("newsoul.peers.debug", isbuddy.c_str());
 }
 
 void
@@ -216,17 +216,17 @@ newsoul::PeerSocket::onTransferRequested(const PTransferRequest * request)
         std::string path = newsoul()->codeset()->toNet(newsoul()->codeset()->fromPeer(user(), request->filename));
 
         if (newsoul()->uploads()->isUploadable(user(), path, &reason)) {
-	        NNLOG("newsoul.peers.debug", "shared");
+			//NNLOG("newsoul.peers.debug", "shared");
 
             std::string pathFS = newsoul()->codeset()->fromNetToFS(request->filename);
 	        newsoul()->uploads()->add(user(), pathFS);
 	        Upload* upload = newsoul()->uploads()->findUpload(user(), pathFS);
 	        if (upload && newsoul()->uploads()->hasFreeSlots() && !newsoul()->uploads()->isUploadingTo(user())) {
-		        NNLOG("newsoul.peers.debug", "slot free");
+				//NNLOG("newsoul.peers.debug", "slot free");
 
 		        if (!upload->openFile()) {
                     reason = "Remote file error";
-			        NNLOG("newsoul.peers.warn", "Local file error on %s", pathFS.c_str());
+					//NNLOG("newsoul.peers.warn", "Local file error on %s", pathFS.c_str());
                 }
                 else {
                     UploadSocket * uploadSocket = new UploadSocket(newsoul(), upload);
@@ -235,12 +235,12 @@ newsoul::PeerSocket::onTransferRequested(const PTransferRequest * request)
                     upload->setTicket(request->ticket);
                     newsoul()->reactor()->add(uploadSocket);
                     uploadSocket->wait();
-			        NNLOG("newsoul.peers.debug", "Initiating transfer, ticket %i", request->ticket);
+					//NNLOG("newsoul.peers.debug", "Initiating transfer, ticket %i", request->ticket);
 			        size = upload->size();
                 }
 	        }
 	        else {
-		        NNLOG("newsoul.peers.debug", "queued");
+				//NNLOG("newsoul.peers.debug", "queued");
 		        reason = "Queued";
 	        }
         }
@@ -256,7 +256,7 @@ newsoul::PeerSocket::onTransferRequested(const PTransferRequest * request)
     }
   else if (request->direction == 1)
     {
-      NNLOG("newsoul.peers.debug", "request for download %s %s %u", user().c_str(), request->filename.c_str(), request->ticket);
+      //NNLOG("newsoul.peers.debug", "request for download %s %s %u", user().c_str(), request->filename.c_str(), request->ticket);
       // Starting a download
       std::string path = newsoul()->codeset()->fromPeer(user(), request->filename);
       Download * download = newsoul()->downloads()->findDownload(user(), path);
@@ -265,7 +265,7 @@ newsoul::PeerSocket::onTransferRequested(const PTransferRequest * request)
         // Check that we don't already have this file downloaded in destination dir
         std::ifstream file(download->destinationPath().c_str(), std::fstream::in | std::fstream::binary);
         if(file.is_open()) {
-            NNLOG("newsoul.peers.debug", "%s has already been downloaded.", path.c_str());
+            //NNLOG("newsoul.peers.debug", "%s has already been downloaded.", path.c_str());
             download->setState(TS_Finished);
             PDownloadReply reply(request->ticket, allowed, "Finished");
             sendMessage(reply.make_network_packet());
@@ -355,7 +355,7 @@ void
 newsoul::PeerSocket::onQueueDownloadRequested(const PQueueDownload * message) {
     std::string reason, goodPath;
 
-    NNLOG("newsoul.peers.debug", "request for queued upload %s %s", user().c_str(), message->filename.c_str());
+    //NNLOG("newsoul.peers.debug", "request for queued upload %s %s", user().c_str(), message->filename.c_str());
 
     if (newsoul()->uploads()->isUploadable(user(), message->filename, &reason)) {
         newsoul()->uploads()->add(user(), newsoul()->codeset()->fromNetToFS(message->filename));
@@ -366,7 +366,7 @@ newsoul::PeerSocket::onQueueDownloadRequested(const PQueueDownload * message) {
         // If he's running the official client, we will get PQueueDownload with
         // the filename in lower case. If in our shares the path has upper letters, we'll throw "File not shared" error.
         // So let's try a case insensitive search: slower than previous one, with a risk to return a wrong file.
-        NNLOG("newsoul.peers.debug", "File not shared but found a case insensitive match");
+        //NNLOG("newsoul.peers.debug", "File not shared but found a case insensitive match");
         newsoul()->uploads()->add(user(), newsoul()->codeset()->fromNetToFS(goodPath),0 , true);
     }
     else {
@@ -434,7 +434,7 @@ newsoul::PeerSocket::onFolderContentsReceived(const PFolderContentsReply * messa
 
 void
 newsoul::PeerSocket::onSearchResultsReceived(const PSearchReply * message) {
-    NNLOG("newsoul.peers.debug", "Search result from %s", user().c_str());
+    //NNLOG("newsoul.peers.debug", "Search result from %s", user().c_str());
 
     Dir folders;
     Dir::const_iterator it = message->results.begin();
@@ -460,13 +460,13 @@ newsoul::PeerSocket::addSearchResultsOnlyTimeout(long length) {
 
 void
 newsoul::PeerSocket::onSearchResultsOnly(long) {
-    NNLOG("newsoul.peers.debug", "We only received or sent search results: close this socket");
+    //NNLOG("newsoul.peers.debug", "We only received or sent search results: close this socket");
     disconnect();
 }
 
 void
 newsoul::PeerSocket::onSocketTimeout(long) {
-    NNLOG("newsoul.peers.debug", "Ping timeout on a peer socket");
+    //NNLOG("newsoul.peers.debug", "Ping timeout on a peer socket");
     disconnect();
 }
 
@@ -475,7 +475,7 @@ newsoul::PeerSocket::initiateOurself()
 {
     setToken(newsoul()->token());
 
-    NNLOG("newsoul.distrib.debug", "Initiating active connection to ourself.");
+    //NNLOG("newsoul.distrib.debug", "Initiating active connection to ourself.");
 
     HInitiate handshake(newsoul()->server()->username(), type(), token());
     sendMessage(handshake.make_network_packet());
