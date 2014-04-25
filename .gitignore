@@ -3,11 +3,9 @@
 *.a
 *.o
 .td
-src/efsw/lib
-src/efsw/make
-src/efsw/obj
 build/*.make
 build/Makefile
+build/*cov
 build/*/
 tags
 research/

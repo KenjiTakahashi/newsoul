@@ -30,13 +30,26 @@ newaction {
     end
 }
 
+newaction {
+    trigger = "coverage",
+    description = "Create HTML coverage report",
+    execute = function()
+        os.execute("lcov --directory . -c -o newsoul_cov")
+        os.execute("lcov --remove newsoul_cov '/usr*' -o newsoul_cov")
+        if os.getenv("config") == "release" then
+            os.execute("lcov --remove newsoul_cov 'tests*' -o newsoul_cov")
+        end
+        os.execute("genhtml -o coverage -t 'newsoul' --num-spaces 4 newsoul_cov")
+    end
+}
+
 function link(tests)
     links {"z", "event", "nettle", "json-c", "sqlite3", "pcrecpp", "pcre", "glog"}
     if not tests then
         links {"tag"}
     else
         includedirs {"../tests/mocks"}
-        links {"CppUTest", "CppUTestExt"}
+        links {"CppUTest", "CppUTestExt", "gcov"}
     end
 
     if os.is("bsd") then
@@ -72,5 +85,6 @@ solution "newsoul"
         link(true)
         buildoptions {
             "-include CppUTest/MemoryLeakDetectorNewMacros.h",
-            "-include CppUTest/MemoryLeakDetectorMallocMacros.h"
+            "-include CppUTest/MemoryLeakDetectorMallocMacros.h",
+            "--coverage"
         }
