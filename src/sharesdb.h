@@ -32,6 +32,7 @@
 #include "utils/os.h"
 #include "utils/path.h"
 #include "utils/string.h"
+#include <functional>
 
 namespace newsoul {
     class File {
