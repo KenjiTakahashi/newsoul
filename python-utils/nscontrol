@@ -30,16 +30,16 @@ from time import sleep
 try:
 	from newsoul import messages, driver
 except:
-	print "WARNING: The Museek Message-Parsing modules, messages.py and/or driver.py  were not found. Please install them into your '/usr/lib/python2.X/site-packages/museek' directory, or place them in a 'museek' subdirectory of the directory that contains the museekcontrol python scipt."
+	print "WARNING: The Museek Message-Parsing modules, messages.py and/or driver.py  were not found. Please install them into your '/usr/lib/python2.X/site-packages/newsoul' directory, or place them in a 'newsoul' subdirectory of the directory that contains the nscontrol python scipt."
 	#sys.exit()
 def output(s):
 	print s
 	sys.stdout.flush()
 parser = ConfigParser.ConfigParser()
 
-config_dir = str(os.path.expanduser("~/.newsoul/"))
+config_dir = str(os.path.expanduser("~/.config/newsoul/"))
 
-config_file = config_dir+"museekcontrol.config"
+config_file = config_dir+"nscontrol.config"
 interface = None
 password = None
 log_dir = None
@@ -381,7 +381,7 @@ for opts, args in opts:
 			
 
 museekcontrol_config = {"connection":{"interface":'localhost:2240', "password":None}, \
-	"museekcontrol":{"log_dir": "~/.newsoul/logs/"} 	}
+	"museekcontrol":{"log_dir": "~/.config/newsoul/logs/"} 	}
 
 def create_config():
 
@@ -442,7 +442,7 @@ def check_path():
 check_path()
 
 if log_dir != None:
-	museekcontrol_config["museekcontrol"]["log_dir"] = log_dir
+	museekcontrol_config["nscontrol"]["log_dir"] = log_dir
 if password != None:
 	museekcontrol_config["connection"]["password"] = password
 if interface != None:
