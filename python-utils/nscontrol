@@ -381,7 +381,7 @@ for opts, args in opts:
 			
 
 museekcontrol_config = {"connection":{"interface":'localhost:2240', "password":None}, \
-	"museekcontrol":{"log_dir": "~/.config/newsoul/logs/"} 	}
+	"nscontrol":{"log_dir": "~/.config/newsoul/logs/"} 	}
 
 def create_config():
 
