@@ -1112,7 +1112,7 @@ void newsoul::DownloadManager::saveDownloads() {
     if (m_AllowSave) {
         m_AllowSave = false;
         // Open config file
-        std::string path = newsoul()->config()->getStr({"downloads", "complete"});
+        std::string path = newsoul()->config()->getStr({"downloads", "queue"});
         std::string pathTemp(path + ".tmp");
         std::remove(pathTemp.c_str()); // Remove the temp file if it already exists
 
