@@ -37,10 +37,11 @@ namespace os {
      * By default, tries to create all missing directories on the way.
      * \param path Path to create.
      * \param recursive When false, creates only last dir or fails.
+     * \param shellexpand Whether to expand ~, environment variables, whitespace, etc
      * \return True on success, false otherwise.
      */
     bool _mkdir(const std::string &path, bool recursive=true);
-    bool mkdir(const std::string &path, bool recursive=true);
+    bool mkdir(const std::string &path, bool recursive=true, bool shellexpand=true);
     /*!
      * Returns filesystem path separator used by OS.
      */
