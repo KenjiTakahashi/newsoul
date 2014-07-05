@@ -30,8 +30,11 @@ bool os::_mkdir(const std::string &path, bool recursive) {
     return true;
 }
 
-bool os::mkdir(const std::string &path, bool recursive) {
-    return _mkdir(path::expand(path), recursive);
+bool os::mkdir(const std::string &path, bool recursive, bool shellexpand) {
+    if (shellexpand)
+        return _mkdir(path::expand(path), recursive);
+    else
+        return _mkdir(path, recursive);
 }
 
 char os::separator() {

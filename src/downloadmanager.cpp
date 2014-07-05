@@ -123,7 +123,7 @@ newsoul::Download::destinationPath(bool create) const
         // Fallback to current directory.
         if(downloaddir.empty())
             downloaddir = ".";
-        path << downloaddir;
+        path << path::expand(downloaddir);
         // Add the provided relative path.
         if(! m_LocalDir.empty())
             path << os::separator() << m_LocalDir;
@@ -134,7 +134,7 @@ newsoul::Download::destinationPath(bool create) const
 
     // Make sure the directory exists.
     if (create)
-        os::mkdir(path.str());
+        os::mkdir(path.str(), true, false);
 
     path << os::separator();
 
