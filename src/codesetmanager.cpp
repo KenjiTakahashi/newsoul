@@ -1,7 +1,7 @@
 /*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
-    Karol 'Kenji Takahashi' Woźniak © 2013
+    Karol 'Kenji Takahashi' Woźniak © 2013 - 2014
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ newsoul::CodesetManager::convert(const std::string & from, const std::string & t
   /* Fetch pointer to the source data. */
   size_t r, in_left, out_left;
   in_left = str.size();
-#ifndef _LIBICONV_H
+#ifndef _ICONV_H_
   char *inbuf = const_cast<char*>(str.data());
 #else
   const char *inbuf = str.data();

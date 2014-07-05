@@ -31,6 +31,7 @@
 #include <event.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <netinet/in_systm.h>
 #include <netinet/ip.h>
 #include <sys/types.h>
 #include <sys/socket.h>
