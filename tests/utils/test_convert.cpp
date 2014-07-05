@@ -19,31 +19,33 @@
 #include <CppUTest/TestHarness.h>
 #include "../../src/utils/convert.h"
 
-TEST_GROUP(string2bool) { };
-TEST(string2bool, low_true) {
-    bool result = convert::string2bool("true");
+namespace newsoul {
+    TEST_GROUP(string2bool) { };
+    TEST(string2bool, low_true) {
+        bool result = convert::string2bool("true");
 
-    CHECK_EQUAL(true, result);
-}
-TEST(string2bool, mixed_true) {
-    bool result = convert::string2bool("TrUe");
+        CHECK_EQUAL(true, result);
+    }
+    TEST(string2bool, mixed_true) {
+        bool result = convert::string2bool("TrUe");
 
-    CHECK_EQUAL(true, result);
-}
-TEST(string2bool, false_) {
-    bool result = convert::string2bool("False");
+        CHECK_EQUAL(true, result);
+    }
+    TEST(string2bool, false_) {
+        bool result = convert::string2bool("False");
 
-    CHECK_EQUAL(false, result);
-}
+        CHECK_EQUAL(false, result);
+    }
 
-TEST_GROUP(bool2string) { };
-TEST(bool2string, true_) {
-    const std::string result = convert::bool2string(true);
+    TEST_GROUP(bool2string) { };
+    TEST(bool2string, true_) {
+        const std::string result = convert::bool2string(true);
 
-    CHECK_EQUAL("true", result);
-}
-TEST(bool2string, false_) {
-    const std::string result = convert::bool2string(false);
+        CHECK_EQUAL("true", result);
+    }
+    TEST(bool2string, false_) {
+        const std::string result = convert::bool2string(false);
 
-    CHECK_EQUAL("false", result);
+        CHECK_EQUAL("false", result);
+    }
 }

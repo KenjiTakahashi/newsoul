@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace string {
+namespace newsoul {namespace string {
     /*!
      * Converts given string to lowercase.
      * \param s String to convert.
@@ -65,6 +65,6 @@ namespace string {
      * \return Joined string.
      */
     std::string join(const std::vector<std::string> &strings, const std::string &delim);
-}
+}}
 
 #endif /* __UTILS_STRING_H__ */

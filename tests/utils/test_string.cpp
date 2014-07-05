@@ -19,90 +19,92 @@
 #include <CppUTest/TestHarness.h>
 #include "../../src/utils/string.h"
 
-TEST_GROUP(tolower) { };
-TEST(tolower, all_lower) {
-    std::string result = string::tolower("tolower");
+namespace newsoul {
+    TEST_GROUP(tolower) { };
+    TEST(tolower, all_lower) {
+        std::string result = string::tolower("tolower");
 
-    CHECK_EQUAL("tolower", result);
-}
-TEST(tolower, all_upper) {
-    std::string result = string::tolower("TOLOWER");
+        CHECK_EQUAL("tolower", result);
+    }
+    TEST(tolower, all_upper) {
+        std::string result = string::tolower("TOLOWER");
 
-    CHECK_EQUAL("tolower", result);
-}
-TEST(tolower, first_upper) {
-    std::string result = string::tolower("Tolower");
+        CHECK_EQUAL("tolower", result);
+    }
+    TEST(tolower, first_upper) {
+        std::string result = string::tolower("Tolower");
 
-    CHECK_EQUAL("tolower", result);
-}
-TEST(tolower, some_upper) {
-    std::string result = string::tolower("ToLoWeR");
+        CHECK_EQUAL("tolower", result);
+    }
+    TEST(tolower, some_upper) {
+        std::string result = string::tolower("ToLoWeR");
 
-    CHECK_EQUAL("tolower", result);
-}
+        CHECK_EQUAL("tolower", result);
+    }
 
-TEST_GROUP(split) { };
-TEST(split, split_string_on_comma) {
-    std::vector<std::string> result = string::split("split,string", ",");
+    TEST_GROUP(split) { };
+    TEST(split, split_string_on_comma) {
+        std::vector<std::string> result = string::split("split,string", ",");
 
-    CHECK(std::vector<std::string>({"split", "string"}) == result);
-}
-TEST(split, split_string_on_comma_and_period) {
-    std::vector<std::string> result = string::split("split,.string", ",.");
+        CHECK(std::vector<std::string>({"split", "string"}) == result);
+    }
+    TEST(split, split_string_on_comma_and_period) {
+        std::vector<std::string> result = string::split("split,.string", ",.");
 
-    CHECK(std::vector<std::string>({"split", "string"}) == result);
-}
-TEST(split, split_long_string_on_comma_and_period) {
-    std::vector<std::string> result = string::split("split,long.string", ",.");
+        CHECK(std::vector<std::string>({"split", "string"}) == result);
+    }
+    TEST(split, split_long_string_on_comma_and_period) {
+        std::vector<std::string> result = string::split("split,long.string", ",.");
 
-    CHECK(std::vector<std::string>({"split", "long", "string"}) == result);
-}
-TEST(split, split_string_on_comma2) {
-    std::vector<std::string> result = string::split("split,,string", ",");
+        CHECK(std::vector<std::string>({"split", "long", "string"}) == result);
+    }
+    TEST(split, split_string_on_comma2) {
+        std::vector<std::string> result = string::split("split,,string", ",");
 
-    CHECK(std::vector<std::string>({"split", "string"}) == result);
-}
-TEST(split, split_string_on_comma3) {
-    std::vector<std::string> result = string::split(",split,string", ",");
+        CHECK(std::vector<std::string>({"split", "string"}) == result);
+    }
+    TEST(split, split_string_on_comma3) {
+        std::vector<std::string> result = string::split(",split,string", ",");
 
-    CHECK(std::vector<std::string>({"split", "string"}) == result);
-}
-TEST(split, split_string_on_comma4) {
-    std::vector<std::string> result = string::split("split,string,", ",");
+        CHECK(std::vector<std::string>({"split", "string"}) == result);
+    }
+    TEST(split, split_string_on_comma4) {
+        std::vector<std::string> result = string::split("split,string,", ",");
 
-    CHECK(std::vector<std::string>({"split", "string"}) == result);
-}
+        CHECK(std::vector<std::string>({"split", "string"}) == result);
+    }
 
-TEST_GROUP(replace) { };
-TEST(replace, replace_e_with_y) {
-    std::string result = string::replace("replace", 'e', 'y');
+    TEST_GROUP(replace) { };
+    TEST(replace, replace_e_with_y) {
+        std::string result = string::replace("replace", 'e', 'y');
 
-    CHECK_EQUAL("ryplacy", result);
-}
-TEST(replace, replace_rep_with_bar) {
-    std::string result = string::replace("replace", "rep", "bar");
+        CHECK_EQUAL("ryplacy", result);
+    }
+    TEST(replace, replace_rep_with_bar) {
+        std::string result = string::replace("replace", "rep", "bar");
 
-    CHECK_EQUAL("barlace", result);
-}
-TEST(replace, replace_rap_with_bar) {
-    std::string result = string::replace("replace", "rap", "bar");
+        CHECK_EQUAL("barlace", result);
+    }
+    TEST(replace, replace_rap_with_bar) {
+        std::string result = string::replace("replace", "rap", "bar");
 
-    CHECK_EQUAL("replace", result);
-}
+        CHECK_EQUAL("replace", result);
+    }
 
-TEST_GROUP(string_join) { };
-TEST(string_join, one) {
-    std::string result = string::join({"one"}, ";");
+    TEST_GROUP(string_join) { };
+    TEST(string_join, one) {
+        std::string result = string::join({"one"}, ";");
 
-    CHECK_EQUAL("one", result);
-}
-TEST(string_join, two) {
-    std::string result = string::join({"one", "two"}, ";");
+        CHECK_EQUAL("one", result);
+    }
+    TEST(string_join, two) {
+        std::string result = string::join({"one", "two"}, ";");
 
-    CHECK_EQUAL("one;two", result);
-}
-TEST(string_join, multichar_delim) {
-    std::string result = string::join({"one", "two"}, ",;");
+        CHECK_EQUAL("one;two", result);
+    }
+    TEST(string_join, multichar_delim) {
+        std::string result = string::join({"one", "two"}, ",;");
 
-    CHECK_EQUAL("one,;two", result);
+        CHECK_EQUAL("one,;two", result);
+    }
 }

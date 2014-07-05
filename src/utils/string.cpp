@@ -18,7 +18,7 @@
 
 #include "string.h"
 
-std::string string::tolower(const std::string &s) {
+std::string newsoul::string::tolower(const std::string &s) {
     std::string lowered(s);
 
     std::transform(s.begin(), s.end(), lowered.begin(), static_cast<int(*)(int)>(std::tolower));
@@ -26,7 +26,7 @@ std::string string::tolower(const std::string &s) {
     return lowered;
 }
 
-std::vector<std::string> string::split(const std::string &s, const std::string &delim) {
+std::vector<std::string> newsoul::string::split(const std::string &s, const std::string &delim) {
     std::vector<std::string> result;
 
     std::string::size_type last = s.find_first_not_of(delim, 0);
@@ -40,7 +40,7 @@ std::vector<std::string> string::split(const std::string &s, const std::string &
     return result;
 }
 
-std::string string::replace(const std::string &s, char from, char to) {
+std::string newsoul::string::replace(const std::string &s, char from, char to) {
     std::string replaced(s);
 
     std::replace_copy(s.begin(), s.end(), replaced.begin(), from, to);
@@ -48,7 +48,7 @@ std::string string::replace(const std::string &s, char from, char to) {
     return replaced;
 }
 
-std::string string::replace(const std::string &s, const std::string &from, const std::string &to) {
+std::string newsoul::string::replace(const std::string &s, const std::string &from, const std::string &to) {
     std::string replaced(s);
 
     std::string::size_type pos = 0;
@@ -60,7 +60,7 @@ std::string string::replace(const std::string &s, const std::string &from, const
     return replaced;
 }
 
-std::string string::join(const std::vector<std::string> &strings, const std::string &delim) {
+std::string newsoul::string::join(const std::vector<std::string> &strings, const std::string &delim) {
     std::stringstream stream;
     for(size_t i = 0; i < strings.size(); ++i) {
         if(i != 0) {

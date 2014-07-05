@@ -23,7 +23,7 @@
 #include <string>
 #include "string.h"
 
-namespace convert {
+namespace newsoul {namespace convert {
     /*!
      * Converts string to bool, i.e. "true" is true and any other
      * string is false. Case insensitive.
@@ -37,6 +37,6 @@ namespace convert {
      * \return Stringified version of value.
      */
     const std::string bool2string(bool value);
-}
+}}
 
 #endif /* __UTILS_CONVERT_H__ */

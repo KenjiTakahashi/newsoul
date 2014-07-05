@@ -131,19 +131,19 @@ static inline bool wildcmp(const std::string & wildStr, const std::string & stri
     regex_t preg;
 
     std::string regex = wildStr;
-    regex = string::replace(regex, "\\", "\\\\");
-    regex = string::replace(regex, "+", "\\+");
-    regex = string::replace(regex, ".", "\\.");
-    regex = string::replace(regex, "{", "\\{");
-    regex = string::replace(regex, "}", "\\}");
-    regex = string::replace(regex, "|", "\\|");
-    regex = string::replace(regex, "(", "\\(");
-    regex = string::replace(regex, ")", "\\)");
-    regex = string::replace(regex, "^", "\\^");
-    regex = string::replace(regex, "$", "\\$");
+    regex = newsoul::string::replace(regex, "\\", "\\\\");
+    regex = newsoul::string::replace(regex, "+", "\\+");
+    regex = newsoul::string::replace(regex, ".", "\\.");
+    regex = newsoul::string::replace(regex, "{", "\\{");
+    regex = newsoul::string::replace(regex, "}", "\\}");
+    regex = newsoul::string::replace(regex, "|", "\\|");
+    regex = newsoul::string::replace(regex, "(", "\\(");
+    regex = newsoul::string::replace(regex, ")", "\\)");
+    regex = newsoul::string::replace(regex, "^", "\\^");
+    regex = newsoul::string::replace(regex, "$", "\\$");
 
-    regex = string::replace(regex, "*", ".*");
-    regex = string::replace(regex, "?", ".{1}"); // FIXME doesn't work
+    regex = newsoul::string::replace(regex, "*", ".*");
+    regex = newsoul::string::replace(regex, "?", ".{1}"); // FIXME doesn't work
 
     regex = "^"+regex+"$";
 
