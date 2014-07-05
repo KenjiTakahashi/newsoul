@@ -8,7 +8,7 @@ This file tracks changes since the last Museek+ svn trunk revision.
 -Added systemd service file, but removed SysV one.
 -Made some minor fixes.
 
-0.2:
+0.2 (12.03.2014):
 -Moved to premake4 (it will stay for now).
 -Dropped libogg/libvorbis+custom code in favour of taglib.
 -Fixed ignoring umask on directory creation.
@@ -16,3 +16,10 @@ This file tracks changes since the last Museek+ svn trunk revision.
 -Completely redesigned configuration file, using JSON instead of XML.
 -New CLI configuration utility to supersede nssetup.
 -New DB backend using SQLite instead of hand-baked serialization.
+
+0.2.1 (05.07.2014):
+-Fixed compilation on some configurations (by @krobelus).
+-Fixed download queue getting saved onto complete files directory (by @krobelus).
+-Adjusted nscontrol config dirs/files names (by @krobelus).
+-Reimplemented path::expand without wordexp (fixes #24 among other things).
+-Fixed compilation on OpenBSD.
