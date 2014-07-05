@@ -62,18 +62,106 @@ std::vector<std::string> path::split(const std::string path, int no) {
     return results;
 }
 
-std::string path::expand(const std::string &path) {
-#ifndef _WIN32
-    wordexp_t ep;
-    if(wordexp(path.c_str(), &ep, WRDE_NOCMD) != 0) {
-        return path;
+std::string path::expanduser(const std::string &path) {
+    if(path[0] != '~') {
+        return std::string(path);
     }
-    std::string result(ep.we_wordv[0]);
-    wordfree(&ep);
-    return result;
-#else
-    return path; //TODO: Real implementation (using ExpandEnvironmentStrings?)
-#endif
+    size_t i = path.find('/');
+    if(i == std::string::npos) {
+        i = path.length();
+    }
+    std::string home;
+    if(i == 1) {
+        char *_home = getenv("HOME");
+        if(_home != NULL) {
+            home = std::string(_home);
+        } else {
+            home = std::string(getpwuid(getuid())->pw_dir);
+        }
+    } else {
+        struct passwd *pwent = getpwnam(path.substr(1, i).c_str());
+        if(pwent != NULL) {
+            home = std::string(pwent->pw_dir);
+        } else {
+            i = 0;
+        }
+    }
+    return std::string(home) + path.substr(i);
+}
+
+std::string path::expandvars(const std::string &path) {
+    std::string new_path(path);
+    if(new_path.find('$') == std::string::npos) {
+        return new_path;
+    }
+    pcrecpp::StringPiece path_re(new_path);
+    pcrecpp::RE expandvars_re(".*\\$(\\w+|\\{[^}]*\\})");
+    int offset = 0;
+    std::string _;
+    std::string varname;
+    while(expandvars_re.Consume(&path_re, &varname)) {
+        int varname_size = varname.size();
+        if(varname.find('{') == 0 && varname.find('}') == varname.size() - 1) {
+            varname = varname.substr(1, varname.length() - 2);
+        }
+        char *_varval = getenv(varname.c_str());
+        if(_varval != NULL) {
+            std::string varval(_varval);
+            offset = new_path.size() - path_re.size();
+            std::string tail(new_path.substr(offset));
+            new_path = new_path.substr(0, offset - varname_size - 1) + varval;
+            offset = new_path.size();
+            new_path += tail;
+        } else {
+            offset = new_path.size() - path_re.size();
+        }
+    }
+    return new_path;
+}
+
+std::string path::normpath(const std::string &path) {
+    std::string dot(".");
+    if(path.empty()) {
+        return dot;
+    }
+    bool init_slashes = path[0] == '/';
+    // POSIX allows two initial slashes, but three or more are treated as one.
+    bool two_slashes = false;
+    if(init_slashes && path[1] == '/' && path[2] != '/') {
+        two_slashes = true;
+    }
+    auto comps = newsoul::string::split(path, "/");
+    std::vector<std::string> new_comps;
+    for(std::string &comp : comps) {
+        if(comp.empty() || comp == ".") {
+            continue;
+        }
+        bool append = (
+            comp != ".." ||
+            (!init_slashes && new_comps.empty()) ||
+            (!new_comps.empty() && new_comps.back() == "..")
+        );
+        if(append) {
+            new_comps.push_back(comp);
+        } else if(!new_comps.empty()) {
+            new_comps.pop_back();
+        }
+    }
+    std::string new_path = newsoul::string::join(new_comps, "/");
+    if(init_slashes) {
+        new_path = "/" + new_path;
+    }
+    if(two_slashes) {
+        new_path = "/" + new_path;
+    }
+    if(new_path.empty()) {
+        return dot;
+    }
+    return new_path;
+}
+
+std::string path::expand(const std::string &path) {
+    return normpath(expandvars(expanduser(path)));
 }
 
 bool path::isAbsolute(const std::string &path) {

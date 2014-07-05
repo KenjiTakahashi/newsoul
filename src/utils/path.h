@@ -19,13 +19,13 @@
 #ifndef __UTILS_PATH_H__
 #define __UTILS_PATH_H__
 
-#include <cstring>
 #include <initializer_list>
+#include <pcrecpp.h>
+#include <pwd.h>
 #include <string>
+#include <sys/types.h>
+#include <unistd.h>
 #include <vector>
-#ifndef _WIN32
-#include <wordexp.h>
-#endif
 #include "os.h"
 #include "string.h"
 
@@ -50,8 +50,29 @@ namespace path {
      */
     std::vector<std::string> split(const std::string path, int no=-1);
     /*!
-     * Expands environment variables and other things, like '~' char.
-     * Does not, however, expand commands.
+     * Expands '~' and '~user` to user home directory.
+     * \param path Path to expand.
+     * \return New path with expanded home directory.
+     */
+    std::string expanduser(const std::string &path);
+    /*!
+     * Expands shell variables of form $var and ${var}.
+     * Unknown variables are left unchanged.
+     * \param path Path to expand.
+     * \return New path with expanded variables.
+     */
+    std::string expandvars(const std::string &path);
+    /*!
+     * Normalizes a path, e.g. a//b, a/./b and a/f/../b all become a/b.
+     * Note that this may change the meaning of given path if it contains
+     * symlinks.
+     * \param path Path to normalize.
+     * \return New, normalized path.
+     */
+    std::string normpath(const std::string &path);
+    /*!
+     * Expands env vars, tilde and '..'.
+     * It is implemented by calling `expanduser`, `expandvars` and `normpath`.
      * \param path Path for which to expand vars.
      * \return New path with vars expanded.
      */

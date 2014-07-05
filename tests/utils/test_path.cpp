@@ -16,6 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstdlib>
 #include <CppUTest/TestHarness.h>
 #include "../../src/utils/path.h"
 
@@ -98,6 +99,113 @@ TEST(path_split, dirname_basename) {
     std::vector<std::string> expected({"/dir/name", "basename"});
 
     CHECK(expected == result);
+}
+
+// TODO(Kenji): Find a way to mock getenv etc.
+// Then do more test cases.
+TEST_GROUP(path_expanduser) { };
+TEST(path_expanduser, tilde) {
+    std::string path("~");
+    std::string expected(getenv("HOME"));
+
+    std::string result = path::expanduser(path);
+
+    CHECK(expected == result);
+}
+TEST(path_expanduser, tilde_with_dir) {
+    std::string path("~/dir/name");
+    std::string expected = std::string(getenv("HOME")) + "/dir/name";
+
+    std::string result = path::expanduser(path);
+
+    CHECK(expected == result);
+}
+TEST(path_expanduser, tilde_with_user) {
+}
+TEST(path_expanduser, tidle_in_middle) {
+    std::string path("dir/~/name");
+
+    std::string result = path::expanduser(path);
+
+    CHECK(path == result);
+}
+TEST(path_expanduser, no_tilde) {
+    std::string path("dir/name");
+
+    std::string result = path::expanduser(path);
+
+    CHECK(path == result);
+}
+
+TEST_GROUP(path_expandvars) { };
+TEST(path_expandvars, HOME) {
+    std::string path("$HOME/dir/name");
+    std::string expected = std::string(getenv("HOME")) + "/dir/name";
+
+    std::string result = path::expandvars(path);
+
+    CHECK(expected == result);
+}
+TEST(path_expandvars, HOME_with_brackets) {
+    std::string path("${HOME}/dir/name");
+    std::string expected = std::string(getenv("HOME")) + "/dir/name";
+
+    std::string result = path::expandvars(path);
+
+    CHECK(expected == result);
+}
+TEST(path_expandvars, HOME_in_the_middle) {
+    std::string path("/dir/$HOME/name");
+    std::string expected = "/dir/" + std::string(getenv("HOME")) + "/name";
+
+    std::string result = path::expandvars(path);
+
+    CHECK(expected == result);
+}
+TEST(path_expandvars, HOME_at_the_end) {
+    std::string path("/dir/name/$HOME");
+    std::string expected = "/dir/name/" + std::string(getenv("HOME"));
+
+    std::string result = path::expandvars(path);
+
+    CHECK(expected == result);
+}
+TEST(path_expandvars, multiple_vars) {
+}
+
+TEST_GROUP(path_normpath) { };
+TEST(path_normpath, dot) {
+    std::string path("/dir/./name");
+    std::string expected("/dir/name");
+
+    std::string result = path::normpath(path);
+
+    CHECK(expected == result);
+}
+TEST(path_normpath, double_dot) {
+    std::string path("/dir/fake/../name");
+    std::string expected("/dir/name");
+
+    std::string result = path::normpath(path);
+
+    CHECK(expected == result);
+}
+TEST(path_normpath, double_slash) {
+    std::string path("/dir//name");
+    std::string expected("/dir/name");
+
+    std::string result = path::normpath(path);
+
+    CHECK(expected == result);
+}
+
+TEST_GROUP(path_expand) { };
+TEST(path_expand, with_spaces) {
+    std::string path("/dir/name with spaces");
+
+    std::string result = path::expand(path);
+
+    CHECK(path == result);
 }
 
 TEST_GROUP(isAbsolute) { };
