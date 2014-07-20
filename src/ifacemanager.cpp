@@ -161,7 +161,7 @@ newsoul::IfaceManager::addListener(const std::string & path)
     newsoul()->reactor()->add(factory->serverSocket());
   }
 
-  //NNLOG("newsoul.iface.debug", "Listening on '%s'.", path.c_str());
+  LOG(INFO) << "Listening on `" << path << "`";
   return true;
 }
 
@@ -260,7 +260,7 @@ newsoul::IfaceManager::sendNewSearchToAll(const std::string & query, uint token)
 void
 newsoul::IfaceManager::onIfaceAccepted(IfaceSocket * socket)
 {
-  //NNLOG("newsoul.iface.debug", "Accepted new interface socket.");
+  LOG(INFO) << "New client connection";
   m_Ifaces.push_back(socket);
 
   // Connect the events

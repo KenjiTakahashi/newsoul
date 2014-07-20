@@ -51,8 +51,9 @@ NewNet::ServerSocket::process()
         //NNLOG("newnet.net.warn", "Ignoring error '%i' in ServerSocket::accept().", errno);
     }
     else {
-      if (!setnonblocking(client))
+      //if (!setnonblocking(client))
         //NNLOG("newnet.net.warn", "Couldn't set socket %i to non blocking (errno: %i)", client, errno);
+      setnonblocking(client);
       acceptedEvent(client);
     }
   }
