@@ -21,6 +21,8 @@
 #ifndef NEWSOUL_DOWNLOADMANAGER_H
 #define NEWSOUL_DOWNLOADMANAGER_H
 
+#include <fnmatch.h>
+#include <glog/logging.h>
 #include <sstream>
 #include "downloadsocket.h"
 #include "peermanager.h"

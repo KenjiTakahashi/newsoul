@@ -1,7 +1,7 @@
 /*  newsoul - A SoulSeek client written in C++
     Copyright (C) 2006-2007 Ingmar K. Steen (iksteen@gmail.com)
     Copyright 2008 little blue poney <lbponey@users.sourceforge.net>
-    Karol 'Kenji Takahashi' Woźniak © 2013
+    Karol 'Kenji Takahashi' Woźniak © 2013 - 2014
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -515,9 +515,10 @@ void newsoul::DownloadManager::addFolderContents(const std::string & user, const
                 std::vector<std::string>::const_iterator bit;
                 blacklisted = false;
                 for (bit = blacklistItems.begin(); bit != blacklistItems.end(); bit++) {
-                    blacklisted = wildcmp(*bit, filename);
+                    blacklisted = !fnmatch((*bit).c_str(), filename.c_str(), FNM_PATHNAME);
+                    // TODO (Kenji): Log error when fnmatch fails to perform
                     if (blacklisted) {
-                        //NNLOG("newsoul.down.debug", "File %s blacklisted by %s.", filename.c_str(), bit->c_str());
+                        LOG(INFO) << "File `" << filename << "` matched blacklist pattern `" << *bit << "`";
                         m_Newsoul->ifaces()->sendStatusMessage(true, std::string("File '") + filename.c_str() + "' is blacklisted (" + bit->c_str()+")");
                         break;
                     }
