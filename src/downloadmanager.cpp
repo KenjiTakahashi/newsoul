@@ -1046,107 +1046,79 @@ bool newsoul::DownloadManager::hasFreeSlots() {
   * Loads the downloads stored in the config file
   */
 void newsoul::DownloadManager::loadDownloads() {
-    m_AllowUpdate = false; // We don't want downloads to be saved until we have finished to load them
-    // Open config file
+    m_AllowUpdate = false;
+
     std::string path = newsoul()->config()->getStr({"downloads", "queue"});
-    std::ifstream file(path.c_str(), std::fstream::in | std::fstream::binary);
 
-	if(file.fail() || !file.is_open()) {
-		//NNLOG("newsoul.config.warn", "Cannot load downloads (%s).", path.c_str());
-        file.close();
-		return;
-	}
-
-    uint32 n;
-    if (!read_int(&file, &n)) {
-		//NNLOG("newsoul.down.warn", "Cannot load number of downloads.");
-        file.close();
-		return;
+    std::ifstream file(path, std::fstream::binary);
+    if(file.fail() || !file.is_open()) {
+        LOG(WARNING) << "Loading downloads file failed";
+        m_AllowUpdate = true;
+        return;
     }
 
-	//NNLOG("newsoul.down.debug", "Loading %d downloads", n);
+    while(file.good()) {
+        std::string line;
+        std::getline(file, line);
 
-	while(n) {
-		uint32 state;
-		uint64 size;
-		std::string user, path, localpath, temppath;
-		if(!read_int(&file, &state) ||
-		   !read_str(&file, user) ||
-		   !read_off(&file, &size) ||
-		   !read_str(&file, path) ||
-		   !read_str(&file, localpath) ||
-		   !read_str(&file, temppath)) {
-			//NNLOG("newsoul.config.warn", "Cannot load downloads. Bailing out");
-            file.close();
-			return;
-		}
-		if (!path.empty()) {
-            //NNLOG("newsoul.down.debug", "Loading download: %s from %s (size: %d)", path.c_str(), user.c_str(), size);
-            size_t posB = localpath.find_last_of(os::separator());
-            add(user, path, localpath.substr(0, posB));
-            Download * dl = findDownload(user, path);
-            if (dl) {
-                if(state == 0)
+        struct json_object *downloads = json_tokener_parse(line.c_str());
+        uint32_t state = json_object_get_int(json_object_object_get(downloads, "state"));
+        std::string user(json_object_get_string(json_object_object_get(downloads, "user")));
+        uint64_t size = json_object_get_int64(json_object_object_get(downloads, "size"));
+        std::string remotePath(json_object_get_string(json_object_object_get(downloads, "remotePath")));
+        std::string completePath(json_object_get_string(json_object_object_get(downloads, "completePath")));
+        std::string incompletePath(json_object_get_string(json_object_object_get(downloads, "incompletePath")));
+
+        if(!remotePath.empty()) {
+            VLOG(1) << "Loading download `" << remotePath << "` from `" << user << "`";
+            size_t posB = completePath.find_last_of(os::separator());
+            add(user, remotePath, completePath.substr(0, posB));
+            Download *dl = findDownload(user, remotePath);
+            if(dl) {
+                if(state == 0) {
                     dl->setState(TS_Aborted);
-                else
-                    dl->setState(TS_Offline); // We're not sure the peer is connected
+                } else {
+                    dl->setState(TS_Offline);
+                }
                 dl->setSize(size);
-                dl->setIncompletePath(temppath);
-
+                dl->setIncompletePath(incompletePath);
                 dl->setPositionFromIncompleteFile();
             }
-		}
-		//else
-			//NNLOG("newsoul.config.warn", "Couldn't load a corrupted download: %s from %s (size: %d)", path.c_str(), user.c_str(), size);
+        } else {
+            LOG(WARNING) << "Loading download `" << remotePath << "` from `" << user << "` failed";
+        }
+    }
 
-		n--;
-	}
-	file.close();
-	m_AllowUpdate = true; // We have finished: now try to enqueue downloads
-	checkDownloads();
+    file.close();
+
+    m_AllowUpdate = true;
+    checkDownloads();
 }
 
 /**
   * Stores the download in the config file
   */
 void newsoul::DownloadManager::saveDownloads() {
-    if (m_AllowSave) {
+    if(m_AllowSave) {
         m_AllowSave = false;
-        // Open config file
+
         std::string path = newsoul()->config()->getStr({"downloads", "queue"});
-        std::string pathTemp(path + ".tmp");
-        std::remove(pathTemp.c_str()); // Remove the temp file if it already exists
+        std::string temp(path + ".tmp");
+        std::remove(temp.c_str());
 
-        std::ofstream file(pathTemp.c_str(), std::ofstream::binary | std::ofstream::app | std::ofstream::ate);
-
+        std::ofstream file(temp, std::ofstream::binary | std::ofstream::ate);
         if(file.fail() || !file.is_open()) {
-            //NNLOG("newsoul.config.warn", "Cannot save downloads (%s). Trying again later", path.c_str());
             m_AllowSave = true;
             return;
         }
 
-        uint32 transfers = 0;
+        for(auto download : this->downloads()) {
+            if(m_PendingDownloadsSave) {
+                break;
+            }
 
-        std::vector<NewNet::RefPtr<Download> >::const_iterator it = downloads().begin();
-        for(; it != downloads().end(); ++it)
-            if((*it)->state() != TS_Finished)
-                transfers++;
-
-        //NNLOG("newsoul.down.debug", "Saving %d downloads", transfers);
-
-        if(!write_int(&file, transfers) == -1) {
-            //NNLOG("newsoul.config.warn", "Cannot save downloads number, trying again later.");
-            file.close();
-            m_AllowSave = true;
-            return;
-        }
-
-        for(it = downloads().begin(); it != downloads().end(); ++it) {
-            if (m_PendingDownloadsSave)
-                break; // If we have another save request, stop saving and restart from scratch
-
-            uint32 state;
-            switch((*it)->state()) {
+            uint32_t state;
+            switch(download->state()) {
             case TS_Finished:
                 continue;
             case TS_Aborted:
@@ -1157,47 +1129,32 @@ void newsoul::DownloadManager::saveDownloads() {
                 break;
             }
 
-            // The incomplete path is useless if we haven't started the download
-            std::string tmpPath = newsoul()->codeset()->fromFsToUtf8((*it)->incompletePath(), false);
-            std::ifstream incompleteTest( tmpPath.c_str() );
-            if (incompleteTest.fail())
-                tmpPath = std::string();
-            incompleteTest.close();
+            struct json_object *downloads = json_object_new_object();
+            json_object_object_add(downloads, "state", json_object_new_int(state));
+            json_object_object_add(downloads, "user", json_object_new_string(download->user().c_str()));
+            json_object_object_add(downloads, "size", json_object_new_int64(download->size()));
+            json_object_object_add(downloads, "incompletePath", json_object_new_string(download->incompletePath().c_str()));
+            json_object_object_add(downloads, "completePath", json_object_new_string(download->destinationPath().c_str()));
+            json_object_object_add(downloads, "remotePath", json_object_new_string(download->remotePath().c_str()));
 
-            if(!write_int(&file, state) ||
-               write_str(&file, (*it)->user()) == -1 ||
-               !write_off(&file, (*it)->size()) ||
-               write_str(&file, (*it)->remotePath()) == -1 ||
-               write_str(&file, newsoul()->codeset()->fromFsToUtf8((*it)->destinationPath(), false)) == -1 ||
-               write_str(&file, tmpPath) == -1) {
-                //NNLOG("newsoul.config.warn", "Cannot save downloads, trying again later.");
-                file.close();
-                m_AllowSave = true;
-                return;
-            }
+            const char *downloads_string = json_object_to_json_string(downloads);
+            file.write(downloads_string, strlen(downloads_string));
+            file << std::endl;
         }
 
         file.close();
 
-        if (!m_PendingDownloadsSave) {
-        #ifdef WIN32
-            // On Win32, rename doesn't overwrite an existing file automatically.
-            remove(path.c_str());
-        #endif // WIN32
-            // Rename the temp file to the correct path.
-            if(rename(pathTemp.c_str(), path.c_str()) == -1) {
-                // Something happened. But nobody knows what.
-                //NNLOG("newsoul.config.warn", "Renaming downloads config file failed for unknown reason.");
+        if(!m_PendingDownloadsSave) {
+            if(rename(temp.c_str(), path.c_str()) == -1) {
+                LOG(WARNING) << "Renaming downloads config file failed";
             }
         }
 
-        // OK, we've finished. See if someone asked to save while we were saving (if true, we have to save now)
         m_AllowSave = true;
-        if (m_PendingDownloadsSave)
+        if(m_PendingDownloadsSave) {
             saveDownloads();
-    }
-    else {
-        //NNLOG("newsoul.down.debug", "Delaying downloads saving");
+        }
+    } else {
         m_PendingDownloadsSave = true;
     }
 }

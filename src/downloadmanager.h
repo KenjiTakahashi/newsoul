@@ -23,6 +23,7 @@
 
 #include <fnmatch.h>
 #include <glog/logging.h>
+#include <json-c/json.h>
 #include <sstream>
 #include "downloadsocket.h"
 #include "peermanager.h"
