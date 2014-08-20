@@ -3,7 +3,7 @@ Description=newsoul daemon.
 
 [Service]
 User=%i
-Environment=VAR=/var/%i/newsoul.xml
+Environment=VAR=/var/%i/newsoul.json
 ExecStart=/usr/bin/newsoul --config $VAR
 
 [Install]
