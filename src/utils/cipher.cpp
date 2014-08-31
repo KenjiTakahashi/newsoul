@@ -1,6 +1,6 @@
 /*
  This is a part of newsoul @ http://github.com/KenjiTakahashi/newsoul
- Karol "Kenji Takahashi" Woźniak © 2013
+ Karol "Kenji Takahashi" Woźniak © 2013 - 2014
 
  Copyright (C) 2003-2004 Hyriand <hyriand@thegraveyard.org>
 
@@ -83,4 +83,12 @@ void hexDigest(unsigned char *digest, int length, char* digestOut) {
         digestOut[i*2 + 1] = hextab[digest[i] & 0x0f];
     }
     digestOut[i*2] = '\0';
+}
+
+std::string sha256Digest(std::string &str) {
+    unsigned char digest[32];
+    sha256Block((unsigned char*)str.c_str(), str.length(), digest);
+    char hexdigest[65];
+    hexDigest(digest, 32, hexdigest);
+    return hexdigest;
 }

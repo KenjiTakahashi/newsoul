@@ -46,4 +46,6 @@ void blockDecipher(CipherContext* ctx, unsigned char* dataIn, int length, unsign
 
 void hexDigest(unsigned char *digest, int length, char* digestOut);
 
+std::string sha256Digest(std::string &str);
+
 #endif /* __UTILS_CIPHER_H__ */

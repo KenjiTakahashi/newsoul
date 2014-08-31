@@ -44,7 +44,10 @@ newaction {
 }
 
 function link(tests)
-    links {"z", "event", "nettle", "json-c", "sqlite3", "pcrecpp", "pcre", "glog"}
+    links {
+        "z", "event", "nettle", "json-c",
+        "sqlite3", "pcrecpp", "pcre", "glog", "uv"
+    }
     if not tests then
         links {"tag"}
     else
