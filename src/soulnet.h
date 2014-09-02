@@ -76,7 +76,6 @@ namespace newsoul {
             std::string msg;
 
         public:
-            Error() { } // TODO: Remove this, always a message
             Error(int id, int code, std::string msg) : code(code), msg(msg) { this->id = id; }
             std::string stringify();
         };

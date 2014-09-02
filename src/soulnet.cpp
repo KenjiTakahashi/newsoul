@@ -28,17 +28,17 @@ const std::map<std::string, std::unique_ptr<newsoul::Message>> newsoul::Message:
 
 std::unique_ptr<newsoul::Message> newsoul::Message::forge(std::string def) {
     struct json_object *msg_obj = json_tokener_parse(def.c_str());
-    struct json_object *method_obj, *params_obj, *id_obj;
+    struct json_object *method_obj, *params_obj, *id_obj, *jsonrpc_obj;
 
-    //TODO: Check "jsonrpc" == "2.0"
     bool incorrect = (
         !json_object_object_get_ex(msg_obj, "method", &method_obj) ||
         !json_object_object_get_ex(msg_obj, "params", &params_obj) ||
-        !json_object_object_get_ex(msg_obj, "id", &id_obj)
+        !json_object_object_get_ex(msg_obj, "id", &id_obj) ||
+        !json_object_object_get_ex(msg_obj, "jsonrpc", &jsonrpc_obj) ||
+        std::string(json_object_get_string(jsonrpc_obj)) != "2.0"
     );
     if(incorrect) {
-        // ERROR! -32600
-        return std::unique_ptr<Message>(new messages::Error());
+        return std::unique_ptr<Message>(new messages::Error(-1, -32600, "Invalid Request"));
     }
 
     std::string method(json_object_get_string(method_obj));
@@ -46,8 +46,7 @@ std::unique_ptr<newsoul::Message> newsoul::Message::forge(std::string def) {
     try {
         return Message::messages.at(method)->make(id, params_obj);
     } catch(std::out_of_range &e) {
-        // ERROR! -32601
-        return std::unique_ptr<Message>(new messages::Error());
+        return std::unique_ptr<Message>(new messages::Error(id, -32601, "Method not found"));
     }
 }
 
@@ -79,7 +78,7 @@ std::string newsoul::messages::Login::stringify() {
 std::unique_ptr<newsoul::Message> newsoul::messages::Login::go(Config *config) {
     std::string hash = sha256Digest(this->password);
     if(hash != config->getStr({"listeners", "password"})) {
-        return std::unique_ptr<Message>(new Error(this->id, 6666, "Invalid password"));
+        return std::unique_ptr<Message>(new Error(this->id, 6000, "Invalid password"));
     }
     // TODO: Set authenticated in Newsoul main go go (somehow)
     return std::unique_ptr<Message>(this);
@@ -89,8 +88,7 @@ std::unique_ptr<newsoul::Message> newsoul::messages::Login::make(int id, struct 
     // TODO: Versioned API
     struct json_object *password_obj;
     if(!json_object_object_get_ex(def, "password", &password_obj)) {
-        // ERROR!
-        return std::unique_ptr<newsoul::Message>(new Error());
+        return std::unique_ptr<newsoul::Message>(new Error(this->id, 1000, "Invalid params object"));
     }
     std::string password(json_object_get_string(password_obj));
     return std::unique_ptr<newsoul::Message>(new Login(id, password));
