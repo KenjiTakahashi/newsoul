@@ -20,7 +20,7 @@
 
 std::map<std::string, std::unique_ptr<newsoul::Message>> newsoul::Message::initMessages() {
     std::map<std::string, std::unique_ptr<Message>> m;
-    m["login"] = std::unique_ptr<Message>(new messages::Login());
+    m["login_v1"] = std::unique_ptr<Message>(new messages::v1::Login());
     return m;
 }
 
@@ -38,26 +38,33 @@ std::unique_ptr<newsoul::Message> newsoul::Message::forge(std::string def) {
         std::string(json_object_get_string(jsonrpc_obj)) != "2.0"
     );
     if(incorrect) {
-        return std::unique_ptr<Message>(new messages::Error(-1, -32600, "Invalid Request"));
+        return std::unique_ptr<Message>(new messages::v1::Error(-1, -32600, "Invalid Request"));
+    }
+
+    unsigned int id = json_object_get_int(id_obj);
+
+    struct json_object *api_obj;
+    if(!json_object_object_get_ex(params_obj, "api", &api_obj)) {
+        return std::unique_ptr<Message>(new messages::v1::Error(id, 1001, "Missing API version parameter"));
     }
 
     std::string method(json_object_get_string(method_obj));
-    unsigned int id = json_object_get_int(id_obj);
+    unsigned int api = json_object_get_int(api_obj);
     try {
-        return Message::messages.at(method)->make(id, params_obj);
+        return Message::messages.at(method + "_v" + std::to_string(api))->make(id, params_obj);
     } catch(std::out_of_range &e) {
-        return std::unique_ptr<Message>(new messages::Error(id, -32601, "Method not found"));
+        return std::unique_ptr<Message>(new messages::v1::Error(id, -32601, "Method not found"));
     }
 }
 
-newsoul::messages::Challenge::Challenge() {
+newsoul::messages::v1::Challenge::Challenge() {
     char map[] = "0123456789abcdef";
     for(int i = 0; i < 64; i++) {
         this->challenge += map[rand() % 16];
     }
 }
 
-std::string newsoul::messages::Challenge::stringify() {
+std::string newsoul::messages::v1::Challenge::stringify() {
     struct json_object *str = json_object_new_object();
     json_object_object_add(str, "jsonrpc", json_object_new_string("2.0"));
     json_object_object_add(str, "result", json_object_new_string(this->challenge.c_str()));
@@ -66,7 +73,7 @@ std::string newsoul::messages::Challenge::stringify() {
     return msg + std::string("\n");
 }
 
-std::string newsoul::messages::Login::stringify() {
+std::string newsoul::messages::v1::Login::stringify() {
     struct json_object *str = json_object_new_object();
     json_object_object_add(str, "jsonrpc", json_object_new_string("2.0"));
     json_object_object_add(str, "result", json_object_new_string("success"));
@@ -75,7 +82,7 @@ std::string newsoul::messages::Login::stringify() {
     return msg + std::string("\n");
 }
 
-std::unique_ptr<newsoul::Message> newsoul::messages::Login::go(Config *config) {
+std::unique_ptr<newsoul::Message> newsoul::messages::v1::Login::go(Config *config) {
     std::string hash = sha256Digest(this->password);
     if(hash != config->getStr({"listeners", "password"})) {
         return std::unique_ptr<Message>(new Error(this->id, 6000, "Invalid password"));
@@ -84,8 +91,7 @@ std::unique_ptr<newsoul::Message> newsoul::messages::Login::go(Config *config) {
     return std::unique_ptr<Message>(this);
 }
 
-std::unique_ptr<newsoul::Message> newsoul::messages::Login::make(int id, struct json_object *def) {
-    // TODO: Versioned API
+std::unique_ptr<newsoul::Message> newsoul::messages::v1::Login::make(int id, struct json_object *def) {
     struct json_object *password_obj;
     if(!json_object_object_get_ex(def, "password", &password_obj)) {
         return std::unique_ptr<newsoul::Message>(new Error(this->id, 1000, "Invalid params object"));
@@ -94,7 +100,7 @@ std::unique_ptr<newsoul::Message> newsoul::messages::Login::make(int id, struct 
     return std::unique_ptr<newsoul::Message>(new Login(id, password));
 }
 
-std::string newsoul::messages::Error::stringify() {
+std::string newsoul::messages::v1::Error::stringify() {
     struct json_object *str = json_object_new_object();
     struct json_object *err = json_object_new_object();
     json_object_object_add(err, "code", json_object_new_int(this->code));
@@ -118,10 +124,11 @@ void newsoul::Soulnet::event_connection_new(uv_stream_t *server, int status) {
     uv_tcp_t client;
     uv_tcp_init(this->loop, &client);
     if(uv_accept(server, (uv_stream_t*)&client) == 0) {
-        messages::Challenge challenge;
+        messages::v1::Challenge challenge;
         this->write(&client, &challenge);
 
         uv_read_start((uv_stream_t*)&client, event_client_alloc, ecr);
+
         LOG(INFO) << "Opened client connection `" << this->get_peername(&client) << "`";
     } else {
         uv_close((uv_handle_t*)&client, NULL);
@@ -146,9 +153,8 @@ void newsoul::Soulnet::event_client_read(uv_stream_t *client, ssize_t nread, con
         }
         //ERROR!
     } else {
-        //TODO: get_peername should be cached earlier
-        //Client may disconnect before we reach this line
         LOG(INFO) << "Client `" << this->get_peername((uv_tcp_t*)client) << "` <- `" << buf->base << "`";
+
         Config config;
         std::unique_ptr<Message> msg = Message::forge(std::string(buf->base))->go(&config);
         this->write((uv_tcp_t*)client, msg.get());
@@ -176,6 +182,8 @@ void newsoul::Soulnet::write(uv_tcp_t *client, Message *msg) {
     uv_write(req, (uv_stream_t*)client, &buf, 1, event_req_free);
 
     free(ch);
+
+    LOG(INFO) << "Client `" << this->get_peername(client) << "` -> `" << str <<"`";
 }
 
 std::string newsoul::Soulnet::get_peername(uv_tcp_t *client) {

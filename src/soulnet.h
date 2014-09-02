@@ -48,7 +48,7 @@ namespace newsoul {
         virtual std::unique_ptr<Message> go(Config *config) { return std::unique_ptr<Message>(this); }
     };
 
-    namespace messages {
+    namespace messages {namespace v1 {
         class Challenge : public Message {
             std::string challenge;
 
@@ -79,7 +79,7 @@ namespace newsoul {
             Error(int id, int code, std::string msg) : code(code), msg(msg) { this->id = id; }
             std::string stringify();
         };
-    }
+    }}
 
     class Soulnet {
         uv_loop_t *loop;
