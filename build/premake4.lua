@@ -70,7 +70,7 @@ solution "newsoul"
     configuration "debug"
         defines {"DEBUG"}
         flags {"Symbols"}
-        buildoptions {"-ggdb3", "-O0", "-fno-inline"}
+        buildoptions {"-ggdb3", "-O0", "-fno-inline", "-Wfatal-errors"}
 
     configuration "release"
         defines {"NDEBUG"}

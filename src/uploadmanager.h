@@ -83,7 +83,7 @@ namespace newsoul
   private:
     void replyTimeout(long);
 
-    NewNet::WeakRefPtr<Newsoul>         m_Newsoul; // Ref to the newsoul
+    Newsoul *m_Newsoul; // Ref to the newsoul
 
     std::ifstream *                     m_File; // The file we need to send
     NewNet::WeakRefPtr<UploadSocket>    m_Socket; // Ref to the socket associated
@@ -192,7 +192,7 @@ namespace newsoul
     void onPeerSocketReady(PeerSocket * socket);
     void onPeerOffline(std::string user);
 
-    NewNet::WeakRefPtr<Newsoul>                             m_Newsoul;      // Ref to the newsoul
+    Newsoul *m_Newsoul;      // Ref to the newsoul
     std::vector<NewNet::RefPtr<Upload> >                    m_Uploads;      // List of all the uploads
     std::map<std::string, NewNet::WeakRefPtr<Upload> >      m_Initiating;   // List of all the uploads currently being initiated
     std::map<std::string, NewNet::WeakRefPtr<Upload> >      m_Uploading;    // List of user we're currently uploading

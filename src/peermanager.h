@@ -86,7 +86,7 @@ namespace newsoul
 
     void createPeerSocket(const std::string&);
 
-    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
+    Newsoul *m_Newsoul;
     NewNet::RefPtr<PeerFactory> m_Factory;
 
     std::map<std::string, struct timeval >                  m_LastStatusTime;   // When did we ask for status of each user?

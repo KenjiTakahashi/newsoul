@@ -19,8 +19,11 @@
 
  */
 
+#include <memory>
+
 #include <glog/logging.h>
-//#include "newsoul.h"
+
+#include "newsoul.h"
 #include "soulnet.h"
 
 /* Returns 0 if newsoul is already running, 1 otherwise. */
@@ -50,7 +53,9 @@ int main(int argc, char *argv[]) {
     LOG_IF(FATAL, !get_lock()) << "Another instance is already running, aborting.";
     LOG_IF(WARNING, sizeof(off_t) < 8) << "No large file support. Will not be able to download files with size >4GB";
 
-    newsoul::Soulnet app("0.0.0.0", 7000); // TODO: Use values from config
+    // TODO: argv
+    // shared_ptr because of a flawed design by the other guys ];->
+    newsoul::Soulnet app(std::make_shared<newsoul::Newsoul>());
     return app.run();
     //newsoul::Newsoul app;
     //return app.run(argc, argv);

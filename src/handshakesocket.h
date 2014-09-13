@@ -24,7 +24,6 @@
 #include "messageprocessor.h"
 #include "newsoul.h"
 #include "NewNet/nnclientsocket.h"
-#include "NewNet/nnweakrefptr.h"
 
 namespace newsoul
 {
@@ -61,7 +60,7 @@ namespace newsoul
     void onDisconnected(NewNet::ClientSocket * socket);
     void onCannotConnect(NewNet::ClientSocket * socket);
 
-    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
+    Newsoul *m_Newsoul;
     uint m_Token;
     std::string m_User;
   };

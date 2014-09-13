@@ -22,6 +22,17 @@
 #include "newsoul.h"
 #include "searchmanager.h"
 
+// This is new interface
+const std::vector<std::shared_ptr<newsoul::Component>> newsoul::Newsoul::getComponents(std::vector<std::string> names) {
+    std::vector<std::shared_ptr<Component>> components;
+
+    for(auto &name : names) {
+        components.push_back(this->_components[name]);
+    }
+
+    return components;
+}
+
 newsoul::Newsoul *newsoul::Newsoul::_instance = 0; // Yeah, right
 
 newsoul::Newsoul::Newsoul() {
@@ -39,7 +50,6 @@ newsoul::Newsoul::~Newsoul() {
     if(this->_buddyShares != NULL) {
         delete this->_buddyShares;
     }
-    delete this->_config;
 }
 
 void newsoul::Newsoul::parsePSet(std::initializer_list<const std::string> keys, int *i, int argc, char *argv[]) {
@@ -262,14 +272,14 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
 
     if(2 < argc && std::string(argv[1]) == "set" && std::string(argv[2]) == "from") {
         if(3 < argc) {
-            this->_config = new Config(std::string(argv[3]));
+            this->_config = std::make_shared<Config>(std::string(argv[3]));
         } else {
             std::cout << "Not enough arguments, loading default config." << std::endl;
-            this->_config = new Config();
+            this->_config = std::make_shared<Config>();
         }
         return true;
     } else {
-        this->_config = new Config();
+        this->_config = std::make_shared<Config>();
     }
 
     this->LoadShares();  //FIXME
@@ -320,20 +330,23 @@ bool newsoul::Newsoul::parseArgs(int argc, char *argv[]) {
 
 int newsoul::Newsoul::run(int argc, char *argv[]) {
     //google::InstallFailureFunction(&handleSignals); //FIXME: Make better func
-    bool run = this->parseArgs(argc, argv);
-    if(!run) {
+    if(!this->parseArgs(argc, argv)) {
         return 0;
     }
 
-    m_Reactor = new NewNet::Reactor();
-    /* Instantiate the various components. Order can be important here. */
-    m_Codeset = new CodesetManager(this);
-    m_Server = new ServerManager(this);
-    m_Peers = new PeerManager(this);
-    m_Downloads = new DownloadManager(this);
-    m_Uploads = new UploadManager(this);
-    m_Ifaces = new IfaceManager(this);
-    m_Searches = new SearchManager(this);
+    // TODO: Move this stuff to constructor?
+    // Remember that some components currently require parsed config
+    m_Reactor = std::make_shared<NewNet::Reactor>();
+    // Instantiate the various components. Order can be important here.
+    m_Codeset = std::make_shared<CodesetManager>(this);
+    m_Server = std::make_shared<ServerManager>(this);
+    m_Peers = std::make_shared<PeerManager>(this);
+    m_Downloads = std::make_shared<DownloadManager>(this);
+    m_Uploads = std::make_shared<UploadManager>(this);
+    m_Ifaces = std::make_shared<IfaceManager>(this);
+    m_Searches = std::make_shared<SearchManager>(this);
+    this->_components["interface"] = this->m_Ifaces;
+    this->_components["config"] = this->_config;
 
     this->LoadDownloads();
 
@@ -343,9 +356,10 @@ int newsoul::Newsoul::run(int argc, char *argv[]) {
 #endif
     signal(SIGINT, &handleSignals);
 
-    this->m_Server->connect();
-    this->m_Reactor->run();
-    this->m_Downloads->saveDownloads();
+    //FIXME:TODO: Uncomment/move these
+    //this->m_Server->connect();
+    //this->m_Reactor->run();
+    //this->m_Downloads->saveDownloads();
     return 0;
 }
 

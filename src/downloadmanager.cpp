@@ -356,7 +356,7 @@ newsoul::Download::initiate(PeerSocket * socket) {
 
 	//NNLOG("newsoul.down.debug", "Initiating download sequence %u", m_Ticket);
 
-    newsoul()->downloads()->setTransferReplyCallback(socket->transferReplyReceivedEvent.connect(newsoul()->downloads(), &DownloadManager::onPeerTransferReplyReceived));
+    newsoul()->downloads()->setTransferReplyCallback(socket->transferReplyReceivedEvent.connect(newsoul()->downloads().get(), &DownloadManager::onPeerTransferReplyReceived));
 
 	std::string path = newsoul()->codeset()->toPeer(user(), m_RemotePath);
 	if(! path.empty()) {

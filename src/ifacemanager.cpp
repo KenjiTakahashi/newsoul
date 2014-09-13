@@ -106,12 +106,12 @@ newsoul::IfaceManager::IfaceManager(Newsoul * newsoul) : m_Newsoul(newsoul)
   newsoul->peers()->peerSocketUnavailableEvent.connect(this, &IfaceManager::onPeerSocketUnavailable);
   newsoul->peers()->peerSocketReadyEvent.connect(this, &IfaceManager::onPeerSocketReady);
 
-  for(const std::string &listener : this->m_Newsoul->config()->getVec({"listeners", "paths"})) {
-      if(m_Factories.find(listener) == m_Factories.end()) {
-          this->addListener(listener);
-          SEND_C_MASK(EM_CONFIG, IConfigSet((*it)->cipherContext(), "listeners", listener, ""));
-      }
-  }
+  //for(const std::string &listener : this->m_Newsoul->config()->getVec({"listeners", "paths"})) {
+      //if(m_Factories.find(listener) == m_Factories.end()) {
+          //this->addListener(listener);
+          //SEND_C_MASK(EM_CONFIG, IConfigSet((*it)->cipherContext(), "listeners", listener, ""));
+      //}
+  //}
 }
 
 bool
@@ -478,7 +478,7 @@ newsoul::IfaceManager::onIfaceNewPassword(const INewPassword * message)
 }
 
 void newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet *message) {
-    Config *c = this->newsoul()->config();
+    std::shared_ptr<Config> c = this->newsoul()->config();
     const std::string d = message->domain;
     std::string k = message->key;
     const std::string v = message->value;
@@ -565,7 +565,7 @@ void newsoul::IfaceManager::onIfaceSetConfig(const IConfigSet *message) {
 }
 
 void newsoul::IfaceManager::onIfaceRemoveConfig(const IConfigRemove *message) {
-    Config *c = this->newsoul()->config();
+    std::shared_ptr<Config> c = this->newsoul()->config();
     const std::string d = message->domain;
     std::string k = message->key;
     if(d == "autojoin") {

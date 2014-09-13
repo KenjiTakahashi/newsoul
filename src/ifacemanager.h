@@ -22,6 +22,9 @@
 #ifndef NEWSOUL_IFACEMANAGER_H
 #define NEWSOUL_IFACEMANAGER_H
 
+#include <memory>
+
+#include "component.h"
 #include "ifacesocket.h"
 #include "searchmanager.h"
 #include "utils/convert.h"
@@ -35,7 +38,7 @@
 
 namespace newsoul
 {
-  class IfaceManager : public NewNet::Object
+  class IfaceManager : public NewNet::Object, public Component
   {
   public:
     void sendStatusMessage(bool type, std::string message);
@@ -191,7 +194,7 @@ namespace newsoul
     void onUploadUpdated(Upload * upload);
     void onUploadRemoved(Upload * upload);
 
-    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
+    Newsoul *m_Newsoul;
 
     std::map<std::string, NewNet::RefPtr<NewNet::Object> > m_Factories;
     std::map<std::string, NewNet::RefPtr<NewNet::ServerSocket> > m_ServerSockets;

@@ -30,7 +30,6 @@
 #include "utils/path.h"
 #include "utils/string.h"
 #include "NewNet/nnobject.h"
-#include "NewNet/nnweakrefptr.h"
 
 namespace newsoul
 {
@@ -105,7 +104,7 @@ namespace newsoul
     iconv_t getContext(const std::string & from, const std::string & to);
 
     /* Weak reference to newsoul instance. */
-    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
+    Newsoul *m_Newsoul;
     /* Iconv context cache. */
     std::map<std::pair<std::string, std::string>, iconv_t> m_Contexts;
   };

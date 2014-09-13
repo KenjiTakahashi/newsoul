@@ -31,6 +31,7 @@
 #include <uv.h>
 
 #include "config.h"
+#include "newsoul.h"
 #include "utils/cipher.h"
 
 namespace newsoul {
@@ -45,7 +46,8 @@ namespace newsoul {
     public:
         static std::unique_ptr<Message> forge(std::string def);
         virtual std::string stringify() { return ""; }
-        virtual std::unique_ptr<Message> go(Config *config) { return std::unique_ptr<Message>(this); }
+        virtual const std::vector<std::string> gimme() { return {}; }
+        virtual std::unique_ptr<Message> go(const std::vector<std::shared_ptr<Component>> components) { return std::unique_ptr<Message>(this); }
     };
 
     namespace messages {namespace v1 {
@@ -68,7 +70,8 @@ namespace newsoul {
         public:
             Login() { }
             std::string stringify();
-            std::unique_ptr<Message> go(Config *config);
+            const std::vector<std::string> gimme() { return {"config", "interface"}; }
+            std::unique_ptr<Message> go(const std::vector<std::shared_ptr<Component>> components);
         };
 
         class Error : public Message {
@@ -82,6 +85,8 @@ namespace newsoul {
     }}
 
     class Soulnet {
+        std::shared_ptr<Newsoul> _newsoul;
+
         uv_loop_t *loop;
         uv_tcp_t server;
 
@@ -102,7 +107,7 @@ namespace newsoul {
         std::string get_peername(uv_tcp_t *client);
 
     public:
-        Soulnet(const char *addr, unsigned int port);
+        Soulnet(std::shared_ptr<Newsoul> newsoul);
 
         int run();
     };

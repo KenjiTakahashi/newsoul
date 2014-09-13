@@ -89,7 +89,7 @@ namespace newsoul
     void onChildDisconnected(NewNet::ClientSocket * socket_);
     void onWishlistTimeout(long);
 
-    NewNet::WeakRefPtr<Newsoul>                 m_Newsoul;          // Ref to the newsoul
+    Newsoul *m_Newsoul;          // Ref to the newsoul
     std::string                                 m_ParentIp;         // The IP address of our parent
     std::string                                 m_BranchRoot;       // Parent of the branch we're in
     uint                                        m_BranchLevel;      // Position in the branch we're in (starting from top)

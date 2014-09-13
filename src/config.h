@@ -21,18 +21,21 @@
 
 #include <cstring>
 #include <initializer_list>
-#include <json-c/json.h>
 #include <fstream>
 #include <map>
 #include <streambuf>
 #include <vector>
+
+#include <json-c/json.h>
+
+#include "component.h"
 #include "utils/convert.h"
 #include "utils/os.h"
 #include "utils/path.h"
 #include "utils/string.h"
 
 namespace newsoul {
-    class Config {
+    class Config : public Component {
         std::string fn;
         bool autosave;
         struct json_object *json;

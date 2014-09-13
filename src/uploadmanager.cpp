@@ -340,7 +340,7 @@ void newsoul::Upload::initiate(PeerSocket * socket) {
 
 	//NNLOG("newsoul.up.debug", "initiating upload sequence %u", m_Ticket);
 
-    newsoul()->uploads()->setTransferReplyCallback(socket->transferReplyReceivedEvent.connect(newsoul()->uploads(), &UploadManager::onPeerTransferReplyReceived));
+    newsoul()->uploads()->setTransferReplyCallback(socket->transferReplyReceivedEvent.connect(newsoul()->uploads().get(), &UploadManager::onPeerTransferReplyReceived));
 
 	std::string path = newsoul()->codeset()->fromFSToNet(m_LocalPath);
 	if (m_CaseProblem)

@@ -22,10 +22,15 @@
 #ifndef __NEWSOUL_NEWSOUL_H__
 #define __NEWSOUL_NEWSOUL_H__
 
-#include <glog/logging.h>
 #include <iostream>
+#include <memory>
 #include <signal.h>
 #include <string>
+#include <vector>
+
+#include <glog/logging.h>
+
+#include "component.h"
 #include "config.h"
 #include "sharesdb.h"
 #include "NewNet/nnreactor.h"
@@ -42,21 +47,27 @@ namespace newsoul
     class SearchManager;
     class IfaceManager;
 
-    class Newsoul : public NewNet::Object {
+    class Newsoul {
+        // This is new interface
         const std::string version = "0.2.NewI";
+        std::map<std::string, std::shared_ptr<Component>> _components;
+
+    public:
+        const std::vector<std::shared_ptr<Component>> getComponents(std::vector<std::string> names);
+        // 'Til here
 
         /* Our strong references to the various components. */
-        NewNet::RefPtr<NewNet::Reactor> m_Reactor;
-        NewNet::RefPtr<CodesetManager> m_Codeset;
-        NewNet::RefPtr<ServerManager> m_Server;
-        NewNet::RefPtr<PeerManager> m_Peers;
-        NewNet::RefPtr<DownloadManager> m_Downloads;
-        NewNet::RefPtr<UploadManager> m_Uploads;
-        NewNet::RefPtr<IfaceManager> m_Ifaces;
-        Config *_config;
+        std::shared_ptr<NewNet::Reactor> m_Reactor;
+        std::shared_ptr<CodesetManager> m_Codeset;
+        std::shared_ptr<ServerManager> m_Server;
+        std::shared_ptr<PeerManager> m_Peers;
+        std::shared_ptr<DownloadManager> m_Downloads;
+        std::shared_ptr<UploadManager> m_Uploads;
+        std::shared_ptr<Config> _config;
+        std::shared_ptr<SearchManager> m_Searches;
+        std::shared_ptr<IfaceManager> m_Ifaces;
         SharesDB *_globalShares;
         SharesDB *_buddyShares;
-        NewNet::RefPtr<SearchManager> m_Searches;
         int m_Token;
         std::vector<std::string> mPrivilegedUsers;
 
@@ -141,46 +152,32 @@ namespace newsoul
         }
 
         /* Return a pointer to the reactor. */
-        NewNet::Reactor *reactor() const {
-            return m_Reactor;
-        }
+        std::shared_ptr<NewNet::Reactor> reactor() const { return m_Reactor; }
 
         /* Return a pointer to the config manager. */
-        Config *config() const {
-            return this->_config;
-        }
+        std::shared_ptr<Config> config() const { return this->_config; }
 
         /* Return a pointer to the codeset manager (codeset translator). */
-        CodesetManager *codeset() const {
-            return m_Codeset;
-        }
+        std::shared_ptr<CodesetManager> codeset() const { return m_Codeset; }
 
         /* Return a pointer to the server manager (connection to the soulseek
            server). */
-        ServerManager *server() const {
-            return m_Server;
-        }
+        std::shared_ptr<ServerManager> server() const { return m_Server; }
 
         /* Return a pointer to the peer manager (handles incoming connections
            and passive / reverse connection requests. */
-        PeerManager *peers() const {
-            return m_Peers;
-        }
+        std::shared_ptr<PeerManager> peers() const { return m_Peers; }
 
         /* Return a pointer to the download manager. */
-        DownloadManager *downloads() const {
-            return m_Downloads;
-        }
+        std::shared_ptr<DownloadManager> downloads() const { return m_Downloads; }
 
         /* Return a pointer to the upload manager. */
-        UploadManager *uploads() const {
-            return m_Uploads;
-        }
+        std::shared_ptr<UploadManager> uploads() const { return m_Uploads; }
+
+        std::shared_ptr<SearchManager> searches() const { return m_Searches; }
 
         /* Return a pointer to the interface manager. */
-        IfaceManager * ifaces() const {
-            return m_Ifaces;
-        }
+        std::shared_ptr<IfaceManager> ifaces() { return m_Ifaces; }
 
         SharesDB *shares() const {
             return this->_globalShares;
@@ -188,10 +185,6 @@ namespace newsoul
 
         SharesDB *buddyshares() const {
             return this->_buddyShares;
-        }
-
-        SearchManager *searches() const {
-            return m_Searches;
         }
 
         void LoadShares();

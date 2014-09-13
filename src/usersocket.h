@@ -63,7 +63,7 @@ namespace newsoul
     void onCannotConnectNotify(const SCannotConnect * msg);
 
   private:
-    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
+    Newsoul *m_Newsoul;
     NewNet::WeakRefPtr<NewNet::Event<long>::Callback> m_PassiveConnectTimeout;
 
     std::string m_Type, m_User;

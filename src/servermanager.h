@@ -108,7 +108,7 @@ namespace newsoul
     void launchServerTimeTest(long);
     void serverTimeTestFailed(long);
 
-    NewNet::WeakRefPtr<Newsoul> m_Newsoul;
+    Newsoul *m_Newsoul;
 
     std::string m_Username, m_Password;
 

@@ -82,7 +82,8 @@ std::string newsoul::messages::v1::Login::stringify() {
     return msg + std::string("\n");
 }
 
-std::unique_ptr<newsoul::Message> newsoul::messages::v1::Login::go(Config *config) {
+std::unique_ptr<newsoul::Message> newsoul::messages::v1::Login::go(const std::vector<std::shared_ptr<Component>> components) {
+    std::shared_ptr<Config> config = std::static_pointer_cast<Config>(components[0]);
     std::string hash = sha256Digest(this->password);
     if(hash != config->getStr({"listeners", "password"})) {
         return std::unique_ptr<Message>(new Error(this->id, 6000, "Invalid password"));
@@ -123,6 +124,7 @@ void newsoul::Soulnet::ecn(uv_stream_t *server, int status) {
 void newsoul::Soulnet::event_connection_new(uv_stream_t *server, int status) {
     uv_tcp_t client;
     uv_tcp_init(this->loop, &client);
+    client.data = server->data;
     if(uv_accept(server, (uv_stream_t*)&client) == 0) {
         messages::v1::Challenge challenge;
         this->write(&client, &challenge);
@@ -155,8 +157,8 @@ void newsoul::Soulnet::event_client_read(uv_stream_t *client, ssize_t nread, con
     } else {
         LOG(INFO) << "Client `" << this->get_peername((uv_tcp_t*)client) << "` <- `" << buf->base << "`";
 
-        Config config;
-        std::unique_ptr<Message> msg = Message::forge(std::string(buf->base))->go(&config);
+        std::unique_ptr<Message> msg = Message::forge(std::string(buf->base));
+        msg = msg->go(this->_newsoul->getComponents(msg->gimme()));
         this->write((uv_tcp_t*)client, msg.get());
         free(buf->base);
     }
@@ -197,13 +199,21 @@ std::string newsoul::Soulnet::get_peername(uv_tcp_t *client) {
     return std::string(ip) + ":" + std::to_string(addr.sin_port);
 }
 
-newsoul::Soulnet::Soulnet(const char *addr, unsigned int port) {
+newsoul::Soulnet::Soulnet(std::shared_ptr<Newsoul> newsoul) : _newsoul(newsoul) {
     this->loop = uv_default_loop();
 
     uv_tcp_init(this->loop, &this->server);
     this->server.data = this;
     struct sockaddr_in bind_addr;
-    uv_ip4_addr(addr, port, &bind_addr);
+
+    this->_newsoul->run(0, NULL); // FIXME: This should not be necessary
+
+    const std::shared_ptr<Config> config = std::static_pointer_cast<Config>(this->_newsoul->getComponents({"config"})[0]);
+
+    // TODO: Better config format for listeners paths
+    // TODO: Multiple listeners
+    const std::vector<std::string> path = string::split(config->getVec({"listeners", "paths"})[0], ":");
+    uv_ip4_addr(path[0].c_str(), std::stoi(path[1]), &bind_addr);
     uv_tcp_bind(&this->server, (sockaddr*)&bind_addr, 0);
 
     uv_listen((uv_stream_t*)&this->server, 128, ecn);

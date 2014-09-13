@@ -93,7 +93,7 @@ namespace newsoul
     void initTimedOut(long);
 
   private:
-    NewNet::WeakRefPtr<Newsoul>         m_Newsoul; // Ref to the newsoul
+    Newsoul *m_Newsoul; // Ref to the newsoul
 
     NewNet::WeakRefPtr<DownloadSocket>  m_Socket; // Ref to the socket associated
 
@@ -217,7 +217,7 @@ namespace newsoul
                                                                                 // to be saved
     bool                                                    m_PendingDownloadsSave; // Should we save downloads soon?
     NewNet::RefPtr<NewNet::RateLimiter>                     m_Limiter;          // Rate limiter shared between downloads
-    NewNet::WeakRefPtr<Newsoul>                             m_Newsoul;          // Ref to the newsoul
+    Newsoul *m_Newsoul;          // Ref to the newsoul
     std::vector<NewNet::RefPtr<Download> >                  m_Downloads;        // List of all the downloads
     std::map<std::string, NewNet::WeakRefPtr<Download> >    m_Initiating;       // List of all the downloads currently being initiated
     std::map<std::string, NewNet::WeakRefPtr<Download> >    m_Downloading;      // List of user we're currently uploading
